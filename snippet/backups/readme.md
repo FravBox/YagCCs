@@ -1,7 +1,7 @@
 # Backups of snippets in AMV Sashimi
 
 **Masking**
-```md
+```markdown
 ;admin masking/mask/masks **What is masking?**
 Masking is when you cut specific parts of one scene (usually a character) and overlay them onto a different background, or an entirely different scene. See the tutorials below for how to do it!
 
