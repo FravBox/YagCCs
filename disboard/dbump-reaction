@@ -1,4 +1,4 @@
-{{/* trigger: added reaction only. If a specific reaction is used (the clock mentioned in the dbump CC), post message, delete the trigger message in 0 sec, and schedule custom command #15 7200 seconds (2hrs) from now. CC 15 should be whatever your dbump CC is. ScheduleUniqueCC can only be used once unless you get premium. */}}
+{{/* trigger: added reaction only. If a specific reaction is used (the clock mentioned in the dbump CC), post message, delete the trigger message in 0 sec, and schedule custom command #15 7200 seconds (2hrs) from now. CC15 is the CC labeled reminderShout. ScheduleUniqueCC can only be used once unless you get premium. */}}
 
 {{/* 0 for per user, 1 for global */}}
 {{$isGlobal := 1}}
