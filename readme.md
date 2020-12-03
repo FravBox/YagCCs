@@ -1,5 +1,7 @@
 # Misc Notes
 
+[Official CC Templates](https://docs.yagpdb.xyz/reference/templates) | [Yag CC github](https://github.com/jo3-l/yagpdb-cc) | [custom embed info](https://docs.yagpdb.xyz/others/custom-embeds)
+
 **Update Rolemenu**    
 -rolemenu update (message id)
 
