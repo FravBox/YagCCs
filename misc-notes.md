@@ -12,3 +12,8 @@
 {{ range $ids }}
     {{- $silent := addRoleID  . -}}
 {{- end }}
+
+
+**Delete trigger/response seconds**    
+{{deleteTrigger 0}}   
+{{deleteResponse 0}}
