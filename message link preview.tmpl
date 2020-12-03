@@ -1,0 +1,28 @@
+trigger: regex: https://discordapp.com/channels\/(\d+)\/(\d+)\/(\d+)
+This will give you a nice preview of the discord post you are linking to. If someone posted only a message link and nothing else, yag will delete that post to only display the link preview.
+Posts aren't deleted if that post has content other than a message link.
+
+{{/* Message link preview v1 pt 1 */}}
+{{ $matches := reFindAllSubmatches `https://discordapp.com/channels\/(\d+)\/(\d+)\/(\d+)` .Message.Content }} 
+{{$msg := getMessage (index (index $matches 0) 2) (index (index $matches 0) 3) }}
+{{if not $msg}}
+
+{{else}}
+{{ $avatar := (joinStr "" "https://cdn.discordapp.com/avatars/" (toString $msg.Author.ID) "/" $msg.Author ".png") }}
+
+{{$embedRaw := sdict 
+"description" (joinStr "" "**[Message Link](" (index (index $matches 0) 0) ")  to <#" $msg.ChannelID ">**\n" $msg.Content)
+"color" 4645612 
+"author" (sdict "name"  $msg.Author.Username "icon_url" ($msg.Author.AvatarURL "64")) 
+"footer" (sdict "text" (joinStr "" "Req. by "  .Message.Author.Username ". Quote from ")) 
+"timestamp" $msg.Timestamp  }}
+
+{{if $msg.Attachments}}
+{{$embedRaw.Set "image" (sdict "url" (index $msg.Attachments 0).URL) }}
+{{end}}
+
+{{ sendMessage nil (cembed $embedRaw) }}
+
+{{/* delete the trigger if it only contained a link and nothing more */}}
+{{if eq (len (index (index $matches 0) 0)) (len .Message.Content) }} {{deleteTrigger 0}} {{end}} 
+{{end}}
