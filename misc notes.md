@@ -17,3 +17,13 @@
 **Delete trigger/response seconds**    
 {{deleteTrigger 0}}   
 {{deleteResponse 0}}
+
+**mention a role by id**    
+<@&773487900779348000>
+
+**mention a channel by id**    
+<@#773487900779348000>
+
+**mention a user by id**    
+<@773487900779348000>    
+<@{{.User.ID}}> Outputs a mention to the user that called the command and is the same as {{.User.Mention}}
