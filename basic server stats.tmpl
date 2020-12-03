@@ -1,0 +1,20 @@
+{{/* Sends a message as an embed with some basic server stats after deleting trigger message immediately */}}
+{{deleteTrigger 0}}
+
+{{ $avatar := (joinStr "" "https://cdn.discordapp.com/attachments/750544650523246623/750756266737008760/kicking-sashimi.png") }}
+
+{{$embed := cembed 
+    "title" (joinStr "" "AMV Sashimi Server Stats" ) 
+    "description" "To call this message again, use ``-server``" 
+    "color" 15559936
+    "fields" (cslice 
+		(sdict "name" "Server Age" "value" (toString (humanizeDurationHours (currentTime.Sub .Guild.JoinedAt.Parse))) "inline" false)
+        (sdict "name" "Member Count" "value" (toString .Guild.MemberCount) "inline" true) 
+        (sdict "name" "Total Online" "value" (toString onlineCount ) "inline" true) 
+    ) 
+    "thumbnail" (sdict "url" $avatar) 
+    "footer" (sdict "text" "AMV Sashimi")
+	"timestamp" .Guild.JoinedAt
+}}
+
+{{ sendMessage nil $embed }}
