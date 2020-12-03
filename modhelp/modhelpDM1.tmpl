@@ -1,0 +1,15 @@
+trigger: modhelp
+
+{{/* DM for Modhelp pt 1*/}}
+
+{{$DMessage := (joinStr "" "\n \n **Mod Bot Commands** \n ``@Lead`` and ``@Staff`` can use ALL commands listed here. \n Be warned! __Using the bot will DM the user every time.__ \nIf you instead use Discord's native kick or ban functions, you can yeet people without them knowing what happened. \nYou can use these commands in any channel. What you type is immediately deleted by the bot while it takes action. \nAll actions using the bot are automatically logged in <#750544945474961448>. If you don't use the bot, remember to manually type your action in that channel. \nAlso relevant: Last 100 messages and any messages that were deleted within the last hour are logged when any mod action through the bot is taken. These logs are only viewable to people with YAGPDB Control Panel access. \n \n **Muting** \n``-mute @user <duration in minutes (optional)> <reason (mandatory)>`` \nExample: \n``-mute @Vars 30 Stop being a dip`` \nMutes Vars for 30 minutes. \n``-mute @Vars Don't spam`` \nIf no duration is specified, it will be 10 minutes. \nYAGPDB gives people the role *Muted* which prevents them from sending or reacting to messages in the server, but they can still see everything. \nA mute DM tells the user who muted them and the reason. \n``-unmute @User <reason (optional)>`` \nThis will remove the *Muted* role allowing the user to participate again. You don't have to use this as it will happen automatically at the specified time. \nNote: If you specify ``0`` as the duration, the mute is permanent.") }}
+
+ {{ sendDM $DMessage }}
+
+ 
+
+{{/* Post for modhelp*/}}
+
+{{ sendMessage nil (joinStr "" "A DM has been sent.") }}
+
+{{deleteTrigger 0}}
