@@ -1,0 +1,13 @@
+ {{/* adds separator roles */}}
+{{ $ids := cslice 751451248091332758 751446179002318920 751450170323107862 752343360634880060 }}
+{{ range $ids }}
+   {{- $silent := addRoleID  . -}}
+   {{- end }}
+
+
+
+
+{{/* remove unverified role on reaction in rules - this is currently disabled because I don't autoassign unverified anymore. */}}
+{{if eq .Reaction.Emoji.Name "☑️"}}
+{{ $silent := (removeRoleName  "unverified")}}
+{{end}}
