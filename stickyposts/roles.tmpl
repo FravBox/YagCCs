@@ -1,0 +1,11 @@
+regex trigger: .*
+
+{{/* Roles TOC */}}
+{{$message := cembed "title" "Role Menus" "description" "Self-assign these optional roles at any time by reacting to the posts with the proper emoji. \n\n[Editing Programs](https://discord.com/channels/750541618389712896/750544674011349053/750552851914162297) \n[Operating Systems](https://discord.com/channels/750541618389712896/750544674011349053/750553222367936522) \n[AMV Types](https://discord.com/channels/750541618389712896/750544674011349053/750555509232369695) \n[Ping Lists](https://discord.com/channels/750541618389712896/750544674011349053/750557466520977482) \n[Username Colors](https://discord.com/channels/750541618389712896/750544674011349053/750566516994473984) \n[Pronouns](https://discord.com/channels/750541618389712896/750544674011349053/750760709888933921) \nCountries - [1](https://discord.com/channels/750541618389712896/750544674011349053/751460177659559936) | [2](https://discord.com/channels/750541618389712896/750544674011349053/752182029273268294)" "color" 0xff6a00}}
+
+{{/* do not edit below */}}
+{{if $db := dbGet .Channel.ID "stickymessage"}}
+	{{deleteMessage nil (toInt $db.Value) 0}}
+{{end}}
+{{$id := sendMessageRetID nil $message}}
+{{dbSet .Channel.ID "stickymessage" (str $id)}}
