@@ -13,8 +13,18 @@
 {{ $silent := (removeRoleName  "unverified")}}
 {{end}}
 
-{{/* trigger: added reactiosn only */}}
+
+
+{{/* trigger: added reactions only */}}
 {{/* assigns "lists" seperator role on reaction to specific post */}}
 {{if and .ReactionAdded (eq .Message.ID 750557466520977482)}}
 {{ $silent := (giveRoleID .user 785020284691808306)}}
+{{end}}
+
+
+{{/* trigger: added reactions only */}}
+{{/* announces in main-chat after reacting to rules post */}}
+{{if and .ReactionAdded (eq .Message.ID 750586722106212444) (eq .Reaction.Emoji.Name "☑️")}}
+{{sendMessage 750541618389712900  (print .User.Mention " has joined the server")}}
+
 {{end}}

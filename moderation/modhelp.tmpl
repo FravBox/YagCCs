@@ -1,0 +1,5 @@
+{{$msg := (print "To call this message again, use `-modhelp` \nLeads and Staff can use everything here. Staff can't use some discord in-built functions. \nAll reasons are mandatory.\n\n `-mute 30 @User reason` duration in minutes\n`-unmute @user`\n\n `-warn @user reason`\n`-kick @user reason`\n`-ban @user reason`\n\n`;admin SnippetName Test`\n`;search SnippetTitle`\n\n`-elead @user 24h`\n`-noelead`\n\n`-staff @user 24h`\n`-nostaff @user`\n\n`-enter @user 24h`\n`-exit @user`\n\n See <#786091493126438932> for full details.")}}
+
+{{/* sends message to #modtalk */}}
+{{sendMessage 750544921940983888 (print .User.Mention "\n\n**Mod Bot Commands Quickhelp**\n" $msg)}}
+ 

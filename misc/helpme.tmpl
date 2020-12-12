@@ -1,0 +1,18 @@
+{{ $avatar := (joinStr "" "https://cdn.discordapp.com/attachments/750544650523246623/750756266737008760/kicking-sashimi.png") }}
+
+
+{{$embed := cembed 
+    "title" (print "Basic Bot Command List" ) 
+    "description" "To call this message again, use `-helpme` \n This command only works in <#751106748676309043>." 
+    "color" 15559936
+    "fields" (cslice  
+(sdict "name" "Reminders" "value" (print "`-remind 1h30m2s Am I still awake?` \n You must have a message to set a reminder." ) "inline" false) 
+(sdict "name" "Suggestions" "value" (print "`-suggest Can we get a beta testing channel?` \n Automatically makes a yes/no poll in <#751086832959094894>.") "inline" false)
+(sdict "name" "Polls" "value" (print "`-poll \"Question Here\" \"Answer One\" \"Answer Two\"`\nPosts where you put it. Can have any amount of answer options. \nUsable in <#751106748676309043> and <#751086832959094894>" ) "inline" false) 
+(sdict "name" "Events" "value" (print "`-event new`\n Creates a new event and can point it to post in any channel. \nPeople who sign up to it will be DMed 30min before the event and again when it starts.\n\n`-role entrant`\n Give or take the `entrant` role for yourself for 24hrs.") "inline" false) 
+(sdict "name" "Snippets" "value" (print "`;SnippetName`\n[Available snippet list](https://discord.com/channels/750541618389712896/750545021333274707/784673636287381504)") "inline" false)
+(sdict "name" "More Info" "value" (print "See the bot commands section of the <#750544616553578527>.") "inline" false) 
+   ) 
+    "thumbnail" (sdict "url" $avatar) 
+}}
+{{ sendMessage nil $embed }}

@@ -31,3 +31,6 @@
 **mention a user by id**    
 <@773487900779348000>    
 <@{{.User.ID}}> Outputs a mention to the user that called the command and is the same as {{.User.Mention}}
+
+**custom embeds**
+`-ce {"title": "hello", "description": "wew"}`

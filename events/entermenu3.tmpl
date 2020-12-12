@@ -1,0 +1,8 @@
+{{/* Entrant rolemenu part 3 - removes entrant role on unreact */}}
+{{/* trigger: removed reactions only */}}
+{{$channelid := .Reaction.ChannelID}}
+{{$emoji := .Reaction.Emoji.Name}}
+{{$message := .Reaction.MessageID}}
+{{if eq .Message.Author.ID 204255221017214977}}
+{{removeRoleID 782386811473231880}}
+{{end}}

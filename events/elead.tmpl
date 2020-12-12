@@ -1,0 +1,9 @@
+{{/* -elead @user duration */}}
+{{/* assigns ELead */}}
+ {{$args := parseArgs 2 (print "Please use the following format: `" .Cmd " <user> <duration>`")
+    (carg "member" "Mention or ID")
+    (carg "string" "Duration in (s, m, h, w etc)")}}
+{{$v :=execAdmin "grole" ($args.Get 0).User "782386523634925598" (print "-d " ($args.Get 1))}}
+{{ if $args.IsSet 0 }}
+    {{ or ($args.Get 0).Nick ($args.Get 0).User.Username}} is now an ELead for {{($args.Get 1)}}!
+{{ end }}

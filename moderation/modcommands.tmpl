@@ -1,0 +1,17 @@
+regex trigger: .*
+
+{{/* Mod bot commands TOC */}}
+
+{{$message := cembed 
+    "title" (joinStr "" "Welcome to AMV Sashimi" ) 
+    "description" "[Intro](https://discord.com/channels/750541618389712896/786091493126438932/787084018998575134)\n[Muting](https://discord.com/channels/750541618389712896/786091493126438932/787104445984276511)\n[Warnings](https://discord.com/channels/750541618389712896/786091493126438932/787104564808515594)\n[Kicking & Banning](https://discord.com/channels/750541618389712896/786091493126438932/787105773859635220)\n[Snippet system](https://discord.com/channels/750541618389712896/786091493126438932/787106028457295913)\n[Event-related commands](https://discord.com/channels/750541618389712896/786091493126438932/787107479544528897)\n\nThis message will always appear last in this channel."
+    "color" 0xff6a00
+}}
+
+
+{{/* do not edit below */}}
+{{if $db := dbGet .Channel.ID "stickymessage"}}
+	{{deleteMessage nil (toInt $db.Value) 0}}
+{{end}}
+{{$id := sendMessageRetID nil $message}}
+{{dbSet .Channel.ID "stickymessage" (str $id)}}
