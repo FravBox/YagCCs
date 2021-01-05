@@ -47,6 +47,7 @@ Get some coffee and a lot of time, cause this thing is vast, and i mean it.
 (Snippet written by @Kriegher#4021 )
 ```
 
+**Encoding Lossless AMVs**
 ```markdown
 ;admin lossless **__How to encode a lossless AMV for yourself__**
 It's considered best practice to make a lossless version of your AMV to keep. You save this lossless version of your AMV and make other versions of the file from it for whatever use you need. That way you have one dedicated "master" file you can work from, without having to export from your editing program every time.
