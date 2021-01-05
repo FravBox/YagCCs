@@ -65,3 +65,35 @@ If you want to learn about colorspaces (which helps explain these codec names), 
 Learn more about codecs and compression in #resources by clicking [here](https://discord.com/channels/750541618389712896/781220932063985694/795779253626470411).
 *Snippet written by @Vars#3616*
 ```
+
+**Encoding Better files**
+```markdown
+;admin encode **__How to encode better files__**
+"Better" meaning, higher quality at lower file sizes.
+
+**1. Export to a lossless format first.**
+If you don't know how to do that, click [here](https://discord.com/channels/750541618389712896/781220932063985694/795779931963523072).
+
+**2. Put your lossless file into an encoding program, and encode it from there.**
+Frequently used programs: AMVtool, zarx264gui, Handbrake.
+
+**__Using AMVTool__**
+If you don't have AMVTool, it's highly recommended you get it from [AMVpack](https://www.amv101.com/software/amvpack). If you really only want this specific program, get it [here](https://github.com/l33tmeatwad/AMVtool/releases).
+AMVTool is the simplest program to use to encode your files.
+
+1. Add your lossless file to AMVtool.
+2. Click "start."
+3. You're done!
+
+If you do not like what AMVtool made...
+Need smaller file size? Hit "configure" and change "Constant Rate Factor" to 20.
+Need higher quality? Use 15 or 16. 
+
+**__Using Zarx264gui__**
+If you don't like how AMVtool works or you need some more control over the files, download [Zarx264gui](http://amvhell.com/stuff/zarx264gui/) (note: you need AVS installed; it's included with AMVpack).
+You can see [here](https://www.animemusicvideos.org/guides/avtech31/zarx264gui.html) for how to use it.
+
+**__Handbrake__**
+For even more control of your files, you can use [Handbrake](https://handbrake.fr/downloads.php). 
+I would not recommend handbrake if you do not know what you're doing. [Reading this first might help](https://discord.com/channels/750541618389712896/781220932063985694/795779253626470411).
+```
