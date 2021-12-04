@@ -1,6 +1,11 @@
+# How To Use
+Most of the folders have their own readmes. This front page is mostly personal notes for myself.
+
 # Misc Notes
 
-[Official CC Templates](https://docs.yagpdb.xyz/reference/templates) | [Yag CC github](https://github.com/jo3-l/yagpdb-cc) | [custom embed info](https://docs.yagpdb.xyz/others/custom-embeds)
+[Official CC Templates](https://docs.yagpdb.xyz/reference/templates) | [Yag CC github](https://github.com/yagpdb-cc/yagpdb-cc) | [custom embed info](https://docs.yagpdb.xyz/others/custom-embeds)
+
+
 
 **Update Rolemenu**    
 -rolemenu update (message id)
