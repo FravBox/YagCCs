@@ -42,6 +42,6 @@ Other Yag CC Gits:
 **custom embeds**     
 `-ce {"title": "hello", "description": "wew"}`
 
-**Send a message to a specific channel and then delete that message 5 seconds later**
-`{{$y := sendMessageRetID 786091493126438932 (print .User.Mention) }}`
-`{{deleteMessage 786091493126438932 $y 5}}`
+**Ping triggering user to a specific channel and then delete that message 5 seconds later**    
+{{$y := sendMessageRetID 786091493126438932 (print .User.Mention) }}    
+{{deleteMessage 786091493126438932 $y 5}}
