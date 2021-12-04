@@ -5,7 +5,7 @@
 
 {{$embed := cembed 
     "title" (joinStr "" "AMV Sashimi Server Stats" ) 
-    "description" "To call this message again, use ``-server``" 
+    "description" "To call this message again, use `-server`" 
     "color" 15559936
     "fields" (cslice 
 		(sdict "name" "Server Age" "value" (toString (humanizeDurationHours (currentTime.Sub .Guild.JoinedAt.Parse))) "inline" false)
