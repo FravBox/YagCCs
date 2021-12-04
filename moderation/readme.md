@@ -1,4 +1,4 @@
-The files are the CCs I use to send the help DMs. Below is what is listed in the help DMs.
+The files are the CCs I use to send the help DMs. Below is what is listed in the help DMs. This is very extremely server-specific so I wouldn't use these as anything other than code templates.
 
 # Mod Bot Commands 
  @Lead and @Staff can use ALL commands listed here.     
