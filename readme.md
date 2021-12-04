@@ -19,9 +19,9 @@ Other Yag CC Gits:
 {{ $silent := (giveRoleID .user 751451248091332758)}}
 
 **the above command but for multiple roles at once**   
-{{ $ids := cslice 751451248091332758 751446179002318920 751450170323107862 }}
-{{ range $ids }}
-    {{- $silent := addRoleID  . -}}
+{{ $ids := cslice 751451248091332758 751446179002318920 751450170323107862 }}    
+{{ range $ids }}    
+    {{- $silent := addRoleID  . -}}    
 {{- end }}
 
 
