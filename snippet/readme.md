@@ -1,3 +1,9 @@
+# Very broken. Don't use.
+
+[Use this one instead](https://yagpdb-cc.github.io/tags/overview)
+
+#
+
 Basic snippet command, allows users to assign a staff role with perms to create snippets.
 
 Commands:
