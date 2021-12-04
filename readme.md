@@ -1,6 +1,9 @@
 # How To Use
 Most of these are only useful for templates/examples. The only commands that might be worthwhile to an outside user are in `disboard bump reminder`, `events`, and `misc`.
 
+
+P.S. I don't know how to code at all. These are frankensteined together from various publicly available snippets/templates, context clues, and Yag support lmao. So while these all work, they might not be the most efficient.
+
 # Misc Notes
 
 [Official CC Templates](https://docs.yagpdb.xyz/reference/templates) | [Yag CC github](https://github.com/yagpdb-cc/yagpdb-cc) | [custom embed info](https://docs.yagpdb.xyz/others/custom-embeds)    
