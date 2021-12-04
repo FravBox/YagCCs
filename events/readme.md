@@ -11,7 +11,7 @@ These take away the roles given with the previous commands. Probably not useful.
 
 # Enter Menu
 3 files, 3 CCs, you need all 3 for this to work. **Make sure to limit this to a particular set of channels/roles; it's very easy to abuse**.     
-In my server, verified users are allowed to create their own channels for events. If they want to easily ping people participating in their events, they ping a specific role. We created this menu for people to easily self-assign the role during events. 
+In my server, verified users are allowed to create their own channels for events. If they want to easily ping people participating in their events, they ping a specific role. We created this menu for people to easily self-assign the role during events in order to create that ping list. 
 
 The user submits `-entermenu`    
 This creates a message with a 🏆 reaction on the message. Anyone who uses that reaction is given a role ("entrant" - You need to change the name/role ID for your server).    
