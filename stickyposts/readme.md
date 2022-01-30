@@ -24,7 +24,7 @@ This will only fire in threads of the main channel and not the main channel itse
 
 ### Daisy chain main channel
 Not in threads. Only posts once per hour. Untested.      
-(Currently I use stickymessage v2 for this message)      
+(Currently I use [stickymessage v2](https://github.com/BlackWolfWoof/yagpdb-cc/tree/master/Sticky_Message/v2) for this message)      
 ```go
 {{/* Cooldown - 0 for per user, 1 for global */}}
 {{$isGlobal := 1}}
