@@ -1,6 +1,4 @@
-The files are the CCs I use to send the help DMs. Below is what is listed in the help DMs. This is very extremely server-specific so I wouldn't use these as anything other than code templates.
 
-# Mod Bot Commands 
  @Lead and @Staff can use ALL commands listed here.     
  Be warned! <ins>Using the bot will DM the user every time.</ins>      
 If you instead use Discord's native kick or ban functions, you can yeet people without them knowing what happened.      
