@@ -10,7 +10,7 @@ This will only fire in threads of the main channel and not the main channel itse
 {{if .Channel.IsThread}}
 
 {{/* Sticky message for Daisy chain threads */}}
-{{$message := cembed "title" "Don't talk in threads" "description" "Threads are for claiming and posting parts. Please keep chatter to <#923034923684724788>. \n([Daisy Chain MEP Rules](https://discord.com/channels/750541618389712896/923034923684724788/923037349204590653)) \n" "color" 0xff6a00}}
+{{$message := cembed "title" "Don't talk in threads" "description" "Threads are for claiming and posting parts. \nPlease keep chatter to <#923034923684724788>. \n\n([Daisy Chain MEP Rules](https://discord.com/channels/750541618389712896/923034923684724788/923037349204590653))" "color" 0xff6a00}}
 
 {{/* do not edit below */}}
 {{if $db := dbGet .Channel.ID "stickymessage"}}
