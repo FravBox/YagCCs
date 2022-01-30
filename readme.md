@@ -6,7 +6,7 @@ P.S. I don't know how to code at all. These are frankensteined together from var
 
 # Misc Notes
 
-[Official CC Templates](https://docs.yagpdb.xyz/reference/templates) and [functions](https://docs.yagpdb.xyz/reference/templates/functions) |  [custom embed info](https://docs.yagpdb.xyz/others/custom-embeds)    
+Official [Yag Docs](https://docs.yagpdb.xyz/): [CC templates](https://docs.yagpdb.xyz/reference/templates), [functions](https://docs.yagpdb.xyz/reference/templates/functions), [custom embed info](https://docs.yagpdb.xyz/others/custom-embeds)    
 [Yag CC github](https://github.com/yagpdb-cc/yagpdb-cc)
 
 Other Yag CC Gits:    
