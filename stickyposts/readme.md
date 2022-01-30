@@ -22,6 +22,47 @@ This will only fire in threads of the main channel and not the main channel itse
 {{end}}
 ```
 
+### Daisy chain main channel
+Not in threads. Only posts once per hour. Untested.      
+(Currently I use stickymessage v2 for this message)      
+```go
+{{/* Cooldown - 0 for per user, 1 for global */}}
+{{$isGlobal := 1}}
+{{/* name your cooldown name (anything works) */}}
+{{$name := "1hrSticky"}}
+{{/* Length of the cooldown (in seconds) */}}
+{{$lengthSec := 3600}}
+
+{{/* CREATING VARIABLES DO NOT TOUCH */}}
+{{$id := 0}}
+{{$key := joinStr "" "cooldown_" $name}}
+{{if eq $isGlobal 0}}
+{{$id = .User.ID}}
+{{end}}
+
+
+{{if dbGet (toInt64 $id) $key}} 
+{{/* Code to execute when cooldown is active */}}
+{{else}}
+{{/* Create cooldown entry */}}
+{{dbSetExpire (toInt64 $id) $key "cooldown" $lengthSec}}
+
+{{/* YOUR COMMAND HERE */}}
+
+{{$message := cembed "title" "Check the threads tab for the current MEP" "description" "Threads are to keep the MEP parts together. You can talk in the main channel.\n
+Make sure to post your MEP part both in the main channel and in the thread! \n\n([Daisy Chain MEP Rules](https://discord.com/channels/750541618389712896/923034923684724788/923037349204590653))" "color" 0xff6a00}}
+
+{{/* do not edit below */}}
+{{if $db := dbGet .Channel.ID "stickymessage"}}
+	{{deleteMessage nil (toInt $db.Value) 0}}
+{{end}}
+{{$id := sendMessageRetID nil $message}}
+{{dbSet .Channel.ID "stickymessage" (str $id)}}
+{{end}}
+
+{{end}}
+```
+
 ### FAQ TOC
 ```go
 {{/* FAQ TOC */}}
