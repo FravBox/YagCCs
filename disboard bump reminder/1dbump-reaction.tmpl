@@ -23,7 +23,7 @@
 
 {{/* YOUR COMMAND HERE */}}
 {{if eq .Reaction.Emoji.Name "⏰"}}
-{{sendMessage nil  (joinStr "" .User.Mention ", a reminder has been set to tag you in 2 hours! \n\n If anyone else wants a reminder, please use ``-remind Xmin you can bump now`` where X is how many minutes are left until the next bump!" )}}
+{{sendMessage nil  (joinStr "" .User.Mention ", a reminder has been set to tag you in 2 hours! \n\n If anyone else wants a reminder, please use `-remind Xmin you can bump now` where X is how many minutes are left until the next bump!" )}}
 {{deleteTrigger 0}}
 {{scheduleUniqueCC 15 nil 7200 nil "irrelevant data - This just deletes the previous message that you could react to."}}
 {{end}}
