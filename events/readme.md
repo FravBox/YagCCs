@@ -9,7 +9,7 @@ These all just reskin Yag's grole command to use a different trigger. Probably n
 `nostaff`
 These take away the roles given with the previous commands. Probably not useful.
 
-# Enter Menu
+### Enter Menu
 3 files, 3 CCs, you need all 3 for this to work. **Make sure to limit this to a particular set of channels/roles; it's very easy to abuse**.     
 In my server, verified users are allowed to create their own channels for events. If they want to easily ping people participating in their events, they ping a specific role. We created this menu for people to easily self-assign the role during events in order to create that ping list. 
 
@@ -31,3 +31,7 @@ The Author ID refers to Yag specifically - don't change/delete this or it will r
 `entermenu3`   
 The `RoleIDToRemove` should be the same roleID(s) used in `entermenu2`.   
 Again, Author ID refers to Yag specifically.
+
+### 1wk Remind
+
+Yag detects the event title and timestamp from a message, calculates what the date will be 7 days prior to that timestamp, and posts a `!remind` command for that week prior date. For use with Sesh.fyi. Further explanation in the file.
