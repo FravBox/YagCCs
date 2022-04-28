@@ -1,5 +1,55 @@
 # How To Use
-Most of these are only useful for templates/examples. The only commands that might be worthwhile to an outside user are in `custom report system`, `disboard bump reminder`, `events`, and `misc`.
+Everything here assumes you can at least read basic code. I tell you what to edit for your server, but some are easier to use than others.
+
+`server backups` and `old - reference only` aren't useful at all to outsiders.
+
+<details>
+<summary>Custom Report System</summary>
+Updates a really old version of a report system previously found in the official Yag CC repo, because I didn't like how the [current version](https://yagpdb-cc.github.io/moderation/report-system/overview) works.
+
+Includes my version (new) and the original (old) version.
+</details>
+
+<details>
+<summary>Prompts</summary>
+A very basic system that allows users to submit prompts for writing, art, etc. Yag collects them, randomizes them, and then posts them periodically.
+</details>
+
+<details>
+<summary>TagSystem</summary>
+Backup of the tag system from the [official CC repo](https://yagpdb-cc.github.io/tags/main-cc). 
+</details>
+
+<details>
+<summary>ThreadPins</summary>
+Allows the author of the first message in a thread to manage pins in the thread via post replies.
+</details>
+
+<details>
+<summary>Events</summary>
+- Some give and take role reskins
+- Enter Menu
+    Posts something similar to a role menu that assigns a role on reaction and automatically removes the role in 7 days if the user never unreacts later.
+- 2wk Remind
+    Yag detects the event title and timestamp from a message, calculates what the date will be 14 days prior to that timestamp, and posts a `!remind` command for that week prior date. For use with Sesh.fyi.
+    </details>
+
+<details>
+<summary>Misc</summary>
+- Basic server stats
+- Improved bookmark command
+- Cooldown
+- Cooldown with branching
+- MessagePreview
+- Suggest
+</details>
+
+<details>
+<summary>reaction tickets</summary>
+VERY Basic "make a ticket when clicking a reaction" command.
+</details>
+
+
 
 
 P.S. I don't know how to code at all. These are frankensteined together from various publicly available snippets/templates, context clues, and Yag support lmao. So while these all work, they might not be the most efficient.
