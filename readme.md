@@ -50,3 +50,7 @@ Other Yag CC Gits:
 **Ping triggering user to a specific channel and then delete that message 5 seconds later** (a somewhat delayed ghost ping)    
 {{$y := sendMessageRetID 786091493126438932 (print .User.Mention) }}    
 {{deleteMessage 786091493126438932 $y 5}}
+
+**Send a DM**     
+{{$DMessage := "Your message here" }}     
+{{ sendDM $DMessage }}

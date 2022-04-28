@@ -1,8 +1,0 @@
-{{/* -nostaff @user */}}
-{{/* removes EStaff role */}}
- {{$args := parseArgs 1 (print "Please use the following format: `" .Cmd " <user>`")
-    (carg "member" "Mention or ID")}}
-{{$v :=execAdmin "rrole" ($args.Get 0).User "782386637853949972"}}
-{{ if $args.IsSet 0 }}
-    {{ or ($args.Get 0).Nick ($args.Get 0).User.Username}} is no longer EStaff.
-{{ end }}

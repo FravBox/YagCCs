@@ -1,0 +1,14 @@
+{{/* 
+ • GLOBAL COOLDOWN - If this cooldown template is being used somewhere besides custom commands (welcome/leave messages etc.), replace .CCID in all database interactions with a different integer like 0, 1 etc. 
+
+ • PER-USER COOLDOWN - to achieve this, simply replace .CCID in all database interactions with .User.ID
+*/}}
+
+{{$cooldown := 60}} {{/* command cooldown in seconds */}}
+{{if $cd := dbGet .CCID "cooldown" }}
+ {{/* This branch is where you put code you want to happen DURING the cooldown (e.g. error message) */}}
+⚠️ This command is still on cooldown for: {{humanizeDurationSeconds ($cd.ExpiresAt.Sub currentTime)}}
+{{else}}
+ {{dbSetExpire .CCID "cooldown" "cooldown" $cooldown}}
+ {{/* This branch is where you put code you want to happen when NOT on cooldown (e.g. sendMessage) */}}
+{{end}}

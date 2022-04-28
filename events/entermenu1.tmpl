@@ -3,5 +3,5 @@
 {{$msg := "\n**React to this message with :trophy: to become an entrant for this event!** \nYour role will automatically be removed in 7 days from the time you react. \nUnreacting will take away the role early. \n\n Alternatively, you can use the `-role entrant` text command to self-assign the role for just 24 hours. \nUsing the same command will remove the role."}}
 {{$x := sendMessageRetID nil $msg}} 
 {{addMessageReactions nil $x "🏆" }} 
-{{$y := sendMessageRetID nil ".\n **It is recommended you pin the above post to your channel.** \n*(This message will self-destruct in 30 seconds.)*"}}
-{{deleteMessage nil $y 30}}
+{{sleep 1}}
+{{pinMessage nil $x}}

@@ -1,0 +1,12 @@
+{{/* How to Critique TOC */}}
+{{ $avatar := "https://cdn.discordapp.com/attachments/750544650523246623/947397390887972933/kicking-musubi-w-text.png" }}
+{{$message := cembed 
+    "title" ("How to Musubi Method" ) 
+    "description" "**[Jump to the Top](https://discord.com/channels/750541618389712896/947237113408155688/947237116004421692)**\n\n*See also: [How to Critique](https://discord.com/channels/750541618389712896/947205206456815687)*"
+    "color" 0xff6a00
+    "thumbnail" (sdict "url" $avatar) 
+}}
+
+
+{{sendMessage nil $message}}
+{{deleteTrigger 1}}

@@ -1,0 +1,27 @@
+{{/* Events List Post */}}
+
+{{$desc := "**[CLICK HERE TO MAKE YOUR EVENT WITH SESH!](https://sesh.fyi/dashboard/750541618389712896/create_event)**\n A full step-by-step guide on how to use Sesh is [here](https://discord.com/channels/750541618389712896/836019207597588541/836020202352148521) from [How to Events](https://discord.com/channels/750541618389712896/947229349239738440).\n\n**Clicking any link in the events list below will take you to a post with information about that event.** \nIf you RSVP, you can sign up for optional DMed reminders about when the event starts. \n([How to turn Sesh DMs on/off](https://discord.com/channels/750541618389712896/947229349239738440/947292925895770122))\n<:br:937128105821216898>"}}
+
+{{$pinglist := "You can join/quit these [ping lists](https://discord.com/channels/750541618389712896/750544674011349053/947602287428243466) at any time in <#750544674011349053>. \n<:br:937128105821216898>"}}
+
+{{$amvorgcal := "<https://www.animemusicvideos.org/forum/app.php/calendar>\nThis can be integrated with your own Google Calendar. \n<:br:937128105821216898>" }}
+
+{{$otherlists := "<#836019207597588541> shows all events created across the entire server.\nBelow are threads with more specific lists.\n\n**[Server Events List](https://discord.com/channels/750541618389712896/949442962511786024)**\nOnly events created in <#752317819873394780>, which are typically in-server events.\n\n**[A-M-V.org Events List](https://discord.com/channels/750541618389712896/949443466482573343)**\nOnly events created in <#894415350035283989>, which are typically deadlines for AMV contents at anime conventions.\n\n**[In-Server Event History](https://discord.com/channels/750541618389712896/908519339911696434)**\nIncludes past dates, info, awards, video file archives, etc.\nIt is an archived thread in the <#836019207597588541> channel." }}
+
+{{ $avatar := ("https://cdn.discordapp.com/attachments/750544650523246623/947397390887972933/kicking-musubi-w-text.png") }}
+
+{{$embed := cembed 
+    "title" ( "All AMV Sashimi Events Lists" ) 
+    "description" $desc
+    "color" 0xff6a00
+	"fields" (cslice 
+        (sdict "name" "Don't forget to add the ping list roles to the \"mentions\" section in \"Event Creation\" " "value" $pinglist "inline" false) 
+		(sdict "name" "A-M-V.org Calendar" "value" $amvorgcal "inline" false) 
+        (sdict "name" "OTHER EVENT LISTS" "value" $otherlists "inline" false) 
+				) 
+    "thumbnail" (sdict "url" $avatar) 
+}}
+
+{{sendMessage nil $embed}}
+
+{{deleteTrigger 1}}

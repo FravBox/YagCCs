@@ -1,0 +1,61 @@
+{{/* 
+    Description:
+    Trigger Type: Hourly Interval
+    Recommended Trigger: 504
+    Restrictions: -
+
+    Author Tag: Grafik#8209
+    Author ID: 473466385222205452
+*/}}
+
+{{/* Configuration: */}}
+
+{{$channelToSend := 923031270563393557}}
+{{$respondForCommand := true}}
+{{$randomPrompt := true}}
+
+{{$text := "Please make a thread out of this post and take all your discussion & videos there!\nThe main channel is just to list all the prompts.\n\nA new prompt is posted every 3 weeks.\n You can submit new vid prompts by going to <#751106748676309043> and using \n`-prompt your text here!`"}}
+{{$error := "**We ran out of prompts!** 😱 \nPlease submit new vid prompts by going to <#751106748676309043> and using \n`-prompt your text here!`"}}
+
+{{$colorOkay := 0x81f496}}
+{{$colorError := 0xf48192}}
+
+{{/* Configuration area ends */}}
+
+{{$database := (dbGet .Guild.ID "prompts").Value}}
+
+{{$cslice := cslice}}
+{{$sort := ""}}
+{{$embed := cembed}}
+
+{{range $k,$v := $database.prompts}}
+    {{$cslice = $cslice.Append $k}}
+{{end}}
+
+{{if $randomPrompt}}
+    {{$sort = (shuffle $cslice)}}
+{{else}}
+    {{$sort = (sort $cslice)}}
+{{end}}
+
+{{if (ge (len $sort) 1)}}
+    {{$author := (getMember ($database.prompts.Get (index $sort 0)).author).User}}
+    {{$content := ($database.prompts.Get (index $sort 0)).content}}
+    {{$embed = cembed
+        "author" (sdict "name" $author.String "icon_url" ($author.AvatarURL "512"))
+        "description" (print "**" $content "**\n\n" $text)
+        "color" $colorOkay
+    }}
+    {{if $respondForCommand}}
+        {{sendMessage $channelToSend $embed}}
+    {{end}}
+    {{$database.prompts.Del (index $sort 0)}}
+    {{dbSet .Guild.ID "prompts" $database}}
+{{else}}
+    {{$embed = cembed
+        "author" (sdict "name" .User.String "icon_url" (.User.AvatarURL "512"))
+        "description" $error
+        "color" $colorError
+    }}
+    {{sendMessage nil $embed}}
+{{end}}

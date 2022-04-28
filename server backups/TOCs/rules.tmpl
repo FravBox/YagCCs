@@ -1,0 +1,27 @@
+{{/* Rules TOC */}}
+
+{{$desc := "Also see: <#750544674011349053>\n\nPermanent invite link: https://discord.gg/FQUnDrxzQQ\nWebsite: https://sashimi.khat.us "}}
+
+{{$guidelist := "These are all threads in the <#750544650523246623> channel.\n[How to Report](https://discord.com/channels/750541618389712896/947212821517725706)\n[Meetup Guidelines](https://discord.com/channels/750541618389712896/947211336432091186)\n[How to Give, Receive, & Ask for Critique](https://discord.com/channels/750541618389712896/947205206456815687)\n[How to Events](https://discord.com/channels/750541618389712896/947229349239738440)\n[How to Bot Commands](https://discord.com/channels/750541618389712896/947229226220789811)\n[How to Tag System](https://discord.com/channels/750541618389712896/947229919895769108)\n[Channel List](https://discord.com/channels/750541618389712896/947228770681634926)"}}
+
+{{$rules := "**[Jump to the top of the channel](https://discord.com/channels/750541618389712896/750544650523246623/947213976557740053)**\n[1. Don't be a jerk.](https://discord.com/channels/750541618389712896/750544650523246623/947214940907929670)\n[2. NSFW is banned.](https://discord.com/channels/750541618389712896/750544650523246623/947216790667272242)\n[3. Do not link to piracy sites.](https://discord.com/channels/750541618389712896/750544650523246623/947217453853868083)\n[4. Avoid self-promotion](https://discord.com/channels/750541618389712896/750544650523246623/947218880164659231)\n<:br:937128105821216898> [4b. Read pinned posts](https://discord.com/channels/750541618389712896/750544650523246623/947221235459293204)\n[5. Flash warnings are required](https://discord.com/channels/750541618389712896/750544650523246623/947222150316703804)\n[6. How to get verified](https://discord.com/channels/750541618389712896/750544650523246623/947225497287417866)\n<:br:937128105821216898> " }}
+
+{{$verification := "You will be unable to send messages in the rest of the server until you verify. \n[Read the rules](https://discord.com/channels/750541618389712896/750544650523246623/947213976557740053) to learn how to verify.\n\n**If you have read the rules, but are having trouble verifying, you can post in <#750544616553578527> and staff will assist you.** " }}
+
+{{ $avatar := ("https://cdn.discordapp.com/attachments/750544650523246623/947397390887972933/kicking-musubi-w-text.png") }}
+
+{{$embed := cembed 
+    "title" ("Welcome to AMV Sashimi" ) 
+    "description" $desc
+    "color" 0xff6a00
+	"fields" (cslice 
+        (sdict "name" "Guides" "value" $guidelist "inline" false) 
+        (sdict "name" "Server Rules" "value" $rules "inline" false) 
+        (sdict "name" "Verification" "value" $verification "inline" false) 
+    ) 
+    "thumbnail" (sdict "url" $avatar) 
+}}
+
+
+{{sendMessage nil $embed}}
+{{deleteTrigger 1}}

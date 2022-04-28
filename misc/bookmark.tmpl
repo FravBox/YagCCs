@@ -1,19 +1,15 @@
+
 {{/*
-	Edited by Vars to ignore bookmark command
-	Trigger: https://(?:\w+\.)?discord(?:app)?\.com/channels\/(\d+)\/(\d+)\/(\d+) or (?:[^<]|\A)https://(?:\w+\.)?discord(?:app)?\.com/channels\/(\d+)\/(\d+)\/(\d+)(?:[^>\d]|\z)
-	Trigger Type: Regex
-
-	Usage:
-	Right click on a message to copy the message link and send it in chat.
-
-	Copyright: 2020 Black Wolf
-	License: MIT
-	Repository: https://github.com/BlackWolfWoof/yagpdb-cc/
+DM Bookmarked messages 
+Combines bookmark CC from Luca Z. <https://github.com/l-zeuch>
+at <https://yagpdb-cc.github.io/utilities/bookmark>
+and the MessageLink CC from Black Wolf: https://github.com/BlackWolfWoof/yagpdb-cc/
 */}}
-{{if not (hasPrefix .Message.Content "-bookmark" )}}
-{{$m := reFindAllSubmatches `(?i)https://(?:\w+\.)?discord(?:app)?\.com/channels\/(\d+)\/(\d+)\/(\d+)` .Message.Content}}{{$reminder := true}}
+
+{{$args := parseArgs 1 "```Bookmark <Message:Text>```\nNot enough arguments passed." (carg "string" "Message")}}
+{{$note := $args.Get 0}}{{$m := reFindAllSubmatches `(?i)https://(?:\w+\.)?discord(?:app)?\.com/channels\/(\d+)\/(\d+)\/(\d+)` .Message.Content}}{{$reminder := true}}
 {{if not (eq (toInt64 (index $m 0 1)) .Guild.ID)}}
-	{{sendMessage nil (cembed
+	{{sendDM (cembed
 		"author" (sdict
 			"name" "Unknown User"
 			"icon_url" "https://i.imgur.com/jNz2Dwp.png")
@@ -25,7 +21,7 @@
 {{else}}
 	{{$msg := getMessage (index $m 0 2) (index $m 0 3)}}
 	{{if not $msg}}
-		{{sendMessage nil (cembed "title" "Something broke :(" "color" 0xDD2E44 "description" "<:cross:705738821110595607>OOPS! The message you are trying to quote doesn't exist!\nCheck if the channel and message exists.")}}
+		{{sendDM (cembed "title" "Something broke :(" "color" 0xDD2E44 "description" "<:cross:705738821110595607>OOPS! The message you are trying to quote doesn't exist!\nCheck if the channel and message exists.")}}
 	{{else}}
 		{{$content := $msg.Content}}
 		{{$mc := reReplace `(?:https?://)?(?:www\.)?(discord(?:app)?\.gg(?:/|\\+/+)|discord(?:app)?\.com(?:/|\\+/+)(?:invite/))\w{2,}|(?:https?://)?(?:www\.)?(?:discord(?:app)?\.(?:io|me|li)|invite\.gg|dsc\.gg|top\.gg\/servers|discordservers\.com\/(?:server|bump))(?:/|\\+/+)[A-z+0-9]{2,}` $msg.Content "[Invite Removed](https://example.com/)"}}
@@ -64,12 +60,12 @@
 					{{end}}
 					{{if (reFind `(?i)\.(jpg|jpeg|png|gif|tif|tiff|webp)` $filename)}}
 						{{$e.Set "image" (sdict "url" .URL)}}
-						{{sendMessage nil (cembed $e)}}
+						{{sendDM (cembed $e)}}
 					{{else}}
 						{{$e.Set "fields" (cslice
 							(sdict "name" "File Name" "value" (print "`" $filename "`") "inline" true)
 							(sdict "name" "URL" "value" (print "[File Link](" .URL ")") "inline" true))}}
-						{{sendMessage nil (cembed $e)}}
+						{{sendDM (cembed $e)}}
 					{{end}}
 					{{$e.Del "fields"}}
 					{{$e.Del "image"}}
@@ -80,21 +76,24 @@
 			{{end}}
 		{{else}}
 			{{if and $msg.Content (not $msg.Embeds)}}
-				{{sendMessage nil (cembed $e)}}
+				{{sendDM (cembed $e)}}
 			{{end}}
 		{{end}}
 		{{if $msg.Embeds}}
 			{{if $reminder}}{{$embed2 := ""}}
 				{{if eq (index $msg.Embeds 0).Type "rich"}}
 					{{$embed2 = index $msg.Embeds 0}}
-					{{sendMessage nil (complexMessage "embed" $embed2 "content" $content)}}
+					{{sendDM (complexMessage "embed" $embed2 "content" $content)}}
 				{{else if ne (index $msg.Embeds 0).Type "image"}}
-					{{sendMessage nil $mc}}
+					{{sendDM $mc}}
 				{{end}}
 				{{$e.Set "description" (print "**[Embed Link](" (index $m 0 0) ") to <#" $msg.ChannelID ">**")}}
-				{{sendMessage nil (cembed $e)}}
+				{{sendDM (cembed $e)}}
 			{{end}}
 		{{end}}
 	{{end}}
 {{end}}
-{{end}}
+
+{{addReactions "📫"}}
+
+{{deleteTrigger 20}}

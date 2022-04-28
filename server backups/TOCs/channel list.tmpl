@@ -1,0 +1,12 @@
+{{/* Channel List TOC */}}
+{{ $avatar := "https://cdn.discordapp.com/attachments/750544650523246623/947397390887972933/kicking-musubi-w-text.png" }}
+{{$message := cembed 
+    "title" ("Channel Index" ) 
+    "description" "**[Jump to the top](https://discord.com/channels/750541618389712896/947228770681634926/947273349107683328)**\n\n[Server](https://discord.com/channels/750541618389712896/947228770681634926/947274834298167346)\n[Events](https://discord.com/channels/750541618389712896/947228770681634926/947276546698276884)\n(Also see [How to Events](https://discord.com/channels/750541618389712896/947229349239738440))\n[General](https://discord.com/channels/750541618389712896/947228770681634926/947277101629857842)\n[Editing](https://discord.com/channels/750541618389712896/947228770681634926/947277819887628318)\n[Hobbies](https://discord.com/channels/750541618389712896/947228770681634926/947278283744084048)\n[Vid Games](https://discord.com/channels/750541618389712896/947228770681634926/947279355514597416)\n[Editing Resources](https://discord.com/channels/750541618389712896/947228770681634926/947280128201867315)\n[Feeds](https://discord.com/channels/750541618389712896/947228770681634926/947282962095939584)\n(Automated posting)\n[Voice](https://discord.com/channels/750541618389712896/947228770681634926/947283233526145024)" 
+	"color" 0xff6a00
+    "thumbnail" (sdict "url" $avatar) 
+}}
+
+
+{{sendMessage nil $message}}
+{{deleteTrigger 0}}

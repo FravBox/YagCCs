@@ -1,0 +1,84 @@
+{{/* Trigger: Added + removed reactions */}}
+
+{{/* intelligent role assignment */}}
+{{/* Separator roles */}}
+	{{/* self */}}
+		{{if and .ReactionAdded (eq .Message.ID 750760709888933921 751460177659559936 752182029273268294)}}
+		{{ addRoleID 751451248091332758}}
+		{{end}}
+	{{/* software */}}
+		{{- if and .ReactionAdded (eq .Message.ID 750552851914162297 750553222367936522)}}
+		{{ addRoleID 751446179002318920}}
+		{{end}}
+	{{/* videos */}}
+		{{- if and .ReactionAdded (eq .Message.ID 750555509232369695)}}
+		{{ addRoleID 751450170323107862}}
+		{{end}}
+	{{/* Lists */}}
+		{{- if and .ReactionAdded (eq .Message.ID 947602899100368947 947603673142423562 947604894309834832)}}
+		{{ addRoleID 785020284691808306}}
+		{{end}}
+	{{/* misc/office use */}}
+		{{- if and .ReactionAdded (eq .Message.ID 947605706503249920 947606668265545808 947607265492496485)}}
+		{{ addRoleID 752343360634880060}}
+		{{end}}
+
+{{/* Tag Creator */}}
+	{{if and (hasRoleID 750565698383773828) (eq .Message.ID 947605706503249920) (eq .Reaction.Emoji.Name "🪧")}}
+	{{ addRoleID 947352309585821738}}
+	{{ removeRoleID 947352309585821738}}
+	{{end}}
+
+{{/* announces newly Verified in main-chat after reacting to rules post */}}
+	{{/* cooldown */}}
+		{{/* CONFIGURATION HERE CHANGE VALUES AS NEEDED */}}
+
+		{{/* 0 for per user, 1 for global */}}
+		{{$isGlobal := 0}}
+		{{/* name your cooldown name (anything works) */}}
+		{{$name := "MemberAnnouncement"}}
+		{{/* Length of the cooldown (in seconds) */}}
+		{{$lengthSec := 90}}
+
+		{{/* CREATING VARIABLES DO NOT TOUCH */}}
+		{{$id := 0}}
+		{{$key := joinStr "" "cooldown_" $name}}
+		{{if eq $isGlobal 0}}
+		{{$id = .User.ID}}
+		{{end}}
+
+
+	{{if dbGet (toInt64 $id) $key}} 
+		{{/* Code to execute when cooldown is active */}}
+		{{else}}
+		{{/* Create cooldown entry */}}
+		{{dbSetExpire (toInt64 $id) $key "cooldown" $lengthSec}}
+
+	{{/* ACTUAL MEMBER ANNOUNCEMENT COMMAND */}}
+
+		{{$msg := 947214940907929670}}
+		{{$ch := 750541618389712900}}
+
+		{{if and .ReactionAdded (eq .Message.ID $msg) (eq .Reaction.Emoji.APIName "☑️")}}
+			{{if hasRoleID 750565698383773828}} {{sendDM "```\nYou're already verified!\n```" }} 
+				{{else}} 
+					{{addRoleID 750565698383773828}}
+					{{sendMessage $ch (print .User.Mention " has joined the server")}}
+				
+					{{/* SENDS VERIFICATION TO MODLOG */}}
+					
+						{{ $VerifyEmbed := cembed "description" (joinStr "" "**" .User.Mention " Verified.**" " \n (ID: " .User.ID ") \n" (currentTime.Format  "Monday, 2 January 2006 at 15:04 MST") "** \nTime Taken: " (humanizeDurationHours (currentTime.Sub .Member.JoinedAt.Parse)) "**" "\n\nMembercount: " .Guild.MemberCount "" ) "color" 16772608 }}
+					
+						{{ sendMessage 954832185200898128 $VerifyEmbed }}
+
+			{{end}}
+		{{end}}
+
+	{{end}}
+
+
+{{/* CLEAR VERIFIED-RELATED REACTIONS */}}
+	{{if and .ReactionAdded (eq .Channel.ID 750544650523246623) (eq .Reaction.Emoji.Name "☑️") }}
+		{{sleep 60}}
+		{{deleteAllMessageReactions 750544650523246623 .Message.ID}}
+	{{end}}

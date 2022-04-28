@@ -1,6 +1,0 @@
-trigger: exact: -modhelp
-
-{{/* DM for modhelp pt 2 */}}
-{{ $DMessage2 := (joinStr ""  "\n \n **Warnings** \n ``-warn @user <reason (mandatory)>`` \nThe DM sent will tell the user who warned them. \n \n``-warns @User`` \nWill PUBLICLY DISPLAY a list of all warnings for a user. Careful using it. \n \n``-topwarns`` \nPUBLICLY shows ranked list of warnings on the server. \n__Only use this in <#750544921940983888>__ \n \n**Kicking** \n``-kick @user <reason (mandatory)>`` \nKicking through discord doesn't require a reason, but doing it through the bot does. DMs to the user don't say who kicked them. \n \n**Permanent Bans** \n``-ban @user <reason (mandatory)>`` \nReasons are mandatory for the bot, but not when using discord's native ban. \nUsing the bot won't delete any banned user messages, but using discord's ban function allows for the option. \nDMs sent to user don't mention who banned them. \n \nYou can call this DM by using ``-modhelp`` in any server, but the mod will reply saying it sent a DM. So you may only want to use this command in <#750544921940983888> to avoid suspicion.") }}
-{{ sleep 1}}
-{{ sendDM $DMessage2 }} 
