@@ -1,5 +1,3 @@
-{{/* Trigger: Added + removed reactions */}}
-
 {{/* intelligent role assignment */}}
 {{/* Separator roles */}}
 	{{/* self */}}
@@ -29,7 +27,15 @@
 	{{ removeRoleID 947352309585821738}}
 	{{end}}
 
-{{/* announces newly Verified in main-chat after reacting to rules post */}}
+{{/* VERIFICATION STUFF */}}
+
+{{$msg := 947214940907929670}} {{/* msg that needs the verification emoji */}}
+{{$verified := 750565698383773828}} {{/* verified role ID */}}
+{{$rules := 750544650523246623}} {{/* rules & info channel */}}
+{{$main := 750541618389712900}} {{/* main talk channel */}}
+{{$joins := 954832185200898128}} {{/* joins-leaves modlog channel - for successful verifications */}}
+{{$modlog := 970007312632795167 }} {{/* yag-cmd-log */}}
+		
 	{{/* cooldown */}}
 		{{/* CONFIGURATION HERE CHANGE VALUES AS NEEDED */}}
 
@@ -54,22 +60,19 @@
 		{{/* Create cooldown entry */}}
 		{{dbSetExpire (toInt64 $id) $key "cooldown" $lengthSec}}
 
-	{{/* ACTUAL MEMBER ANNOUNCEMENT COMMAND */}}
-
-		{{$msg := 947214940907929670}}
-		{{$ch := 750541618389712900}}
+	{{/* ANNOUNCE VERIFICATION IN MAIN & JOINS-LEAVES */}}
 
 		{{if and .ReactionAdded (eq .Message.ID $msg) (eq .Reaction.Emoji.APIName "☑️")}}
-			{{if hasRoleID 750565698383773828}} {{sendDM "```\nYou're already verified!\n```" }} 
+			{{if hasRoleID $verified}} {{sendDM "```\nYou're already verified!\n```" }} 
 				{{else}} 
-					{{addRoleID 750565698383773828}}
-					{{sendMessage $ch (print .User.Mention " has joined the server")}}
+					{{addRoleID $verified}}
+					{{sendMessage $main (print .User.Mention " has joined the server")}}
 				
-					{{/* SENDS VERIFICATION TO MODLOG */}}
+					{{/* SENDS VERIFICATION TO Joins-Leaves */}}
 					
-						{{ $VerifyEmbed := cembed "description" (joinStr "" "**" .User.Mention " Verified.**" " \n (ID: " .User.ID ") \n" (currentTime.Format  "Monday, 2 January 2006 at 15:04 MST") "** \nTime Taken: " (humanizeDurationHours (currentTime.Sub .Member.JoinedAt.Parse)) "**" "\n\nMembercount: " .Guild.MemberCount "" ) "color" 16772608 }}
+						{{ $VerifyEmbed := cembed "description" (joinStr "" "**" .User.Mention " Verified.**" " \n (ID: " .User.ID ") \n<t:" currentTime.Unix ">** \nTime Taken: " (humanizeDurationHours (currentTime.Sub .Member.JoinedAt.Parse)) "**" "\n\nMembercount: " .Guild.MemberCount "" ) "color" 16772608 }}
 					
-						{{ sendMessage 954832185200898128 $VerifyEmbed }}
+						{{ sendMessage $joins $VerifyEmbed }}
 
 			{{end}}
 		{{end}}
@@ -77,8 +80,20 @@
 	{{end}}
 
 
-{{/* CLEAR VERIFIED-RELATED REACTIONS */}}
-	{{if and .ReactionAdded (eq .Channel.ID 750544650523246623) (eq .Reaction.Emoji.Name "☑️") }}
-		{{sleep 60}}
-		{{deleteAllMessageReactions 750544650523246623 .Message.ID}}
+	{{/* LOG INCORRECT VERIFICATIONS */}}
+
+	{{$logmsg := cembed "description" (joinStr "" .User.Mention " used " .Reaction.Emoji.MessageFormat " on [this message](" .Message.Link "), which was the wrong message to verify.\n\n User ID: " .User.ID "\nAge in server: " (humanizeDurationHours (currentTime.Sub .Member.JoinedAt.Parse)) "\n\n <t:" currentTime.Unix ">" "") "color" 16748800  }}
+
+
+	{{if (eq .Channel.ID $rules) }}
+		{{if not (eq .Message.ID $msg) }}
+			{{sendMessage $joins $logmsg}}
+		{{end}}
 	{{end}}
+
+
+
+	{{/* CLEAR VERIFIED-RELATED REACTIONS */}}
+
+	{{sleep 30}}
+	{{deleteAllMessageReactions $rules .Message.ID}}
