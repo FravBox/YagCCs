@@ -1,4 +1,13 @@
-{{/* intelligent role assignment */}}
+{{/* intelligent role assignment */}} {{/* trigger: added + removed reactions */}}
+
+{{$msg := 947214940907929670}} {{/* msg that needs the verification emoji */}}
+{{$verified := 750565698383773828}} {{/* verified role ID */}}
+{{$rules := 750544650523246623}} {{/* rules & info channel */}}
+{{$main := 750541618389712900}} {{/* main talk channel */}}
+{{$joins := 954832185200898128}} {{/* joins-leaves modlog channel - for successful verifications */}}
+{{$modlog := 970007312632795167 }} {{/* yag-cmd-log */}}
+
+
 {{/* Separator roles */}}
 	{{/* self */}}
 		{{if and .ReactionAdded (eq .Message.ID 750760709888933921 751460177659559936 752182029273268294)}}
@@ -23,18 +32,24 @@
 
 {{/* Tag Creator */}}
 	{{if and (hasRoleID 750565698383773828) (eq .Message.ID 947605706503249920) (eq .Reaction.Emoji.Name "🪧")}}
-	{{ addRoleID 947352309585821738}}
-	{{ removeRoleID 947352309585821738}}
+		{{if .ReactionAdded}}
+		
+		{{$tagmsg1 := cembed "description" (joinStr "" "🪧 **" .Member.User " became a <@&947352309585821738>** 🪧 \n\n User ID: " .User.ID "\nAge in server: " (humanizeDurationHours (currentTime.Sub .Member.JoinedAt.Parse)) "\n\n <t:" currentTime.Unix ">" "") "color" 16119285 }}
+		
+			{{ addRoleID 947352309585821738}}
+			{{sendMessage $modlog $tagmsg1 }}
+			
+		{{else}}
+		
+		{{$tagmsg2 := cembed "description" (joinStr "" "🪧 **" .Member.User " is no longer a <@&947352309585821738>** 🪧 \n\n User ID: " .User.ID "\nAge in server: " (humanizeDurationHours (currentTime.Sub .Member.JoinedAt.Parse)) "\n\n <t:" currentTime.Unix ">" "") "color" 16119285 }}
+		
+			{{ removeRoleID 947352309585821738}}
+			{{sendMessage $modlog $tagmsg2 }}
+			
+		{{end}}
 	{{end}}
 
 {{/* VERIFICATION STUFF */}}
-
-{{$msg := 947214940907929670}} {{/* msg that needs the verification emoji */}}
-{{$verified := 750565698383773828}} {{/* verified role ID */}}
-{{$rules := 750544650523246623}} {{/* rules & info channel */}}
-{{$main := 750541618389712900}} {{/* main talk channel */}}
-{{$joins := 954832185200898128}} {{/* joins-leaves modlog channel - for successful verifications */}}
-{{$modlog := 970007312632795167 }} {{/* yag-cmd-log */}}
 		
 	{{/* cooldown */}}
 		{{/* CONFIGURATION HERE CHANGE VALUES AS NEEDED */}}
