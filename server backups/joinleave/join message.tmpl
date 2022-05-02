@@ -1,4 +1,4 @@
-{{ $JoinEmbed := cembed "description" (joinStr "" "**" .User.Mention " Joined.**" " \n (ID: " .User.ID ") \n"  "**" (currentTime.Format  "Monday, 2 January 2006 at 15:04 MST") "** \nMembercount: " .Guild.MemberCount "" ) "color" 30978 }}
+{{ $JoinEmbed := cembed "description" (joinStr "" "**" .User.Mention " Joined.**" " \n (ID: " .User.ID ") \n"  "**<t:" currentTime.Unix ">** \nMembercount: " .Guild.MemberCount "" ) "color" 30978 }}
 {{ sendMessage 954832185200898128 $JoinEmbed }}
 
 {{/*	New User Warning

@@ -1,2 +1,2 @@
-{{ $LeaveEmbed := cembed "description" (joinStr "" "**" .user.Username " Left.**" " \n (ID: " .User.ID ") \n"   "**" (currentTime.Format  "Monday, 2 January 2006 at 15:04 MST") "**" "\nUser Age: " (humanizeDurationHours (currentTime.Sub .Member.JoinedAt.Parse)) "\n\nMembercount: " .Guild.MemberCount "" )  "color" 7929856 }}
+{{ $LeaveEmbed := cembed "description" (joinStr "" "**" .user.Username " Left.**" " \n (ID: " .User.ID ") \n"   "**<t:" currentTime.Unix ">** \nUser Age: " (humanizeDurationHours (currentTime.Sub .Member.JoinedAt.Parse)) "\n\nMembercount: " .Guild.MemberCount "" )  "color" 7929856 }}
 {{ sendMessage 954832185200898128 $LeaveEmbed }}
