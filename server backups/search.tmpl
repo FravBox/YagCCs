@@ -1,7 +1,7 @@
 {{/* custom searching. Trigger: regex: ^-(anime|manga|amv |amvorg ) */}}
-{{$m1 := trimSpace .StrippedMsg}}
-{{$msg := split $m1 " "}}
-{{$q := (joinStr "+" $msg ) }}
+{{$m1 := trimSpace .StrippedMsg}} {{/* takes out leading space after trigger */}}
+{{$msg := split $m1 " "}} {{/* splits string into multiple strings every time it encounters a space (so every word will be a new string) */}}
+{{$q := (joinStr "+" $msg ) }} {{/* joins all the strings together with a + (so "two words" is now "two+words" */}}
 
 {{$sr := (print "We searched for `" $m1 "`\n\n") }}
 
