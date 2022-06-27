@@ -1,0 +1,27 @@
+{{/* custom searching. Trigger: regex: ^-(anime|manga|amv |amvorg ) */}}
+{{$m1 := trimSpace .StrippedMsg}}
+{{$msg := split $m1 " "}}
+{{$q := (joinStr "+" $msg ) }}
+
+{{$sr := (print "We searched for `" $m1 "`\n\n") }}
+
+{{$embed := ""}}
+{{$thumb := "https://media.discordapp.net/attachments/750544650523246623/947397390887972933/kicking-musubi-w-text.png"}}
+
+{{if (reFind `(?i)^-(anime)` .Message.Content ) }}
+	{{$embed = cembed "title" "Anime Search Results" "description" (print $sr "[AniList](https://anilist.co/search/anime?search=" $q ") | [MAL](https://myanimelist.net/anime.php?q=" $q "&cat=anime)") "color" 0xff6a00 "thumbnail" (sdict "url" $thumb) }}
+
+{{else if (reFind `(?i)^-(manga)` .Message.Content ) }}
+	{{$embed = cembed "title" "Manga Search Results" "description" (print $sr "[AniList](https://anilist.co/search/manga?search=" $q ") | [MAL](https://myanimelist.net/manga.php?q=" $q "&cat=manga)") "color" 0xff6a00 "thumbnail" (sdict "url" $thumb) }}
+
+
+{{else if (reFind `(?i)^-(amvorg )` .Message.Content ) }}
+{{$embed = cembed "title" "A-M-V.org Search Results" "description" (print $sr "**Forum**\n[Everything](https://www.animemusicvideos.org/forum/search.php?keywords=" $q ") | [Thread Titles Only](https://www.animemusicvideos.org/forum/search.php?keywords=" $q "&terms=all&author=&sc=1&sf=titleonly&sr=topics&sk=t&sd=d&st=0&ch=300&t=0&submit=Search)\n\n**AMVs**\n[Quick Search](https://www.animemusicvideos.org/search/quick.php?criteria=" $q "&search=Search&go=go) | [AMV Title Search](https://www.animemusicvideos.org/search/supersearch.php?anime_criteria=&artist_criteria=&song_criteria=&member_criteria=&studio_criteria=&spread=less&title=" $q "&comments=&download=&con=&year=&format_id=&o=7&d=1&recent=on&go=go#results)\n[Go to Super Search Page](https://www.animemusicvideos.org/search/supersearch.php)") "color" 0xff6a00 "thumbnail" (sdict "url" $thumb) }}
+
+{{else if (reFind `(?i)^-(amv )` .Message.Content ) }}
+
+{{$embed = cembed "title" "AMV Search Results" "description" (print $sr "**Youtube**\n[Everything](https://www.youtube.com/results?search_query=" $q ") | [AMVs](https://www.youtube.com/results?search_query=" $q "+amv) | [FanVids](https://www.youtube.com/results?search_query=" $q "+fanvid)\n\n**A-M-V.org**\n[Quick Search](https://www.animemusicvideos.org/search/quick.php?criteria=" $q "&search=Search&go=go) | [AMV Title Search](https://www.animemusicvideos.org/search/supersearch.php?anime_criteria=&artist_criteria=&song_criteria=&member_criteria=&studio_criteria=&spread=less&title=" $q "&comments=&download=&con=&year=&format_id=&o=7&d=1&recent=on&go=go#results)\n[Go to Super Search Page](https://www.animemusicvideos.org/search/supersearch.php)\n\n**AMVnews.ru**\n[Videos](https://amvnews.ru/index.php?go=Search&modname=Files&query=" $q ")\n\n**AO3**\n[Fanvids](https://archiveofourown.org/works?work_search%5Bsort_column%5D=revised_at&work_search%5Bother_tag_names%5D=&work_search%5Bexcluded_tag_names%5D=&work_search%5Bcrossover%5D=&work_search%5Bcomplete%5D=&work_search%5Bwords_from%5D=&work_search%5Bwords_to%5D=&work_search%5Bdate_from%5D=&work_search%5Bdate_to%5D=&work_search%5Bquery%5D=" $q "&work_search%5Blanguage_id%5D=&commit=Sort+and+Filter&tag_id=Fanvids) | [Everything](https://archiveofourown.org/works/search?work_search%5Bquery%5D=" $q ")") "color" 0xff6a00 "thumbnail" (sdict "url" $thumb) }}
+
+{{end}}
+
+{{sendMessage nil $embed}}
