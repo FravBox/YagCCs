@@ -60,7 +60,7 @@ You can customize the announcement below if you want. Default is plain text mess
 			{{if hasRoleID $verified}} {{sendDM "```\nYou're already verified!\n```" }} 
 				{{else}} 
 					{{addRoleID $verified}}
-						{{if $nojoin eq "0"}} 
+						{{if eq $nojoin 0}} 
 							{{sendMessage $main $announce}}
 						{{end}}
 				
@@ -77,16 +77,16 @@ You can customize the announcement below if you want. Default is plain text mess
 
 
 {{/* LOG INCORRECT VERIFICATIONS */}}
-{{if $noverify ne "0"}}
+{{if ne $noverify 0}}
 
 	{{$logmsg := cembed "description" (joinStr "" .User.Mention " used " .Reaction.Emoji.MessageFormat " on [this message](" .Message.Link "), which was the wrong message to verify.\n\n User ID: " .User.ID "\nAge in server: " (humanizeDurationHours (currentTime.Sub .Member.JoinedAt.Parse)) "\n\n <t:" currentTime.Unix ">" "") "color" 16748800  }}
 
 
 	{{if (eq .Channel.ID $rules) }}
 		{{if not (eq .Message.ID $msg) }}
-			{{if $noverify eq "1"}}
+			{{if eq $noverify 1}}
 				{{sendMessage $joins $logmsg}}
-			{{else if $noverify eq "2"}}
+			{{else if eq $noverify 2}}
 				{{sendMessage $errors $logmsg}}
 			{{end}}
 		{{end}}
@@ -95,7 +95,7 @@ You can customize the announcement below if you want. Default is plain text mess
 {{end}}
 
 {{/* CLEAR VERIFIED-RELATED REACTIONS */}}
-	{{if $noclear eq "0"}}
+	{{if eq $noclear 0}}
 		{{sleep 30}}
 		{{deleteAllMessageReactions $rules .Message.ID}}
 	{{end}}
