@@ -15,13 +15,13 @@ Only run it in the channel users click the verification emoji in
 
 {{/* OPTIONAL CONFIG */}}
 
-{{$noverify := "1"}} {{/* Change this to 2 if you want your unsuccessful verifications to go to a different channel. Change this to 0 if you don't want any unsuccessful verification posts. Default value is 1. */}}
+{{$noverify := 1}} {{/* Change this to 2 if you want your unsuccessful verifications to go to a different channel. Change this to 0 if you don't want any unsuccessful verification posts. Default value is 1. */}}
 
 {{$errors := 1789 }} {{/* Channel ID where unsuccessful verifications get posted. */}}
 
-{{$nojoin := "0"}} {{/* Change this to 1 if you do not want to announce members as joining the server after they've verified. Default value is 0. */}}
+{{$nojoin := 0}} {{/* Change this to 1 if you do not want to announce members as joining the server after they've verified. Default value is 0. */}}
 
-{{$noclear := "0"}} {{/* change this to 1 if you do not want the emoji reactions cleared after verification attempts. Default value is 0. */}}
+{{$noclear := 0}} {{/* change this to 1 if you do not want the emoji reactions cleared after verification attempts. Default value is 0. */}}
 
 {{/* SERVER JOIN MESSAGE/ANNOUNCEMENT 
 You can customize the announcement below if you want. Default is plain text message.
