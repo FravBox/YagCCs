@@ -71,12 +71,14 @@ VERY Basic "make a ticket when clicking a reaction" command.
 An entire verification system based on reacting with a specific emoji to a specific post. Heavily commented, customizable, and has some picture examples.    
 This is probably my most user-friendly code in the repo.
 
+Also has a nice join and leave message template.
+
 </details>
 
 
 
 
-P.S. I don't know how to code at all. These are frankensteined together from various publicly available snippets/templates, context clues, and Yag support lmao. So while these all work, they might not be the most efficient.
+P.S. ~~I don't know how to code at all.~~ I now BRELY know how to code, but most of these are frankensteined together from various publicly available snippets/templates, context clues, and Yag support lmao. So while these all work, they might not be the most efficient.
 
 # Misc Notes
 
