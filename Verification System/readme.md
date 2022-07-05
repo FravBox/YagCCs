@@ -19,3 +19,37 @@ It supports having different channels for every step of the process.
 
 If you are already verified when you verify to the correct post, you will be DMed that you're already verified and you won't be announced. Otherwise, users are not DMed at all.
 
+# How to Use
+Copy the `verification.tmpl` code into a custom CC.     
+Make the trigger Reaction - added only.    
+Set it to only run in the channel that contains the post users need to react to for verification.
+
+Now, set all the variables (verification roleID, channel IDs, message IDs, etc.). The code is heavily commented.
+
+Save, and you're done. System should just work.
+
+# Suggested Server Setup
+**Don't have an "unverified" role. Set your server permissions appropriately.**
+
+**1. Set "everyone" SERVER permissions.**     
+Set it so "everyone" does NOT have the ability to post or read anything. Set it as if it were your unverified role.
+
+**2. Set "Verified" role SERVER permissions.**    
+Explicitly give these users the ability to read and post to things. 
+
+**3. Set Rules CHANNEL permissions.**    
+For any channel you want EVERYONE to see, go into the CHANNEL permissions and make it so `@everyone` can read and (optionally) post to this specific channel.     
+For the verification system cc to work here, they will also need the ability to react to messages.
+
+Optionally, if you want a channel that ONLY unverified people can see, set the CHANNEL permissions so `@everyone` can read/write and `verified` can NOT view channel or read messages.     
+In my server, I have 2 channels - Rules, which everyone can see, and lobby, which ONLY unverified people and mods can see. Lobby is just in case something goes wrong with the cc, yag is down, or whatever. It gives unverified people a way to talk to mods.
+
+**4. Set the rest of the server's CHANNEL Permissions**    
+For all "normal" channels, where you want verified to be able to act normally but you don't want unverified people to see/post anything, make sure default permissions for `@everyone` in channels is set to `/` and NOT X or the green checkmark.      
+This covers everything. No need to manually add `verified` permissions to every channel created.
+
+# Suggested CC Use
+
+- Send joins, verifies, unsuccessful verifies, and leaves all to the same channel - e.g. `#joins-leaves`
+- Send verification announcement (X has joined the server!) to whatever youe main talk channel is.
+- Use all the default values for the optional configs
