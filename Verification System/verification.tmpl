@@ -1,0 +1,101 @@
+{{/* Verification System - by https://github.com/FravBox/YagCCs/ aka Vars#3616 on Discord  
+Trigger: Add reactions
+Only run it in the channel users click the verification emoji in
+*/}}
+
+
+{{/* CONFIG - CHANGE THESE */}}
+
+{{$emoji := "☑️" }} {{/* Verification emoji. */}}
+{{$msg := 123}} {{/* Message ID of the post that needs the verification emoji */}}
+{{$rules := 456}} {{/* Channel ID where $msg post is */}}
+{{$verified := 789}} {{/* verified role ID */}}
+{{$main := 0123}} {{/* main talk channel - where newly verified users get announced as joining the server */}}
+{{$joins := 0456}} {{/* joins-leaves modlog channel - for successful verifications */}}
+
+{{/* OPTIONAL CONFIG */}}
+
+{{$noverify := "1"}} {{/* Change this to 2 if you want your unsuccessful verifications to go to a different channel. Change this to 0 if you don't want any unsuccessful verification posts. Default value is 1. */}}
+
+{{$errors := 1789 }} {{/* Channel ID where unsuccessful verifications get posted. */}}
+
+{{$nojoin := "0"}} {{/* Change this to 1 if you do not want to announce members as joining the server after they've verified. Default value is 0. */}}
+
+{{$noclear := "0"}} {{/* change this to 1 if you do not want the emoji reactions cleared after verification attempts. Default value is 0. */}}
+
+{{/* SERVER JOIN MESSAGE/ANNOUNCEMENT 
+You can customize the announcement below if you want. Default is plain text message.
+*/}}
+
+{{$announce := (print .User.Mention " has joined the server") }}
+
+
+{{/* DO NOT EDIT BELOW */}}
+
+
+{{/* VERIFICATION STUFF */}}
+		
+	{{/* cooldown */}}
+	{{$isGlobal := 0}}{{/* 0 for per user, 1 for global */}}
+	{{/* name your cooldown name (anything works) */}}
+	{{$name := "MemberAnnouncement"}}
+	{{/* Length of the cooldown (in seconds) */}}
+	{{$lengthSec := 90}}
+
+	{{$id := 0}}
+	{{$key := joinStr "" "cooldown_" $name}}
+	{{if eq $isGlobal 0}}
+	{{$id = .User.ID}}
+	{{end}}
+
+	{{if dbGet (toInt64 $id) $key}} 
+		{{/* Code to execute when cooldown is active */}}
+		{{else}}
+		{{/* Create cooldown entry */}}
+		{{dbSetExpire (toInt64 $id) $key "cooldown" $lengthSec}}
+
+{{/* ANNOUNCE VERIFICATION IN MAIN & JOINS-LEAVES */}}
+
+		{{if and .ReactionAdded (eq .Message.ID $msg) (eq .Reaction.Emoji.Name $emoji)}}
+			{{if hasRoleID $verified}} {{sendDM "```\nYou're already verified!\n```" }} 
+				{{else}} 
+					{{addRoleID $verified}}
+						{{if $nojoin eq "0"}} 
+							{{sendMessage $main $announce}}
+						{{end}}
+				
+					{{/* SENDS VERIFICATION TO Joins-Leaves */}}
+					
+						{{ $VerifyEmbed := cembed "description" (joinStr "" "**" .User.Mention " ("  .User ") Verified.**" " \n (ID: " .User.ID ") \n<t:" currentTime.Unix ">** \nTime Taken: " (humanizeDurationHours (currentTime.Sub .Member.JoinedAt.Parse)) "**" "\n\nMembercount: " .Guild.MemberCount "" ) "color" 16772608 }}
+					
+						{{ sendMessage $joins $VerifyEmbed }}
+
+			{{end}}
+		{{end}}
+
+	{{end}}
+
+
+{{/* LOG INCORRECT VERIFICATIONS */}}
+{{if $noverify ne "0"}}
+
+	{{$logmsg := cembed "description" (joinStr "" .User.Mention " used " .Reaction.Emoji.MessageFormat " on [this message](" .Message.Link "), which was the wrong message to verify.\n\n User ID: " .User.ID "\nAge in server: " (humanizeDurationHours (currentTime.Sub .Member.JoinedAt.Parse)) "\n\n <t:" currentTime.Unix ">" "") "color" 16748800  }}
+
+
+	{{if (eq .Channel.ID $rules) }}
+		{{if not (eq .Message.ID $msg) }}
+			{{if $noverify eq "1"}}
+				{{sendMessage $joins $logmsg}}
+			{{else if $noverify eq "2"}}
+				{{sendMessage $joins $errors}}
+			{{end}}
+		{{end}}
+	{{end}}
+
+{{end}}
+
+{{/* CLEAR VERIFIED-RELATED REACTIONS */}}
+	{{if $noclear eq "0"}}
+		{{sleep 30}}
+		{{deleteAllMessageReactions $rules .Message.ID}}
+	{{end}}
