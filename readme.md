@@ -78,7 +78,7 @@ Also has a nice join and leave message template.
 
 
 
-P.S. ~~I don't know how to code at all.~~ I now BRELY know how to code, but most of these are frankensteined together from various publicly available snippets/templates, context clues, and Yag support lmao. So while these all work, they might not be the most efficient.
+P.S. ~~I don't know how to code at all.~~ I now BARELY know how to code, but most of these are frankensteined together from various publicly available snippets/templates, context clues, and Yag support lmao. So while these all work, they might not be the most efficient.
 
 # Misc Notes
 
