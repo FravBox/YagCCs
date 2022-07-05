@@ -1,0 +1,8 @@
+{{/* Put this in the join message area of the yag dashboard */}}
+
+{{$ch := 1234}}{{/* channel ID where you want to send the join message */}}
+
+{{ $JoinEmbed := cembed "description" (joinStr "" "**" .User.Mention " ("  .User ")  Joined.**" " \n (ID: " .User.ID ") \n"  "**<t:" currentTime.Unix ">** \nMembercount: " .Guild.MemberCount "" ) "color" 30978 }}
+
+
+{{ sendMessage $ch $JoinEmbed }}
