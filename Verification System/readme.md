@@ -51,5 +51,5 @@ This covers everything. No need to manually add `verified` permissions to every 
 # Suggested CC Use
 
 - Send joins, verifies, unsuccessful verifies, and leaves all to the same channel - e.g. `#joins-leaves`
-- Send verification announcement (X has joined the server!) to whatever youe main talk channel is.
+- Send verification announcement (X has joined the server!) to whatever your main talk channel is.
 - Use all the default values for the optional configs
