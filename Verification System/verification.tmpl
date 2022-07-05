@@ -87,7 +87,7 @@ You can customize the announcement below if you want. Default is plain text mess
 			{{if $noverify eq "1"}}
 				{{sendMessage $joins $logmsg}}
 			{{else if $noverify eq "2"}}
-				{{sendMessage $joins $errors}}
+				{{sendMessage $errors $logmsg}}
 			{{end}}
 		{{end}}
 	{{end}}
