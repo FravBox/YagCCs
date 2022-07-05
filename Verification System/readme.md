@@ -17,7 +17,7 @@ It supports having different channels for every step of the process.
 
 ![image](https://user-images.githubusercontent.com/20410737/177291136-9e6c0cec-ac34-4d80-8a87-442e04d54e2c.png)
 
-If you are already verified when you verify to the correct post, you will be DMed that you're already verified and you won't be announced. Otherwise, users are not DMed at all.
+If you are already verified when you react to the correct post, you will be DMed that you're already verified and you won't be announced. Otherwise, users are not DMed at all.
 
 # How to Use
 Copy the `verification.tmpl` code into a custom CC.     
