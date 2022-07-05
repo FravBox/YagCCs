@@ -59,9 +59,17 @@ Allows the author of the first message in a thread to manage pins in the thread 
 </details>
 
 <details>
-<summary>reaction tickets</summary>
+<summary>Reaction tickets</summary>
 
 VERY Basic "make a ticket when clicking a reaction" command.
+
+</details>
+
+<details>
+<summary>Verification System</summary>
+
+An entire verification system based on reacting with a specific emoji to a specific post. Heavily commented, customizable, and has some picture examples.    
+This is probably my most user-friendly code in the repo.
 
 </details>
 
