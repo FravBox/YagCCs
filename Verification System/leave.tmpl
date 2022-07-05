@@ -1,0 +1,8 @@
+{{/* Put this in the leave message area of the yag dashboard */}}
+
+{{$ch := 1234}}{{/* channel ID where you want to send the leave message */}}
+
+{{ $LeaveEmbed := cembed "description" (joinStr "" "**" .User " (" .user.Username ") Left.**" " \n (ID: " .User.ID ") \n"   "**<t:" currentTime.Unix ">** \n\nMembercount: " .Guild.MemberCount "" )  "color" 7929856 }}
+
+
+{{ sendMessage $ch $LeaveEmbed }}
