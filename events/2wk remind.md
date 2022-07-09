@@ -49,7 +49,7 @@ Trigger: Command: deadline
         {{end}}
 
         {{if gt (mult (sub $d 1210000)) currentTime.Unix}}
-			{{$msg1 := print "!remind " (index $e 0 | structToSdict).Title (formatTime ($.UnixEpoch.Add (toDuration (mult (sub $d 604800) $.TimeSecond))) " Monday, Jan 02 at 15:04") "\n\nReact with 🔔 to be DMed **2 weeks before** " (index $e 0 | structToSdict).Title "!\nhttps://discord.com/channels/" $.Guild.ID "/" $.Channel.ID "/" $id ""}}
+			{{$msg1 := print "!remind " (index $e 0 | structToSdict).Title " on" (formatTime ($.UnixEpoch.Add (toDuration (mult (sub $d 604800) $.TimeSecond))) " Monday, Jan 02 at 15:04") "\n\nReact with 🔔 to be DMed **2 weeks before** " (index $e 0 | structToSdict).Title "!\nhttps://discord.com/channels/" $.Guild.ID "/" $.Channel.ID "/" $id ""}}
             
 			{{$msg := sendMessage nil $msg1}}
 			        
