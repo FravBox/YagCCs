@@ -13,7 +13,7 @@ Rules post that explains how to verify (not included in CC):
 Modlog version of join message (join.tmpl - optional) & verification (included in CC):    
 ![image](https://user-images.githubusercontent.com/20410737/177290969-8f0cf277-b792-45b5-b89b-4e7d16035ead.png)
 
-When user verifies, this message is posted to the main talk channel/non-modlog channel you specify:    
+When user verifies, this customizable message is posted to the main talk channel/non-modlog channel you specify:    
 ![image](https://user-images.githubusercontent.com/20410737/177293094-a892a982-dbe9-4bae-8632-6c6a7aa1c7b9.png)
 
 (optional) modlog message of an incorrect verification post:     
