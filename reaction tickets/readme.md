@@ -2,6 +2,8 @@
 VERY Basic "make a ticket when clicking a reaction" command.     
 Change `$ch` to reflect the channel ID and `$msg` to the message ID of the post you want people to react to.
 
+Note: the included tickets system in YAGPDB must be enabled in order for this to work.
+
 Create a message for the ticket creation. Then add the reaction you want to use:     
 ```go
 {{/* add the reactions to the ticket post - you only use this once */}}
