@@ -1,5 +1,5 @@
 # Basic Server Stats
-This works as-is, just change the thumbnail url and the text so it doesn't say AMV Sashimi. You do not need to change Guild ID or anything else.   
+User-friendly. Change variables as indicated.        
 It displays: 
 * Server Age (1 year, 3 weeks, etc.)
 * Server Creation date (the actual date and time)
