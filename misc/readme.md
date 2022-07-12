@@ -5,9 +5,14 @@ It displays:
 * Server Creation date (the actual date and time)
 * Total Member Count
 * Total (currently) online
+![image](https://user-images.githubusercontent.com/20410737/178533470-c8110d56-3b29-43e0-82e6-25f578356e9b.png)
+
 
 # Bookmark
 DMs a nice embed with message preview of what you bookmark. An improved version of [this](https://yagpdb-cc.github.io/utilities/bookmark).
+![image](https://user-images.githubusercontent.com/20410737/178533688-37748191-2b36-40ee-8690-328f533cd174.png)        
+![image](https://user-images.githubusercontent.com/20410737/178533837-691b591a-e945-487d-8c52-fd8ad2b37fd9.png)
+
 
 # Cooldown 
 Basic cooldown script. I don't know who originally made it.
