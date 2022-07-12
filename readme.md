@@ -84,6 +84,8 @@ Other Yag CC Gits:
 # Contact me
 Open an issue or start a discussion on Github. I don't accept random friend requests, but my DMs are open. I'm in the official Yag support server if you want to DM or ping me from there. `Vars#3616`
 
+**I won't code for you,** I don't know enough to do that. But I can explain my CCs or help you understand any errors you encounter with them.
+
 # Quick Reference
 
 **Update Rolemenu**    
