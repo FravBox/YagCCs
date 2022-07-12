@@ -91,42 +91,42 @@ Other Yag CC Gits:
 # Quick Reference
 
 **Update Rolemenu**    
--rolemenu update (message id)
+`-rolemenu update (message id)`
 
-**Regex matching any mention:** <@!?\d{17,}>
+**Regex matching any mention:** `<@!?\d{17,}>`
 
 
 **Silently (no PM/msg) gives the user who did the trigger the role ID**    
-{{ $silent := (giveRoleID .user 751451248091332758)}}
+`{{ $silent := (giveRoleID .user 751451248091332758)}}`
 
 **the above command but for multiple roles at once**   
-{{ $ids := cslice 751451248091332758 751446179002318920 751450170323107862 }}    
+`{{ $ids := cslice 751451248091332758 751446179002318920 751450170323107862 }}    
 {{ range $ids }}    
     {{- $silent := addRoleID  . -}}    
-{{- end }}
+{{- end }}`
 
 
 **Delete trigger/response seconds**    
-{{deleteTrigger 0}}   
-{{deleteResponse 0}}
+`{{deleteTrigger 0}}   
+{{deleteResponse 0}}`
 
-**mention a role by id**    
-<@&773487900779348000>
+**mention a role by id** (Must use `sendMessageNoEscape` or it won't actually ping the role)    
+`<@&773487900779348000>`
 
 **mention a channel by id**    
-<#773487900779348000>
+`<#773487900779348000>`
 
 **mention a user by id**    
-<@773487900779348000>    
-<@{{.User.ID}}> Outputs a mention to the user that called the command and is the same as {{.User.Mention}}
+`<@773487900779348000>    `
+`<@{{.User.ID}}>` Outputs a mention to the user that called the command and is the same as `{{.User.Mention}}`
 
 **custom embeds**     
 `-ce {"title": "hello", "description": "wew"}`
 
 **Ping triggering user to a specific channel and then delete that message 5 seconds later** (a somewhat delayed ghost ping)    
-{{$y := sendMessageRetID 786091493126438932 (print .User.Mention) }}    
-{{deleteMessage 786091493126438932 $y 5}}
+`{{$y := sendMessageRetID 786091493126438932 (print .User.Mention) }}    
+{{deleteMessage 786091493126438932 $y 5}}`
 
 **Send a DM**     
-{{$DMessage := "Your message here" }}     
-{{ sendDM $DMessage }}
+`{{$DMessage := "Your message here" }}     
+{{ sendDM $DMessage }}`
