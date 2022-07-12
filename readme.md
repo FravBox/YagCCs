@@ -107,8 +107,8 @@ Other Yag CC Gits:
 
 
 **Delete trigger/response seconds**    
-`{{deleteTrigger 0}}   
-{{deleteResponse 0}}`
+`{{deleteTrigger 0}}`   
+`{{deleteResponse 0}}`
 
 **mention a role by id** (Must use `sendMessageNoEscape` or it won't actually ping the role)    
 `<@&773487900779348000>`
@@ -117,7 +117,7 @@ Other Yag CC Gits:
 `<#773487900779348000>`
 
 **mention a user by id**    
-`<@773487900779348000>    `
+`<@773487900779348000>`    
 `<@{{.User.ID}}>` Outputs a mention to the user that called the command and is the same as `{{.User.Mention}}`
 
 **custom embeds**     
