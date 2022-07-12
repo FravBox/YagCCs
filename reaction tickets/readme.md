@@ -4,6 +4,7 @@ You create a post with literally anything in it, add a reaction, and then when a
 
 The ticket is named after the user's username. There is a 30min cooldown to prevent multiple tickets from a single user. The reaction from a user is removed after 5 seconds. You can choose to require a specific role to be able to open tickets or not.
 
+![image](https://user-images.githubusercontent.com/20410737/178612190-dfbcc9b9-abad-4f3d-a260-a0c864dd7f56.png)
 
 
 ## How To Use
