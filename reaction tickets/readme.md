@@ -24,7 +24,7 @@ The command can be literally anything. You can delete this cc after you use it t
 {{deleteTrigger 1}}
 ```
 
-Once the post is created and the emoji is added, take that information and edit the `reactionTicketPost.tmpl` command.      
+**Once the post is created and the emoji is added, take that information and add/edit the `reactionTicketPost.tmpl` command.**      
 The trigger for that command should be `reaction - added reactions only`. You should restrict its use to only the channel that post is in. 
 
 You might also might want to add this to the ticket open message in the control panel:      
