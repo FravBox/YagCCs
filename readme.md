@@ -128,5 +128,5 @@ Other Yag CC Gits:
 {{deleteMessage 786091493126438932 $y 5}}`
 
 **Send a DM**     
-`{{$DMessage := "Your message here" }}     
-{{ sendDM $DMessage }}`
+`{{$DMessage := "Your message here" }}`     
+`{{ sendDM $DMessage }}`
