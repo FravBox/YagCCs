@@ -4,7 +4,7 @@ It displays:
 * Server Age (1 year, 3 weeks, etc.)
 * Server Creation date (the actual date and time)
 * Total Member Count
-* Total (currently) online
+* Total (currently) online         
 ![image](https://user-images.githubusercontent.com/20410737/178533470-c8110d56-3b29-43e0-82e6-25f578356e9b.png)
 
 
