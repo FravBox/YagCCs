@@ -9,6 +9,8 @@ It has to be at least 2 words and they can't report themselves.
 
 This sends an embed to the log channel with emoji reactions for mod actions.
 
+![image](https://user-images.githubusercontent.com/20410737/178613458-069dfd85-8ff9-4690-b1c5-8973116753f1.png)
+
 -----
 
 **Only use one version.** Installing multiple versions will screw up your server.
