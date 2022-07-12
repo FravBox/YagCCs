@@ -81,6 +81,9 @@ Official [Yag Docs](https://docs.yagpdb.xyz/): [CC templates](https://docs.yagpd
 Other Yag CC Gits:    
 [BlackWolf](https://github.com/BlackWolfWoof/yagpdb-cc) | [Crenshaw](https://github.com/Crenshaw1312/Yagpdb-ccs) | [Altair](https://github.com/magratheaguide/altair)
 
+# Contact me
+Open an issue or start a discussion on Github. I don't accept random friend requests, but my DMs are open. I'm in the official Yag support server if you want to DM or ping me from there. `Vars#3616`
+
 # Quick Reference
 
 **Update Rolemenu**    
