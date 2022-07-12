@@ -20,13 +20,6 @@ A very basic system that allows users to submit prompts for writing, art, etc. Y
 </details>
 
 <details>
-<summary>TagSystem</summary>
-
-Backup of the tag system from the [official CC repo](https://yagpdb-cc.github.io/tags/main-cc). 
-
-</details>
-
-<details>
 <summary>ThreadPins</summary>
 
 Allows the author of the first message in a thread to manage pins in the thread via post replies.
