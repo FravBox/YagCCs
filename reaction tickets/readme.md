@@ -1,68 +1,27 @@
 # Reaction Tickets
-VERY Basic "make a ticket when clicking a reaction" command.     
-Change `$ch` to reflect the channel ID and `$msg` to the message ID of the post you want people to react to.
+VERY Basic "make a ticket when clicking a reaction" command.
 
-Create a message for the ticket creation. Then add the reaction you want to use:     
+
+
+## How To Use
+Create a message for the ticket creation. Then add the reaction you want to use.     
+You can add the reaction manually by yourself, or you can tell yag to add the reaction. It is recommended you have yag add the reaction. Use this code to do that:         
 ```go
-{{/* add the reactions to the ticket post - you only use this once */}}
+{{/* add the reactions to the ticket post - you only use this once.
+trigger: command     
+The command can be literally anything. You can delete this cc after you use it the one time. */}}
 
-{{$ch := ChannelID}}
-{{$msg := MessageID}}
+{{$ch := 1234 }} {{/* channel ID of where the ticket reaction message is. */}}
+{{$msg := 5678 }} {{/* Message ID of the reaction message */}}
+{{$emoji := "📩" }} {{/* emoji you want to use for creating a ticket */}}
+{{/* don't edit below */}}
 
-{{addMessageReactions $ch $msg "📩"}}
+{{addMessageReactions $ch $msg $emoji}}
 {{deleteTrigger 1}}
 ```
 
-**Actual reaction ticket CC**
-
-On line 55 (of this document), change the roleID to whatever role you want to require in order for people to make a ticket this way.      
-If you want everyone to be able to create a ticket, remove this part entirely: `(hasRoleID 750565698383773828)`
-
-There's a 30min cooldown per user.
-```go
-{{/* if reaction on ticket post, open new ticket 
-Trigger: added reactions only 
-*/}}
-{{$ch := 962877591050653726 }}
-{{$msg := 962879864078221372 }}
-
-{{/* 30min cooldown */}}
-{{/* 0 for per user, 1 for global */}}
-{{$isGlobal := 0}}
-{{$name := "ticket creation"}}
-{{/* Length of the cooldown (in seconds) */}}
-{{$lengthSec := 1800}}
-
-{{/* cooldown variables */}}
-{{$id := 0}}
-{{$key := joinStr "" "cooldown_" $name}}
-{{if eq $isGlobal 0}}
-{{$id = .User.ID}}
-{{end}}
-
-
-{{if dbGet (toInt64 $id) $key}} 
-{{/* Code to execute when cooldown is active */}}
-
-{{$ghost := sendMessageRetID nil .User.Mention }}
-{{deleteMessage nil $ghost 0}}
-{{$clm := sendMessageRetID nil "**You cannot create multiple tickets.**"}}
-{{deleteMessage nil $clm 20}}
-
-{{else}}
-{{/* Create cooldown entry */}}
-{{dbSetExpire (toInt64 $id) $key "cooldown" $lengthSec}}
-
-{{/* ACTUAL TICKET CREATION */}}
-{{if and (hasRoleID 750565698383773828) (eq .Message.ID $msg) (eq .Reaction.Emoji.Name "📩")}}
-	{{$silent := exec "tickets open" (joinStr "" .User "")}}
-{{end}}
-
-{{sleep 5}}
-{{deleteMessageReaction $ch $msg .Reaction.UserID "📩" }}
-
-{{end}}
-```
+Once the post is created and the emoji is added, take that information and edit the `reactionTicketPost.tmpl` command.      
+The trigger for that command should be `reaction - added reactions only`. You should restrict its use to only the channel that post is in. 
 
 You might also might want to add this to the ticket open message in the control panel:      
 ```go
@@ -74,3 +33,5 @@ You might also might want to add this to the ticket open message in the control 
 {{sleep 1}}
 {{pinMessage nil $close}}
 ```
+
+This command tells you how to close a ticket and pins that message to the top of the ticket channel. I was unable to get closing tickets via emoji to work, so that's why this is here.
