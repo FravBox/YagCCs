@@ -3,6 +3,8 @@ I use this for creating prompts for videos. But this would work for writing or a
 
 Users type `-prompt text here` to submit their prompt. Yag collects them, randomizes them, and then posts a new prompt every 3 weeks.
 
+![image](https://user-images.githubusercontent.com/20410737/178646991-63d2185d-298c-4626-91ed-6fe90273ea6d.png)
+
 ## dbsetprompt.tmpl
 Trigger can be anything. Use it once to set up the system, then delete.
 
