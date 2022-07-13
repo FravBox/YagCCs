@@ -1,11 +1,19 @@
 {{/* Server stats command by https://github.com/FravBox/YagCCs/ aka Vars#3616 on Discord 
 Trigger: Command */}}
 
-{{/* Change these variables */}}
+{{/* Customization - 0 for no, 1 for yes. Default is 0. */}}
 
-{{ $avatar := "https://cdn.discordapp.com/attachments/750544650523246623/947397390887972933/kicking-musubi-w-text.png" }}
-{{ $servername := "Your server's name here, plain text" }}
-{{ $deltrig := "no" }} {{/* If you want to delete the trigger, put the number in seconds here. If you don't want to delete the trigger, leave no. */}}
+{{ $customThumbnail := 0 }}
+{{ $customName := 0 }}
+{{ $deltrig := 0 }} 
+
+{{/* Optional Variables - edit these if anything above is 1 */}} 
+
+{{ $avatar := "https://cdn.discordapp.com/attachments/750544650523246623/947397390887972933/kicking-musubi-w-text.png" }} {{/* custom embed thumbnail. Default is server icon. */}}
+
+{{ $deltrigtime := 2 }} {{/* If you want to delete the command trigger, put the number in seconds here. */}}
+
+{{ $servername := "Custom server name in plain text" }}
 
 
 {{/* Don't edit below */}}
@@ -13,23 +21,38 @@ Trigger: Command */}}
 {{ $trigger := (print .ServerPrefix .CCTrigger ) }}
 {{ $createdAt := div .Guild.ID 4194304 | add 1420070400000 | mult 1000000 | toDuration | (newDate 1970 1 1 0 0 0 "America/New_York").Add }}
 
-{{$embed := cembed 
-    "title" (print $servername " Server Stats" ) 
-    "description" (print "To call this message again, use `" $trigger "`") 
-    "color" 15559936
-    "fields" (cslice 
-    (sdict "name" "Server Age" "value" (toString (humanizeDurationHours (currentTime.Sub $createdAt))) "inline" false)
-    (sdict "name" "Creation Date" "value"  ($createdAt.Format  "Monday, 2 January 2006 at 15:04 MST") "inline" false)
-        (sdict "name" "Member Count" "value" (toString .Guild.MemberCount) "inline" true) 
-        (sdict "name" "Total Online" "value" (toString onlineCount ) "inline" true) 
-    ) 
-    "thumbnail" (sdict "url" $avatar) 
-    "footer" (sdict "text" (print $servername) )
-    "timestamp" $createdAt
+{{$ex := or (and (reFind "a_" .Guild.Icon) "gif" ) "png" }}
+{{$icon := print "https://cdn.discordapp.com/icons/" .Guild.ID "/" .Guild.Icon "." $ex "?size=1024" }}
+
+
+{{$embed := sdict
+	"title" (print .Guild.Name " Server Stats" )
+	"description" (print "To call this message again, use `" $trigger "`") 
+		"color" 15559936
+		"fields" (cslice 
+		(sdict "name" "Server Age" "value" (toString (humanizeDurationHours (currentTime.Sub $createdAt))) "inline" false)
+		(sdict "name" "Creation Date" "value"  ($createdAt.Format  "Monday, 2 January 2006 at 15:04 MST") "inline" false)
+			(sdict "name" "Member Count" "value" (toString .Guild.MemberCount) "inline" true) 
+			(sdict "name" "Total Online" "value" (toString onlineCount ) "inline" true) 
+		) 
+		"thumbnail" (sdict "url" $icon )
+		"footer" (sdict "text" (print .Guild.Name) )
+		"timestamp" $createdAt
 }}
 
-{{ sendMessage nil $embed }}
+{{if eq $customThumbnail 1}}
+	{{ $embed.Set "thumbnail" (sdict "url" $avatar ) }}
+{{end}}
 
-{{if ne $deltrig "no" }}
-{{deleteTrigger $deltrig}}
+{{if eq $customName 1}}
+	{{$embed.Set "title" (print $servername " Server Stats" ) }}
+	{{$embed.Set "footer" (sdict "text" (print $servername) ) }}
+{{end}}
+	
+
+{{ sendMessage nil (cembed $embed) }}
+
+
+{{if ne $deltrig 0 }}
+	{{deleteTrigger $deltrigtime}}
 {{end}}
