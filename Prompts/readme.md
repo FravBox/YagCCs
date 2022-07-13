@@ -1,5 +1,5 @@
 # Prompt System
-I use this for creating prompts for videos. But this would work for writing or art servers, too. There is no prompt management. You can't delete prompts once they're submitted. The prompt list is extremely bare bones. Don't use this if you have malicious users.
+I use this for creating prompts for videos. But this would work for writing or art servers, too. **There is no prompt management. You can't delete prompts once they're submitted.** The prompt list is extremely bare bones. **Don't use this if you have malicious users.**
 
 Users type `-prompt text here` to submit their prompt. Yag collects them, randomizes them, and then posts a new prompt every 3 weeks.
 
