@@ -9,7 +9,7 @@ It displays:
 
 
 # Bookmark
-DMs a nice embed with message preview of what you bookmark. An improved version of [this](https://yagpdb-cc.github.io/utilities/bookmark).
+DMs a nice embed with message preview of what you bookmark. An improved version of [this](https://yagpdb-cc.github.io/utilities/bookmark).     
 `bookmark.tmpl` is a text command. `bookmark-reaction.tmpl` is the same outcome, but triggers from reacting to a post. You can use one or both CCs.      
 ![image](https://user-images.githubusercontent.com/20410737/178533688-37748191-2b36-40ee-8690-328f533cd174.png)        
 ![image](https://user-images.githubusercontent.com/20410737/178533837-691b591a-e945-487d-8c52-fd8ad2b37fd9.png)
