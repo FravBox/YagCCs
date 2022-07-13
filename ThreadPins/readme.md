@@ -11,6 +11,12 @@ If the TA wants to pin a post, they reply to the post with the word "pin". Yag w
 If the TA wants to unpin a post, reply to that post with "unpin" and Yag will do as told, cleaning up messages after.     
 If someone other than the TA tries to manage pins, Yag posts that only thread starters can manage pins. Then deletes that message 5 seconds later.
 
+![image](https://user-images.githubusercontent.com/20410737/178644114-e03e0181-5e6a-47ae-9ec9-4badf3caa263.png)     
+![image](https://user-images.githubusercontent.com/20410737/178644253-29884577-969b-4ddf-a817-813d91f3a9e4.png)     
+![image](https://user-images.githubusercontent.com/20410737/178644182-f5af6c92-f35e-4095-a7a3-9aa642890859.png)    
+![image](https://user-images.githubusercontent.com/20410737/178644372-9f2ed8c7-f71f-4688-897d-aaa7b35dc81d.png)
+
+
 ## Part 1
 Db entry expires in 6 months.
 
@@ -69,6 +75,9 @@ Also, message type 21 is thread creation message. But you can't use this to comp
 
 **Optional Troubleshooting CC**     
 Tells you who the Thread author is and if they're in the database.
+
+![image](https://user-images.githubusercontent.com/20410737/178644441-7350ba1d-c882-4a08-9834-dda226f5fd28.png)
+
 
 Command: `tauthor`
 ```go
