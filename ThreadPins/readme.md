@@ -2,7 +2,7 @@
 
 Allows the author of the first message in a thread to manage pins in the thread via post replies.
 
-You do not need to edit anything for this to work!
+You must add both CCs - Part 1 & Part 2. You do not need to edit anything inside them for them to work. 
 
 ## How to use it
 The person who is the author of the very first post in a thread is considered the "Thread Author" (TAuthor / TA). The TA is the same person who created the thread unless they make a thread out of someone else's post (in that case, that post's author is the TA).     
@@ -67,11 +67,10 @@ Regex: `^(pin|unpin)`
 {{deleteTrigger 2}}
 {{end}}
 ```
-If you're using my code to help you make your own codes that involve threads, please read these notes:
-<details> <summary> Click for Notes about Thread-related CCs</summary> 
-If the message in the main channel that says "X started a thread" ever gets deleted, the author comparison won't work. This is why I save it to db.
+<details> <summary> Click for Notes about Thread-related CCsIf you're using my code to help you make your own codes that involve threads, please read these notes</summary> 
+If the message in the main channel that says "X started a thread" ever gets deleted, the author comparison won't work. This is why my CC saves the author to db.
 
-Also, message type 21 is thread creation message. But you can't use this to compare, because if anyone makes a thread via the plus icon in the message bar, instead of using a pre-existing message to create a thread from, it will not fire. </details>
+Message type 21 is the thread creation message. But you can't use this to compare, because if anyone makes a thread via the plus icon in the message bar, instead of using a pre-existing message to create a thread from, it will not fire. This is why my cc doesn't use message types.</details>
 
 ## Optional Troubleshooting CC     
 Tells you who the Thread author is and if they're in the database.
