@@ -67,7 +67,7 @@ Regex: `^(pin|unpin)`
 {{deleteTrigger 2}}
 {{end}}
 ```
-<details> <summary> Click for Notes about Thread-related CCsIf you're using my code to help you make your own codes that involve threads, please read these notes</summary> 
+<details> <summary>If you're using my code to help you make your own codes that involve threads, please read these notes</summary> 
 If the message in the main channel that says "X started a thread" ever gets deleted, the author comparison won't work. This is why my CC saves the author to db.
 
 Message type 21 is the thread creation message. But you can't use this to compare, because if anyone makes a thread via the plus icon in the message bar, instead of using a pre-existing message to create a thread from, it will not fire. This is why my cc doesn't use message types.</details>
