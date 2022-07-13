@@ -22,7 +22,9 @@ When user verifies, this customizable message is posted to the main talk channel
 (optional) Modlog post of a leave message (leave.tmpl):    
 ![image](https://user-images.githubusercontent.com/20410737/177291136-9e6c0cec-ac34-4d80-8a87-442e04d54e2c.png)
 
-If you are already verified when you react to the correct post, you will be DMed that you're already verified and you won't be announced. Otherwise, users are not DMed at all.
+If you are already verified when you react to the correct post, you will be DMed that you're already verified and you won't be announced. Otherwise, users are not DMed at all.     
+![image](https://user-images.githubusercontent.com/20410737/178642864-24bb1a30-0f37-4872-a0bd-e0d4aa4862c0.png)
+
 
 # How to Use
 Copy the `verification.tmpl` code into a custom CC.     
