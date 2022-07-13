@@ -4,7 +4,7 @@ Allows the author of the first message in a thread to manage pins in the thread 
 
 You do not need to edit anything for this to work!
 
-**How to use it**    
+## How to use it
 The person who is the author of the very first post in a thread is considered the "Thread Author" (TAuthor / TA). The TA is the same person who created the thread unless they make a thread out of someone else's post (in that case, that post's author is the TA).     
 
 If the TA wants to pin a post, they reply to the post with the word "pin". Yag will pin the post and delete all the mess in a few seconds.     
@@ -67,13 +67,13 @@ Regex: `^(pin|unpin)`
 {{deleteTrigger 2}}
 {{end}}
 ```
-
-Note about thread stuff: 
+If you're using my code to help you make your own codes that involve threads, please read these notes:
+<details> <summary> Click for Notes about Thread-related CCs</summary> 
 If the message in the main channel that says "X started a thread" ever gets deleted, the author comparison won't work. This is why I save it to db.
 
-Also, message type 21 is thread creation message. But you can't use this to compare, because if anyone makes a thread via the plus icon in the message bar, instead of using a pre-existing message to create a thread from, it will not fire. 
+Also, message type 21 is thread creation message. But you can't use this to compare, because if anyone makes a thread via the plus icon in the message bar, instead of using a pre-existing message to create a thread from, it will not fire. </details>
 
-**Optional Troubleshooting CC**     
+## Optional Troubleshooting CC     
 Tells you who the Thread author is and if they're in the database.
 
 ![image](https://user-images.githubusercontent.com/20410737/178644441-7350ba1d-c882-4a08-9834-dda226f5fd28.png)
