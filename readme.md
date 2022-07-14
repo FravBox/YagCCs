@@ -1,7 +1,7 @@
 # How To Use
 Everything here assumes you can at least read basic code. I tell you what to edit for your server, but some are easier to use than others.
 
-`server backups` and `old - reference only` aren't useful at all to outsiders.
+`server backups` and `old - reference only` aren't useful to outsiders.
 
 <details>
 <summary>Custom Report System</summary>
@@ -20,9 +20,12 @@ A very basic system that allows users to submit prompts for writing, art, etc. Y
 </details>
 
 <details>
-<summary>ThreadPins</summary>
-
+<summary>Thread Management</summary>
+ * Thread Pins    
 Allows the author of the first message in a thread to manage pins in the thread via post replies.
+
+ * Thread Creation Log     
+ Sends a log message to a specific channel when a thread is created
 
 </details>
 
@@ -66,6 +69,11 @@ This is probably my most user-friendly code in the repo.
 
 Also has a nice join and leave message template.
 
+</details>
+
+<details>
+<Summary>LeaveBan</summary>
+If someone is muted or timed out and then leaves while they're still muted/timed out, they are banned.
 </details>
 
 
