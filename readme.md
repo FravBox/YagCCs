@@ -21,6 +21,7 @@ A very basic system that allows users to submit prompts for writing, art, etc. Y
 
 <details>
 <summary>Thread Management</summary>
+ 
  * Thread Pins    
 Allows the author of the first message in a thread to manage pins in the thread via post replies.
 
@@ -73,6 +74,7 @@ Also has a nice join and leave message template.
 
 <details>
 <Summary>LeaveBan</summary>
+ 
 If someone is muted or timed out and then leaves while they're still muted/timed out, they are banned.
 </details>
 
