@@ -1,5 +1,3 @@
-Commands that have something to do with mutes & time outs.
-
 # LeaveBan     
 If someone is muted or timed out and then leaves while they're still muted/timed out, they are banned.
 
