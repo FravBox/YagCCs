@@ -3,6 +3,8 @@ If someone is muted or timed out and then leaves while they're still muted/timed
 
 Coded by Grafik, commissioned by me.
 
+**ONLY WORKS WITH MUTES FOR NOW - WILL POTENTIALLY BAN WHEN YOU DON'T WANT IT TO WITH TIME OUTS CURRENTLY**
+
 1. On the Yag dashboard, go to Tools & Utilities -> Moderation -> Timeout (and/or Mute)    
 Put this in the Timeout and/or Mute DM area:    
 ```go
@@ -25,7 +27,11 @@ Put this in the Timeout and/or Mute DM area:
 {{/* your normal mute/timeout code */}}
 ```
 
-2. On the Yag dashboard, go to Notifications & Feeds -> General.     
+2. Put this in the unmute DM area:     
+`{{dbDel .User.ID "noexit"}}`
+
+
+3. On the Yag dashboard, go to Notifications & Feeds -> General.     
 Put this in the leave message:     
 ```go
 {{/* 
@@ -41,7 +47,6 @@ Put this in the leave message:
 {{if (dbGet .User.ID "noexit")}}
     {{execAdmin (print "banid " .User.ID " leaving server after mod actions were taken")}}
     {{dbDel .User.ID "noexit"}}
-
-    {{/* your normal leave feed code :p */}}
 {{end}}
+{{/* your normal leave feed code :p */}}
 ```
