@@ -21,7 +21,6 @@ Put this in the Mute DM area:
 {{else}}
     {{dbSet .User.ID "noexit" "4u"}}
 {{end}}
-{{/* your normal mute/timeout code */}}
 ```
 
 2. Put this in the unmute DM area:     
@@ -35,7 +34,6 @@ Put this in the leave message:
     {{execAdmin (print "banid " .User.ID " leaving server after mod actions were taken")}}
     {{dbDel .User.ID "noexit"}}
 {{end}}
-{{/* your normal leave feed code :p */}}
 ```
 
 4. If you want this applied to time outs as well, on the Yag dashboard, go to Tools & Utilities -> Moderation -> Timeout    
