@@ -1,7 +1,7 @@
 # How To Use
 Everything here assumes you can at least read basic code. I tell you what to edit for your server, but some are easier to use than others.
 
-`server backups` and `old - reference only` aren't useful to outsiders.
+`server backups` is my personal server backups and aren't useful to outsiders.
 
 <details>
 <summary>Custom Report System</summary>
