@@ -5,7 +5,7 @@ New 1 part VPR message
 Trigger: regex .* */}}
 
 {{/* Actual Message */}}
-{{$add_vpr := cembed "title" "Flash warnings are required in this channel" "description" "Did you forget to add the [VPR](https://sashimi.khat.us/vpr/)?\n\n e.g. `VPR flashing`, `VPR glitch effects`, etc." "color" 0xff6a00 "thumbnail" (sdict "url" "https://media.discordapp.net/attachments/750544650523246623/947397390887972933/kicking-musubi-w-text.png") }}
+{{$add_vpr := cembed "title" (print .User ", Flash warnings are required in this channel") "description" "Did you forget to add the [VPR](https://sashimi.khat.us/vpr/)?\n\n e.g. `VPR flashing`, `VPR glitch effects`, etc." "color" 0xff6a00 "thumbnail" (sdict "url" "https://media.discordapp.net/attachments/750544650523246623/947397390887972933/kicking-musubi-w-text.png") }}
 
 {{/* Skip conditions */}}
 {{$skip := false}}
@@ -17,7 +17,7 @@ Trigger: regex .* */}}
 
 {{/* Post the thing & add reaction */}}
 {{else if not $skip}}
-	{{$yagMsg := sendMessageRetID nil $add_vpr}}
+	{{$yagMsg := sendMessageRetID nil (complexMessage "content" (print .User.Mention) "embed" $add_vpr )}}
 	{{addMessageReactions nil $yagMsg "🗑️"}}
 {{end}}
 ```
