@@ -15,17 +15,6 @@ DMs a nice embed with message preview of what you bookmark. An improved version 
 ![image](https://user-images.githubusercontent.com/20410737/178533837-691b591a-e945-487d-8c52-fd8ad2b37fd9.png)
 
 
-# Cooldown 
-Basic cooldown script. I don't know who originally made it.
-
-# Cooldown-branching
-Cooldown snippet from YAGPDB support server that has a branch to execute if you're still on cooldown.
-
 # MessagePreview
 If you paste a link to a discord message, Yag automatically creates a preview of it. From BlackWolf's repo. I recommend getting whatever the current version is instead of this one. [Message_link](https://github.com/BlackWolfWoof/yagpdb-cc/blob/master/Misc/message_link.yag)
-  
-# Suggest
-It creates a simple yes/no poll and posts it to a particular channel. Users can only make a poll once per 24 hours.     
-Change the cooldown time if you want, make it global or keep it per user. Otherwise, only change the Channel ID on line 32.
-
 
