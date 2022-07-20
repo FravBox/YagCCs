@@ -38,7 +38,7 @@ Trigger: Add reactions
 		
 		{{$split := (split .Message.Content "\n")}}
 		{{$quoteit := (joinStr "> " $split)}}
-		{{$qfooter := (print "\n\n**Quoted Message:**\n> " $quoteit ) }}
+		{{$qfooter := (print "\n\n**Deleted Message:**\n> " $quoteit ) }}
 		
 		{{if and (eq $logs 1) (ne $quote 1) }}
 			{{$msg := (cembed "description" (print $modmsg $logfooter ) "color" $color )}}
@@ -49,7 +49,7 @@ Trigger: Add reactions
 				{{sendMessage $modch $msg}}
 			{{else if .Message.Embeds}}
 				{{sendMessage $modch (cembed "description" (print $modmsg $logfooter ) "color" $color )}}
-				{{sendMessage $modch (complexMessage "content" "\n**Quoted Message:**" "embed" (index .Message.Embeds 0) )}}
+				{{sendMessage $modch (complexMessage "content" "\n**Deleted Message:**" "embed" (index .Message.Embeds 0) )}}
 			{{end}}
 		{{end}}
 	{{end}}
