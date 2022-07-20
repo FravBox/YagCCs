@@ -13,6 +13,12 @@ Includes my version (new) and the original (old) version.
 </details>
 
 <details>
+<summary>Delete Yag posts</summary>
+
+Delete posts from YAGPDB with an emoji. Has several custom options.
+</details>
+
+<details>
 <summary>Prompts</summary>
 
 A very basic system that allows users to submit prompts for writing, art, etc. Yag collects them, randomizes them, and then posts them periodically.
