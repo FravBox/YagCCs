@@ -29,7 +29,8 @@ Trigger: Add reactions
 {{/* Don't edit below */}}
 {{$x := (currentTime.Sub .Message.Timestamp.Parse).Seconds|round|toInt}} {{/* Math to get seconds */}}
 
-{{if and (eq .Reaction.Emoji.APIName $emoji) (eq .Message.Author.ID 204255221017214977) (not .Message.Pinned) (le $x $ma) (hasRoleID $yrole) }}
+{{if and (eq .Reaction.Emoji.APIName $emoji) (eq .Message.Author.ID 204255221017214977) }}
+{{if and (not .Message.Pinned) (le $x $ma) (hasRoleID $yrole) }}
 	{{deleteMessage .Message.ChannelID  .Message.ID 1}}
 	
 	{{if (eq $logs 1) }}
@@ -63,4 +64,5 @@ Trigger: Add reactions
 		{{$nr := " The message is pinned or too old to delete."}}
 		{{$y := (sendMessageRetID nil (print $nope $nr) ) }}
 		{{deleteMessage nil $y $del}}
+{{end}}
 {{end}}
