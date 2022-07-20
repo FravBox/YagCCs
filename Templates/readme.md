@@ -9,11 +9,11 @@ Cooldown snippet from YAGPDB support server that has a branch to execute if you'
 
 
 
-## Random chance
-written by shadow     
+## Random chance   
+From Yag docs      
 ```go
-{{$x := randInt 1 101}}
-{{if le $x 10}}
+{{$x := randInt 100}}
+{{if lt $x 10}}
     {{print "10% chance to get this message"}}
 {{else}}
     {{print "90% chance for this"}}
