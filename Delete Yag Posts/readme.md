@@ -7,7 +7,7 @@
 - (Partially) Custom "You can't do that" error message
 - Custom time before error message deletes itself
 
-All the info necessary is within the file `deleteyag.yag`
+All the info necessary is within the file `deleteyagposts.yag`
 
 **Errors:**    
 ![image](https://user-images.githubusercontent.com/20410737/179891283-80154b06-32c7-40cd-80c8-0039bdefef56.png)      
