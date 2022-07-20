@@ -9,7 +9,7 @@ Trigger: Add reactions
 
 {{$emoji := "🗑️"}} {{/* emoji to delete yag posts */}}
 {{$yrole := 750565698383773828 }} {{/* roleID to require to delete yag messages */}}
-{{$ma := 30 }} {{/* max age of posts allowed to be deleted, in seconds (discord max is 1 week) */}}
+{{$ma := 60 }} {{/* max age of posts allowed to be deleted, in seconds (discord max is 1 week) */}}
 {{$del := 10 }} {{/* time before "you can't do that" post deletes itself, in seconds */}}
 
 {{/* the message when you're not allowed to delete something */}}
@@ -30,7 +30,7 @@ Trigger: Add reactions
 {{/* Don't edit below */}}
 {{$x := (currentTime.Sub .Message.Timestamp.Parse).Seconds|round|toInt}} {{/* Math to get seconds */}}
 
-{{if and (eq .Reaction.Emoji.APIName $emoji) (eq .Message.Author.ID 204255221017214977) (not .Message.Pinned) (le $x $ma) (hasRoleID $yrole) (not (reFind `(?i)(fruits basket)` .Message.Content )}}
+{{if and (eq .Reaction.Emoji.APIName $emoji) (eq .Message.Author.ID 204255221017214977) (not .Message.Pinned) (le $x $ma) (hasRoleID $yrole) (not (reFind `(?i)(fruits basket)` .Message.Content) ) }}
 	{{deleteMessage .Message.ChannelID  .Message.ID 1}}
 
 	{{$logit := exec "logs" $la}}
@@ -57,9 +57,18 @@ Trigger: Add reactions
 		{{ $nr := " You don't have the right role."}}
 		{{$y := (sendMessageRetID nil (print $nope $nr) ) }}
 		{{deleteMessage nil $y $del}}
-	{{else if (or (gt $x $ma) (.Message.Pinned))}}
-		{{$nr := " The message is pinned or too old to delete."}}
+	{{else if (gt $x $ma) }}
+		{{$nr := (print " Only messages less than " $ma " seconds old can be deleted." )}}
 		{{$y := (sendMessageRetID nil (print $nope $nr) ) }}
 		{{deleteMessage nil $y $del}}
-{{end}}
+	{{else if .Message.Pinned}}
+		{{$nr := " Pinned messages cannot be deleted."}}
+		{{$y := (sendMessageRetID nil (print $nope $nr) ) }}
+		{{deleteMessage nil $y $del}}
+	{{else if (reFind `(?i)(fruits basket)` .Message.Content)}}
+		{{$nr := " We don't ghost ping Vicky. <:skeptical:759947442082021426>"}}
+		{{$y := (sendMessageRetID nil (print $nope $nr) ) }}
+		{{deleteMessage nil $y $del}}
+	
+	{{end}}
 ```
