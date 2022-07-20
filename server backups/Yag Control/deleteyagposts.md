@@ -30,7 +30,7 @@ Trigger: Add reactions
 {{/* Don't edit below */}}
 {{$x := (currentTime.Sub .Message.Timestamp.Parse).Seconds|round|toInt}} {{/* Math to get seconds */}}
 
-{{if and (eq .Reaction.Emoji.APIName $emoji) (eq .Message.Author.ID 204255221017214977) (not .Message.Pinned) (le $x $ma) (hasRoleID $yrole) }}
+{{if and (eq .Reaction.Emoji.APIName $emoji) (eq .Message.Author.ID 204255221017214977) (not .Message.Pinned) (le $x $ma) (hasRoleID $yrole) (not (reFind `(?i)(fruits basket)` .Message.Content )}}
 	{{deleteMessage .Message.ChannelID  .Message.ID 1}}
 
 	{{$logit := exec "logs" $la}}
