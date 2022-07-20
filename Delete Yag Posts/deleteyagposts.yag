@@ -6,7 +6,7 @@ Trigger: Add reactions
 
 {{/* edit these */}}
 {{$emoji := "🗑️"}} {{/* emoji to delete yag posts */}}
-{{$yrole := 750565698383773828 }} {{/* roleID to require to delete yag messages */}}
+{{$yrole := 1234 }} {{/* roleID to require to delete yag messages */}}
 {{$ma := 30 }} {{/* max age of posts allowed to be deleted, in seconds (discord max is 1 week) */}}
 {{$del := 10 }} {{/* time before "you can't do that" post deletes itself, in seconds */}}
 
@@ -19,7 +19,7 @@ Trigger: Add reactions
 {{$la := 5}} {{/* number of messages to log when the emoji is used. Max 100 */}}
 {{$quote := 1 }} {{/* if you want to quote the deleted message in the log - 1 for yes, 0 for no. Default is 1. */}}
 
-{{$modch := 765344516034265099 }} {{/* channel to log deletions */}}
+{{$modch := 1234 }} {{/* channel to log deletions */}}
 {{$color :=  16748800 }} {{/* color of modlog embed, in decimal */}}
 
 {{/* the message for the modlog - this will go in an embed */}}
@@ -29,40 +29,38 @@ Trigger: Add reactions
 {{/* Don't edit below */}}
 {{$x := (currentTime.Sub .Message.Timestamp.Parse).Seconds|round|toInt}} {{/* Math to get seconds */}}
 
-{{if and (eq .Reaction.Emoji.APIName $emoji) (eq .Message.Author.ID 204255221017214977) (not .Message.Pinned) }}
-	{{if and (le $x $ma) (hasRoleID $yrole) }}
-		{{deleteMessage .Message.ChannelID  .Message.ID 1}}
+{{if and (eq .Reaction.Emoji.APIName $emoji) (eq .Message.Author.ID 204255221017214977) (not .Message.Pinned) (le $x $ma) (hasRoleID $yrole) }}
+	{{deleteMessage .Message.ChannelID  .Message.ID 1}}
+	
+	{{if (eq $logs 1) }}
+		{{$logit := exec "logs"}}
+		{{$logfooter := (joinStr "" "\n" "**" "[View Logs](" $logit ")" "**" )}}
 		
-		{{if (eq $logs 1) }}
-			{{$logit := exec "logs"}}
-			{{$logfooter := (print "\n**[View Logs](" $logit ")**" )}}
-			
-			{{$split := (split .Message.Content "\n")}}
-			{{$quoteit := (joinStr "> " $split)}}
-			{{$qfooter := (print "\n\n**Message:**\n> " $quoteit ) }}
-			
-			{{if and (eq $logs 1) (ne $quote 1) }}
-				{{$msg := (cembed "description" (print $modmsg $logfooter ) "color" $color )}}
+		{{$split := (split .Message.Content "\n")}}
+		{{$quoteit := (joinStr "> " $split)}}
+		{{$qfooter := (print "\n\n**Quoted Message:**\n> " $quoteit ) }}
+		
+		{{if and (eq $logs 1) (ne $quote 1) }}
+			{{$msg := (cembed "description" (print $modmsg $logfooter ) "color" $color )}}
+			{{sendMessage $modch $msg}}
+		{{else}}
+			{{if not .Message.Embeds}}
+				{{$msg := (cembed "description" (print $modmsg $logfooter $qfooter ) "color" $color )}}
 				{{sendMessage $modch $msg}}
-			{{else}}
-				{{if not .Message.Embeds}}
-					{{$msg := (cembed "description" (print $modmsg $logfooter $qfooter ) "color" $color )}}
-					{{sendMessage $modch $msg}}
-				{{else if .Message.Embeds}}
-					{{sendMessage $modch (complexMessage "content" (print $modmsg $logfooter "\n**Message:**") "embed" (index .Message.Embeds 0) )}}
-				{{end}}
+			{{else if .Message.Embeds}}
+				{{sendMessage $modch (cembed "description" (print $modmsg $logfooter ) "color" $color )}}
+				{{sendMessage $modch (complexMessage "content" "\n**Quoted Message:**" "embed" (index .Message.Embeds 0) )}}
 			{{end}}
 		{{end}}
-		
-	{{else}}
-		{{if not (hasRoleID $yrole)}}
-			{{ $nr := " You don't have the right role."}}
-			{{$y := (sendMessageRetID nil (print $nope $nr) ) }}
-			{{deleteMessage nil $y $del}}
-		{{else if or (gt $x $ma) (.Message.Pinned)}}
-			{{$nr := " The message is pinned or too old to delete."}}
-			{{$y := (sendMessageRetID nil (print $nope $nr) ) }}
-			{{deleteMessage nil $y $del}}
-		{{end}}
 	{{end}}
+	
+
+	{{else if not (hasRoleID $yrole)}}
+		{{ $nr := " You don't have the right role."}}
+		{{$y := (sendMessageRetID nil (print $nope $nr) ) }}
+		{{deleteMessage nil $y $del}}
+	{{else if (or (gt $x $ma) (.Message.Pinned))}}
+		{{$nr := " The message is pinned or too old to delete."}}
+		{{$y := (sendMessageRetID nil (print $nope $nr) ) }}
+		{{deleteMessage nil $y $del}}
 {{end}}
