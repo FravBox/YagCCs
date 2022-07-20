@@ -50,7 +50,8 @@ Trigger: Add reactions
 		{{sendMessage $modch (complexMessage "content" "\n**Deleted Message:**" "embed" (index .Message.Embeds 0) )}}
 	
 	{{else if (eq .Channel.ID $vidshare)}}
-		{{sendMessage $modch (cembed "description" (print $modmsg $logfooter "\n\n**Deleted Message:**\nVPR Warning" ) "color" $color )}}
+		{{$user := (print .Message.ContentWithMentionsReplaced)}}
+		{{sendMessage $modch (cembed "description" (print $modmsg $logfooter "\n\n**Deleted Message:**\nVPR Warning for " $user ". " ) "color" $color )}}
 	{{end}}
 	
 
