@@ -33,7 +33,7 @@ Trigger: Add reactions
 {{if and (eq .Reaction.Emoji.APIName $emoji) (eq .Message.Author.ID 204255221017214977) (not .Message.Pinned) (le $x $ma) (hasRoleID $yrole) }}
 	{{deleteMessage .Message.ChannelID  .Message.ID 1}}
 
-	{{$logit := exec "logs"}}
+	{{$logit := exec "logs" $la}}
 	{{$logfooter := (joinStr "" "\n" "**" "[View Logs](" $logit ")" "**" )}}
 	
 	{{$split := (split .Message.Content "\n")}}
