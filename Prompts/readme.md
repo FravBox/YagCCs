@@ -5,16 +5,16 @@ Users type `-prompt text here` to submit their prompt. Yag collects them, random
 
 ![image](https://user-images.githubusercontent.com/20410737/178646991-63d2185d-298c-4626-91ed-6fe90273ea6d.png)
 
-## dbsetprompt.tmpl
+## dbsetprompt.yag
 Trigger can be anything. Use it once to set up the system, then delete.
 
-## prompt.tmpl
+## prompt.yag
 The main cc. Change the contents of `$thanksMessage`. This is what is posted when people submit new prompts.
 
-## promptlist.tmpl
+## promptlist.yag
 Optional. Lists the prompts.
 
-## prompt-post.tmpl
+## prompt-post.yag
 504 hours is 3 weeks. Change the hourly interval in the trigger if you want to post prompts more or less often.    
 
 `$channelToSend` ID of the channel prompts should be posted in.    

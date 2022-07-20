@@ -62,26 +62,26 @@ If you want to be organized, I highly recommend adding a new custom command grou
 
 The instructions are in the comments at the top of each file, but they're summarized below as well:
 
-**report1.tmpl**      
+**report1.yag**      
 *Custom Reports Main CC v4*     
 Trigger = Command: `report`     
 Usable everywhere by everyone. (In places you want the `-report` command to work anyway)     
 Stuff to change: `$logChannel` where the report embeds go      
 `$ping` Role ID to ping when a report embed is made. Leave as 0 for no pings.
 
-**report2.tmpl**      
+**report2.yag**      
 *Custom Reports Message Tracker CC*    
 Trigger = regex: `.*`     
 Only run it in the log channel where reports go.     
 Stuff to change: `$staff` cslice of RoleIDs for admins.
 
-**report3.tmpl**      
+**report3.yag**      
 *Custom Reports ReactionListener CC v4*     
 Trigger = added reactions only      
 Only run it in the log channel      
 Stuff to change: `$logChannel` and `$staff` - this time `$staff` is all moderators.
 
-**report4.tmpl**      
+**report4.yag**      
 *Custom Reports Admins CC v3*     
 Trigger = Regex: `\A-r(?:eport)?a(?:dmin)?(?:\s+|\z)`      
 Restrict to roles that you want to be able to edit the report embeds.

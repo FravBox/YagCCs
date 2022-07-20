@@ -5,12 +5,12 @@ A simple verification system where users react with an emoji to a specific post 
 This command also logs when users have verified into a modlog, and, optionally, will also log incorrect verifications (if a user reacts to the wrong post) and/or delete emoji reactions.    
 It supports having different channels for every step of the process.
 
-**You only need the `verification.tmpl` for this code to work. `join.tmpl` and `leave.tmpl` are optional join & leave messages.**
+**You only need the `verification.yag` for this code to work. `join.yag` and `leave.yag` are optional join & leave messages.**
 
 Rules post that explains how to verify (not included in CC):    
 ![image](https://user-images.githubusercontent.com/20410737/177289398-53993d2f-db65-4e07-8929-7f4485879573.png)
 
-Modlog version of join message (join.tmpl - optional) & verification (included in CC):    
+Modlog version of join message (join.yag - optional) & verification (included in CC):    
 ![image](https://user-images.githubusercontent.com/20410737/177290969-8f0cf277-b792-45b5-b89b-4e7d16035ead.png)
 
 When user verifies, this customizable message is posted to the main talk channel/non-modlog channel you specify:    
@@ -19,7 +19,7 @@ When user verifies, this customizable message is posted to the main talk channel
 (optional) modlog message of an incorrect verification post:     
 ![image](https://user-images.githubusercontent.com/20410737/177290088-41a74e34-083e-44ff-9b8c-249c238eba81.png)
 
-(optional) Modlog post of a leave message (leave.tmpl):    
+(optional) Modlog post of a leave message (leave.yag):    
 ![image](https://user-images.githubusercontent.com/20410737/177291136-9e6c0cec-ac34-4d80-8a87-442e04d54e2c.png)
 
 If you are already verified when you react to the correct post, you will be DMed that you're already verified and you won't be announced. Otherwise, users are not DMed at all.     
@@ -27,7 +27,7 @@ If you are already verified when you react to the correct post, you will be DMed
 
 
 # How to Use
-Copy the `verification.tmpl` code into a custom CC.     
+Copy the `verification.yag` code into a custom CC.     
 Make the trigger Reaction - added only.    
 Set it to only run in the channel that contains the post users need to react to for verification.
 
