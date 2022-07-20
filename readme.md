@@ -53,12 +53,8 @@ Allows the author of the first message in a thread to manage pins in the thread 
 <summary>Misc</summary>
 
 - Basic server stats     
-- Improved bookmark command    
-- Cooldown    
-- Cooldown with branching    
+- Improved bookmark command      
 - MessagePreview    
-- Suggest   
-
 </details>
 
 <details>
@@ -66,6 +62,16 @@ Allows the author of the first message in a thread to manage pins in the thread 
 
 VERY Basic "make a ticket when clicking a reaction" command.
 
+</details>
+
+<details>
+<summary>Templates</summary>
+
+Random quick reference for snippets & templates.     
+- random chance      
+- cooldown      
+- cooldown with branching      
+- misc quick reference 
 </details>
 
 <details>
