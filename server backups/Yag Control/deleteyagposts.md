@@ -13,7 +13,7 @@ Trigger: Add reactions
 {{$del := 10 }} {{/* time before "you can't do that" post deletes itself, in seconds */}}
 
 {{/* the message when you're not allowed to delete something */}}
-{{$nope := (print "Sorry, but you can't delete that message, " .User.Mention "." ) }}
+{{$nope := (print .User.Mention ": \nSorry, but you can't delete that message, " .User "." ) }}
 
 {{/* optional things to edit */}}
 {{$la := 5}} {{/* number of messages to log when the emoji is used. Max 100 */}}
