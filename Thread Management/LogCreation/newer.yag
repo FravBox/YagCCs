@@ -1,0 +1,28 @@
+{{/* Thread Logging - by Vars#3616 at https://github.com/FravBox/YagCCs 
+Regex Trigger: \A
+*/}}
+
+{{$ch := 1234 }} {{/* logging channel ID */}}
+{{$time := 15770000}} {{/* time to expire in seconds - default 6 months */}}
+{{$color := 4645612}}{{/* embed color, in decimal */}}
+		
+{{ $embed := cembed 
+    "title" (print "\"" .Channel.Name "\" thread created" )
+    "description" (joinStr "" "**" .User.Mention "** (" .User ") started <#" .Channel.ID "> from <#" .Channel.ParentID ">\n\n[Jump to first post](" .Message.Link ")" ) 
+    "color" $color 
+    "footer" 
+    (sdict 
+        "text" (joinStr "" "User ID: " .User.ID ) )
+    "timestamp" .Message.Timestamp
+}}
+
+
+{{/* don't edit below */}}
+{{$ThreadCreate := (dbGet .Channel.ID "ThreadCreate").Value.ID}}
+
+{{if and .Channel.IsThread (not (dbGet .Channel.ID "ThreadCreate"))}} {{/* check if in db already */}} 
+        {{ $TC1 := (getMessage .Channel.ParentID .Channel.ID)}}
+        {{/* save to db */}} {{ $TC2 := dbSetExpire .Channel.ID "ThreadCreate" $TC1 $time}}
+        {{/* send thread creation to log */}} {{sendMessage $ch $embed }} 
+
+{{end}}
