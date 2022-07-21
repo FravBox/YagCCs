@@ -10,3 +10,9 @@ You CAN use both if you want to, but it will create superfluous database entries
 # Thread List     
 (just an idea for now, no code yet)     
 Use db entry from thread logging to create a list of threads for parent channel ID. Bonus points if it's only active threads (or can at least separate active from archived).
+
+# Notes
+**If you're using my code to help you make your own codes that involve threads, please read these notes**      
+If the message in the main channel that says "X started a thread" ever gets deleted, the `.Message.Author` comparison won't work. This is why my CCs save the author to database.
+
+Message type 21 is the thread creation message. But you can't use this in a CC to detect when a thread is created, because if anyone makes a thread via the plus icon in the message bar instead of using a pre-existing message to create a thread from, it will not fire. This is why my cc doesn't use message types.
