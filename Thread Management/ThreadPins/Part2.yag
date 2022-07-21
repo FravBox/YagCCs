@@ -1,0 +1,39 @@
+{{/* ThreadPins - by Vars#3616 at https://github.com/FravBox/YagCCs 
+Regex Trigger: ^(pin|unpin)
+User replies to message with "pin" or "unpin" to manage message.
+*/}}
+
+{{$time := 5}}{{/* how many seconds before all the superfluous messages are deleted - default 5 */}}
+
+{{/* do not edit below */}}
+{{$TAuthor := (dbGet .Channel.ID "ThreadAuthor").Value.ID}}
+
+{{if and (.Channel.IsThread) (.Message.ReferencedMessage)}}
+	{{if $TAuthor}}
+		{{if eq .User.ID $TAuthor}}
+			{{if eq (lower .Message.Content) "pin"}}
+				{{if .Message.ReferencedMessage.Pinned}}
+					{{$msg := sendMessageRetID nil "Message is already pinned."}}
+					{{deleteMessage nil $msg $time}}
+				{{else}}
+					{{pinMessage nil .Message.ReferencedMessage.ID}}
+				{{end}}
+			{{else if eq (lower .Message.Content) "unpin"}}
+				{{if not .Message.ReferencedMessage.Pinned}}
+					{{$msg := sendMessageRetID nil "Message is already unpinned."}}
+					{{deleteMessage nil $msg $time}}
+				{{else}}
+					{{unpinMessage nil .Message.ReferencedMessage.ID}}
+					{{$msg := sendMessageRetID nil "Message unpinned."}}
+					{{deleteMessage nil $msg $time}}
+				{{end}}
+			{{end}}
+		{{else}}
+		Only thread starters can manage thread pins.
+		{{deleteResponse $time}}
+		{{end}}
+	{{else}}	
+	Thread author not in database!
+	{{end}}
+{{deleteTrigger $time}}
+{{end}}

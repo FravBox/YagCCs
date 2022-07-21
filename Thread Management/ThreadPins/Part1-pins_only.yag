@@ -1,0 +1,11 @@
+{{/* Thread Author DB entry for ThreadPins - by Vars#3616 at https://github.com/FravBox/YagCCs 
+Regex Trigger: \A
+*/}}
+
+{{$time := 15770000 }}{{/* db entry expiration in seconds - default 6 months */}}
+
+{{/* don't edit below */}}
+{{if and .Channel.IsThread (not (dbGet .Channel.ID "ThreadAuthor"))}}
+		{{ $TA1 := (getMessage .Channel.ParentID .Channel.ID).Author}}
+		{{ $TA2 := dbSetExpire .Channel.ID "ThreadAuthor" $TA1 $time}}
+{{end}}

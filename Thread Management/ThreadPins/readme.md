@@ -5,6 +5,8 @@ Allows the author of the first message in a thread to manage pins in the thread 
 You must add both CCs - Part 1 & Part 2. You do not need to edit anything inside them for them to work. 
 
 ## How to use it
+
+**You need 2 custom commands for this to work - Part1 and Part2.**       
 The person who is the author of the very first post in a thread is considered the "Thread Author" (TAuthor / TA). The TA is the same person who created the thread unless they make a thread out of someone else's post (in that case, that post's author is the TA).     
 
 If the TA wants to pin a post, they reply to the post with the word "pin". Yag will pin the post and delete all the mess in a few seconds.     
@@ -18,59 +20,25 @@ If someone other than the TA tries to manage pins, Yag posts that only thread st
 
 
 ## Part 1
-Db entry expires in 6 months.
+**If you want to use ONLY ThreadPins:**         
+Copy the code in `Part1-pins_only.yag`       
+Trigger type: Regex, `\A`      
+There is only one (optional) variable to change. It's when the database entry expires. The default is 6 months. If your thread is revived after db expiry, whoever revived it becomes the new thread author and can manage pins.
 
-Regex: `\A`
-```go
-{{/* Yag saves the author of the message the thread was created from to the database. Necessary for pin cc. regex trigger \A */}}
+**If you want to use BOTH ThreadPins AND Thread creation logs:**       
+Copy the code in `Part1-both.yag`      
+Trigger type: Regex, `\A`    
+You MUST change the value in `$ch` so it reflects where you want the log message posted. The other values are optional, and control when the db entry expires and the color of the embed. Thew default db expiry is in 6 months.      
+If the thread is revived after the db expires, the log message will be sent again as if the thread were just created, and whoever revived the thread becomes the new thread author and can manage pins.
 
-{{if and .Channel.IsThread (not (dbGet .Channel.ID "ThreadAuthor"))}}
-		{{ $TA1 := (getMessage .Channel.ParentID .Channel.ID).Author}}
-		{{ $TA2 := dbSetExpire .Channel.ID "ThreadAuthor" $TA1 15770000}}
-{{end}}
-```
+**Only use one of the `Part1`s!**
 
 ## Part 2     
+Copy the `Part2.yag` code.      
+Trigger type: Regex, `^(pin|unpin)`
 
-Regex: `^(pin|unpin)`
-```go
-{{/* User replies to message with "pin" or "unpin" to manage message. Trigger type: regex. Trigger: ^(pin|unpin) */}}
-{{$TAuthor := (dbGet .Channel.ID "ThreadAuthor").Value.ID}}
+There is only one (optional) thing to customize here. That is how many seconds before all the messages are cleaned. By default it's 5.
 
-{{if and (.Channel.IsThread) (.Message.ReferencedMessage)}}
-	{{if $TAuthor}}
-		{{if eq .User.ID $TAuthor}}
-			{{if eq (lower .Message.Content) "pin"}}
-				{{if .Message.ReferencedMessage.Pinned}}
-					{{$msg := sendMessageRetID nil "Message is already pinned."}}
-					{{deleteMessage nil $msg 3}}
-				{{else}}
-					{{pinMessage nil .Message.ReferencedMessage.ID}}
-				{{end}}
-			{{else if eq (lower .Message.Content) "unpin"}}
-				{{if not .Message.ReferencedMessage.Pinned}}
-					{{$msg := sendMessageRetID nil "Message is already unpinned."}}
-					{{deleteMessage nil $msg 5}}
-				{{else}}
-					{{unpinMessage nil .Message.ReferencedMessage.ID}}
-					{{$msg := sendMessageRetID nil "Message unpinned."}}
-					{{deleteMessage nil $msg 5}}
-				{{end}}
-			{{end}}
-		{{else}}
-		Only thread starters can manage thread pins.
-		{{deleteResponse 5}}
-		{{end}}
-	{{else}}	
-	Thread author not in database!
-	{{end}}
-{{deleteTrigger 2}}
-{{end}}
-```
-<details> <summary>If you're using my code to help you make your own codes that involve threads, please read these notes</summary> 
-If the message in the main channel that says "X started a thread" ever gets deleted, the author comparison won't work. This is why my CC saves the author to db.
-
-Message type 21 is the thread creation message. But you can't use this to compare, because if anyone makes a thread via the plus icon in the message bar, instead of using a pre-existing message to create a thread from, it will not fire. This is why my cc doesn't use message types.</details>
 
 ## Optional Troubleshooting CC     
 Tells you who the Thread author is and if they're in the database.
