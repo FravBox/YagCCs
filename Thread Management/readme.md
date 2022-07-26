@@ -8,22 +8,8 @@ Pushes a message to a specific channel any time a thread is created - AKA logs t
 You CAN use both if you want to, but it will create superfluous database entries. To only make one db entry per thread, go into `ThreadPins` and follow the instructions there for using both.
 
 # Thread List     
-Got this working. Will adjust and make more official in the coming days. Triger can be any command. Yag will lag, so give it at least 5 seconds to respond.     
-```go
-{{/* lists top active threads as mentions. Must use "ThreadAuthor" db entry from ThreadPins code to work */}}
+![image](https://user-images.githubusercontent.com/20410737/181121356-8bdb0456-798a-47e8-be3b-acc26dc2635b.png)
 
-{{$amt := 10}} {{/* number of thread IDs to check. Archived threads count against the limit even if they aren't displayed in the output. Max 100. */}}
-
-{{/* don't edit below */}}
-{{$ch := ""}}
-{{ $x := (dbTopEntries "ThreadAuthor" $amt 0) }}
-{{range $x}}
-{{- with (getChannelOrThread .UserID ) -}}
-{{- print .Mention "\n" -}}
-{{- $ch = joinStr " " $ch .ID -}}
-{{- end -}}
-{{- end}}
-```
 
 # Notes
 **If you're using my code to help you make your own codes that involve threads, please read these notes**      
