@@ -1,0 +1,84 @@
+
+{{/* test proof of concept -
+I use regex \A and limit it to only a few channels, but you can run it however you want as long as it's text-based.
+*/}}
+
+{{$amt := 10}} {{/* how many db entries to get. Max 100 */}}
+{{$time := 300}} {{/* seconds before db entry expires */}}
+
+
+{{/* thread code */}}
+{{if .Channel.IsThread}}
+
+
+
+    {{$tinfo := sdict "thread" .Channel.ID 
+    "tname" (getThread nil).Name 
+    "parent" .Channel.ParentID 
+    "cat" (getChannel (getChannel .Channel.ParentID).ParentID).Name
+    "tauthor" .Message.Author
+    }}
+
+
+    {{dbSetExpire .Channel.ID "threads" $tinfo $time}}
+    db set
+    {{end}}
+
+
+    {{if not .Channel.IsThread}}
+
+
+
+    {{sendMessage nil "loading..."}}
+
+{{$g := .Guild.ID}}
+
+{{$link := ""}}
+
+{{$dict := dict}}
+
+
+    
+  
+    
+    {{range (dbTopEntries "threads" $amt 0)}}
+        {{- $dict.Set .Value.cat (or ($dict.Get .Value.cat) dict) -}}
+
+
+
+        {{- ($dict.Get .Value.cat).Set .Value.parent ((( or (($dict.Get .Value.cat).Get .Value.parent) cslice).Append .Value.thread).Append .Value.tname) -}}
+
+    {{end}}
+
+    {{$desc := ""}}
+    {{range $k, $v := $dict}}
+        {{- $desc = print "**" $desc $k "**\n" }}
+
+        {{- range $y, $z := $v -}}
+            {{- $desc = printf "%s\t<#%d>\n" $desc $y -}}
+
+            {{- $link = (printf "%s\t\t<#%d> | [%s](https://discord.com/channels/" $g "/%d)" ) -}}
+
+            {{- $desc = print $link $desc}}
+
+            {{- range $z -}}
+
+
+
+               {{- $desc = print $desc . -}}
+            {{- end -}}
+        {{- end -}}
+    {{end}} 
+
+
+
+
+    {{$embed := cembed "title" "test" "description" $desc}}
+    
+ {{sendMessage nil $desc}}
+ {{sendMessage nil "finished"}}
+
+{{end}}
+
+
+

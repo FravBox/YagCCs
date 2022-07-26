@@ -1,0 +1,203 @@
+{{/* Thread management db controls & logging - stripped down version for less db calls.
+regex \A 
+Made by Vars#3616 - https://github.com/FravBox/YagCCs
+*/}}
+
+
+{{$time := 15770000 }} {{/* db entry expiration in seconds - default 6 months */}}
+{{$staff := 1234 }} {{/* role ID of people who can use the database commands */}}
+
+{{$ylog := 2}} {{/* do you want thread logging? 1 - only original thread creation, 2 - original, force renews, & thread renames, 0 - no logs. default is 2 */}}
+
+{{$ch := 765344516034265099 }} {{/* logging channel ID */}}
+
+{{/* embed colors */}}
+{{$c1 := 0xaa5ffa}} {{/* thread created */}}
+{{$c2 := 5570815}} {{/* renamed */}}
+{{$c3 := 0x6d03ab}} {{/* info/author changed */}}
+
+
+{{/* DO NOT EDIT ANYTHING BELOW */}}
+
+{{if .Channel.IsThread }}
+
+    {{$tinfo := sdict 
+    "thread" .Channel 
+    "tname" (getThread nil).Name 
+    "parent" .Channel.ParentID 
+    "cat" (getChannel (getChannel .Channel.ParentID).ParentID).Name
+    "tauthor" .Message.Author
+    }}
+
+    {{/* check db for entry */}} 
+    {{$tdb := (dbGet .Channel.ID "threads")}}
+
+    {{/* stuff for log messages */}} 
+    {{$uid := (print "Action triggered by " .User.String " | User ID: " .User.ID )}}
+    {{$t := .Message.Timestamp }}
+    {{$link := (print .Channel.Mention " | [Link to thread](https://discord.com/channels/" .Guild.ID "/" .Channel.ID ")" )}}
+    {{$nlink := (print "**[" .Channel.Name "](https://discord.com/channels/" .Guild.ID "/" .Channel.ID ")**" )}}
+    {{$trig := (print "\n\n[Jump to post](" .Message.Link ") | " $link) }}
+
+    {{/* save new thread to db */}}
+    {{if and (not $tdb) (ne .Message.Type 4)}}
+        {{if not (reFind `^-t.*|^save$|^(pin|unpin)$` .Message.Content) }}
+         {{dbSetExpire .Channel.ID "threads" $tinfo $time}}
+         
+            {{if (ne $ylog 0)}}
+                {{/* new thread log message */}}
+                {{ $embed1 := cembed 
+                "title" (print "Thread Created: \"" .Channel.Name "\"" )
+                "description" (joinStr "" "**" .User.Mention "** (`" .User "`) started " $nlink " from <#" .Channel.ParentID ">.\n\n[Jump to first post](" .Message.Link ") | " $link ) 
+                "color" $c1 
+                "footer" (sdict "text" $uid ) "timestamp" $t
+                }}
+                {{sendMessage $ch $embed1}} 
+            {{end}}
+        {{end}}
+    
+    {{/* save thread renames to db */}}
+    {{else if (eq .Message.Type 4)}}
+        
+            {{if (eq $ylog 2)}}
+            {{$x := reFind `.*` .Message.Content}} {{/* get new name from name change message bc discord is dumb */}}  
+            {{$y:= (print "**[" $x "](https://discord.com/channels/" .Guild.ID "/" .Channel.ID ")**" )}}
+
+            {{/* renamed thread log message */}}
+            {{ $embed2 := cembed 
+            "title" (print "Thread Name Change: " .Channel.Name " ➡️ " $x )
+            "description" (print "**" .Channel.Name "** in <#" .Channel.ParentID "> just changed its name to " $y " (<#" .Channel.ID ">)." $trig )
+            "color" $c2 
+            "footer" (sdict "text" $uid ) "timestamp" $t
+            }}
+
+            {{sendMessage $ch $embed2}}
+
+            {{/* make new db entry */}}
+            {{$tinfo.Set "tname" $x}}
+            {{dbSetExpire .Channel.ID "threads" $tinfo $time}} 
+        {{end}}
+    {{end}}
+
+    {{/* Check current database : -tcheck */}}
+
+    {{$tcheck := (print "**The thread is already in the database.** \n\nSaved Thread Author: `" $tdb.Value.tauthor.Username "#" $tdb.Value.tauthor.Discriminator "` \nPrevious Thread Name: `" $tdb.Value.thread.Name "`\nCurrent Name: `" $tdb.Value.tname "`")}} 
+   
+        {{if and (reFind `^-tcheck$` .Message.Content) (hasRoleID $staff)}}
+            {{if $tdb}}
+
+                {{$x := sendMessageRetID nil $tcheck}}
+                {{deleteMessage nil $x 20}}
+                {{deleteTrigger 21}}
+            {{else}}
+                Thread is not in the database.
+                {{deleteResponse 20}}
+                {{deleteTrigger 21}}
+            {{end}}
+        
+        {{/* Force delete a db entry : -tdel */}}
+        {{else if and (reFind `(?i)^-tdel$` .Message.Content) (hasRoleID $staff)}}
+                {{if $tdb}}
+                    {{dbDel .Channel.ID .Channel.ParentID}}
+                    Thread was in the database already, but it's deleted now.
+                {{else}}
+                    There was no database entry to delete.
+                {{end}}
+            {{deleteResponse 20}}
+            {{deleteTrigger 21}} 
+        {{else if and (reFind `(?i)^-tdel$|^-tcheck$` .Message.Content) (not (hasRoleID $staff))}}
+            You don't have the right role to use this command.
+            {{deleteResponse 20}}
+            {{deleteTrigger 21}}     
+        {{end}}
+
+        {{/* Force save new db entry to make a new thread author : reply to another message with "save" */}}
+        {{if and (.Message.ReferencedMessage) (reFind `(?i)^save$` .Message.Content) (hasRoleID $staff)}}
+            {{$tauth := .Message.ReferencedMessage.Author }}{{/* gets author of parent message */}}
+    
+            {{if $tdb}}
+                {{$new := "\n\n**This will be the new information:**\n"}}
+                {{$new2 := "\n\n**New Thread Information Saved.**\n\n"}}
+                {{$tcheck2 := (print "Thread Author: `" $tauth "` \nCurrent Thread Name: `" .Channel.Name "`")}}
+                {{$wait := "\n\n*Wait for this message to edit itself.*"}}
+
+                {{$tc1 := sendMessageRetID nil (print $tcheck $new $tcheck2 $wait)}}
+
+                {{if (ne $ylog 2)}}
+                    {{$tc3 := editMessage nil $tc1 (print $tcheck2 $new2 "\n\n *This message will delete in 20 seconds.*") }}
+                    {{deleteMessage nil $tc1 20}}
+
+                    {{$tinfo.Set "tauthor" $tauth}} {{/* save new author */}}
+                    {{dbSetExpire .Channel.ID "threads" $tinfo $time}}
+                {{else}}
+                    {{$tinfo.Set "tauthor" $tauth}} {{/* save new author */}}
+                    {{dbSetExpire .Channel.ID "threads" $tinfo $time}}
+                    {{$tdb := (dbGet .Channel.ID "threads") }}
+
+                    {{$tc3 := editMessage nil $tc1 (print $tcheck2 $new2) }}
+                   
+                {{end}}
+               
+            {{else}}    
+                {{$tinfo.Set "tauthor" $tauth}} {{/* save new author */}}
+                {{dbSetExpire .Channel.ID "threads" $tinfo $time}} 
+                {{sleep 1}}
+
+                {{$x := sendMessageRetID nil (print $new2 $tcheck2 )}}
+                
+                {{if (ne $ylog 2)}}
+                    {{deleteMessage nil $x 20}}
+                {{end}}
+            {{end}}
+
+            {{if (eq $ylog 2)}}
+                {{$tdb := (dbGet .Channel.ID "threads") }}
+                {{/* log thread info change */}}
+                {{ $embed2 := cembed 
+                "title" "Thread Information Change" 
+                "description" (joinStr "" "** " .Message.ReferencedMessage.Author.Mention "** (`" .Message.ReferencedMessage.Author "`) can now control pins in the " $nlink " thread of <#" .Channel.ParentID ">.\n" $trig ) 
+                "color" $c3 
+                "footer" (sdict "text" $uid ) "timestamp" $t
+                }}
+
+                {{sendMessage $ch $embed2}}
+            {{else if (eq $ylog 0) }}
+                {{deleteTrigger 21}}
+            {{end}}
+        {{else if and (.Message.ReferencedMessage) (reFind `(?i)^save$` .Message.Content) (not (hasRoleID $staff))}}
+            You don't have the right role to use this command.
+            {{deleteResponse 20}}
+            {{deleteTrigger 21}}
+    {{end}}
+
+    {{/* Allow thread authors to manage pins in their own threads : reply to message with "pin" or "unpin" */}}
+    {{if and ($tdb) (.Message.ReferencedMessage) (reFind `(?i)^(pin|unpin)$` .Message.Content)}}
+        {{if eq .User.ID $tdb.Value.tauthor.ID}}
+            {{deleteTrigger 6}}
+        
+            {{if eq (lower .Message.Content) "pin" }} {{/* pin command */}}
+                {{if .Message.ReferencedMessage.Pinned}}
+                    {{$msg := sendMessageRetID nil "Message is already pinned."}}
+                    {{deleteMessage nil $msg 5}}
+                {{else}}
+                    {{pinMessage nil .Message.ReferencedMessage.ID}}
+                {{end}}
+            {{else if eq (lower .Message.Content) "unpin"}} {{/* unpin command */}}
+                {{if not .Message.ReferencedMessage.Pinned}}
+                    {{$msg := sendMessageRetID nil "Message is already unpinned."}}
+                    {{deleteMessage nil $msg 5}}
+                {{else}}
+                    {{unpinMessage nil .Message.ReferencedMessage.ID}}
+                    {{$msg := sendMessageRetID nil "Message unpinned."}}
+                    {{deleteMessage nil $msg 5}}
+                {{end}}
+            {{end}}
+        {{else}}
+            {{print "Only the thread author can manage pins.\nThe current thread author is `" $tdb.Value.tauthor.Username "`"}}
+            
+            {{deleteResponse 5}}
+            {{deleteTrigger 6}}
+        {{end}}
+    {{end}}
+
+{{end}}

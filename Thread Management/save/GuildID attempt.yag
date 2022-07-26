@@ -1,0 +1,56 @@
+
+{{/* test proof of concept -
+I use regex \A and limit it to only a few channels, but you can run it however you want as long as it's text-based.
+*/}}
+
+{{$amt := 10}} {{/* how many db entries to get. Max 100 */}}
+{{$time := 300}} {{/* seconds before db entry expires */}}
+
+
+{{/* stuff for sdict */}}
+
+{{$g := .Guild.ID}}
+{{$paren := (getChannel .Channel.ParentID)}}
+{{$cate := (getChannel (getChannel .Channel.ParentID).ParentID)}}
+
+{{$tinfo := sdict
+"thread" .Channel 
+"tname" .Channel.Name 
+"parent" $paren
+"cat" $cate
+"tauthor" ($tauth := .Message.Author)
+}}
+
+
+
+{{if .Channel.IsThread}}
+    {{$tdb := dbGet .Channel.ID $g }}
+    
+    {{if not $tdb}}
+    {{dbSetExpire .Channel.ID $g $tinfo $time}}
+    db made
+    {{end}}
+
+{{print $tdb.Value}}
+
+{{else}}
+   
+
+{{/* ALL THREADS IN WHOLE SERVER */}}
+
+{{$link := ""}}
+{{ $x := (dbTopEntries $g $amt 0) }}
+{{$y := ""}}
+{{range $x}}
+
+    {{$link = (print "**" .Value.cat.Name "** > <#" .Value.parent.ID "> > <#" .Value.thread.ID "> | [" .Value.tname "](https://discord.com/channels/" $g "/" .UserID ")" )}}
+
+    {{$y = joinStr "\n" $link $y}}
+{{- end -}}
+
+{{sendMessage nil (cembed "title" "Category > Channel > Thread" "description" $y)}} 
+
+
+{{end}}
+
+

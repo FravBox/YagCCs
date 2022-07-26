@@ -1,0 +1,21 @@
+{{/* deletes top 100 db entries of threads that have been deleted (may also delete archived thread entries - use at your own risk)
+Command can be on an interval or a text command.
+
+Made by Shadow22A. More info at https://github.com/FravBox/YagCCs 
+*/}}
+
+{{$x := dbTopEntries "threads" 100 0 }}{{$c := 0}}
+{{if .ExecData}}{{$x = .ExecData.x}}{{end}}
+  {{range $x}}
+    {{- if not (getThread .Value.thread.ID)}}
+      {{- dbDel .UserID .Key}}
+    {{- end}}
+    {{- $c = add $c 1}}
+    {{- if eq $c 10}}
+    {{- if ge (len $x) 10}}
+      {{- $x = slice $x 10}}
+      {{- execCC $.CCID nil 5 (sdict "x" $x)}}
+    {{- end -}}
+  {{break}}
+  {{end}}
+{{end}}

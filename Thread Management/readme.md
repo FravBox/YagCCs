@@ -1,15 +1,34 @@
-# ThreadPins      
-Allows author of first post in a thread to manage the pinned messages in that thread
+# CURRENTLY DOING A MASSIVE UPDATE
+I can't update git in an optimal way so sorry if you have to see this (should be max an hour)
 
-# LogCreation    
-Pushes a message to a specific channel any time a thread is created - AKA logs thread creation.
 
-# If you want to use both
-You CAN use both if you want to, but it will create superfluous database entries. To only make one db entry per thread, go into `ThreadPins` and follow the instructions there for using both.
 
-# Thread List     
-(just an idea for now, no code yet)     
-Use db entry from thread logging to create a list of threads for parent channel ID. Bonus points if it's only active threads (or can at least separate active from archived).
+
+# THREAD MANAGEMENT
+A set of custom commands for all sorts of Thread features!
+
+Table of contents will go here as this will be a long readme
+
+## Logging
+![image](https://user-images.githubusercontent.com/20410737/181127576-629fedd2-bbbd-4cea-9557-281c96e0f3c0.png)      
+See when threads are created, renamed, and manually resave the info to change who the thread author is.      
+The logging part of the CC is entirely optional - You can still use the other features without it.
+
+## Thread Authors & Pinning Messages
+![image](https://user-images.githubusercontent.com/20410737/181127916-5cd2e538-8a4b-467e-8c85-c9368a2e7b62.png)      
+The first person to post in a thread (usually the creator of the thread) can pin and unpin messages in their thread.      
+Included in the main command, thread authors can reply to any post with "pin" or "unpin" to pin the message they replied to.
+Optionally, an additional command can perform these actions with reactions.
+
+## Thread List     
+![image](https://user-images.githubusercontent.com/20410737/181121356-8bdb0456-798a-47e8-be3b-acc26dc2635b.png)      
+An add-on to the main custom command that will list all threads in your server.
+
+## Database Management
+![image](https://user-images.githubusercontent.com/20410737/181128287-fc0aab36-1158-446d-9c33-f69be6f46944.png)     
+New threads will automatically be added to the database, but there are also commands to manually re-save and delete entries.
+
+
 
 # Notes
 **If you're using my code to help you make your own codes that involve threads, please read these notes**      

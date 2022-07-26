@@ -1,0 +1,64 @@
+{{$amt := 10}} {{/* amount of db entries to range*/}}
+
+{{$time := 300}} {{/* seconds before db entry expires */}}
+
+
+{{/* thread code */}}
+{{if .Channel.IsThread}}
+
+
+
+    {{$tinfo := sdict "thread" .Channel 
+    "tname" (getThread nil).Name 
+    "parent" .Channel.ParentID 
+    "cat" (getChannel (getChannel .Channel.ParentID).ParentID).Name
+    "tauthor" .Message.Author
+    }}
+
+
+    {{dbSetExpire .Channel.ID "threads" $tinfo $time}}
+    db set
+{{end}}
+
+
+{{if not .Channel.IsThread}}
+
+
+{{$q := sendMessage nil "loading..."}} 
+
+{{$dict := dict}} {{/* initializing the $dict */}}
+
+{{range (dbTopEntries "threads" $amt 0)}} {{/* getting 100 or available db entries with key "threads" */}}
+{{- $dict.Set .Value.cat (or ($dict.Get .Value.cat) dict) -}} {{/* making key value pair just for categories here */}}
+
+{{- ($dict.Get .Value.cat).Set .Value.parent ((or (($dict.Get .Value.cat).Get .Value.parent) cslice).Append .Value.thread) -}} {{/* making key value pair under "categories" with channel : thread pairs */}}
+
+{{/* basically above code makes dict like this {{dict Category1 (dict ChannelA [thread1, thread2, ..] ChannelB [ThreadA, TheradB, ..]) Category2 (dict ChannelC [ThreadX, ThreadY, ThreadZ, ..]) .. }} */}}
+{{end}}
+
+{{$desc := ""}}
+{{$g := .Guild.ID}}
+{{$i := " "}}
+{{$i2 := print "ㅤ" " " " " }} 
+
+{{range $k, $v := $dict}} 
+    {{/* ranging $dict we created above, with $k as "Categories" $v as "Channel: Thread dict" */}}
+  
+    {{- $desc = print $desc "\n**" $k "**\n" }} 
+  
+    {{- range $y, $z := $v -}} 
+    {{/* ranging $V "Channel: Thread dict" with $y as Channel and $z as threads */}}
+
+    {{- $desc = printf "%s%s<#%d>\n" $desc $i $y -}} 
+    {{- range $z -}} {{/* ranging $z "threads list" */}}
+        {{- $desc = printf "%s%s%[2]s<#%d> | [%s](https://discord.com/channels/%d/%d)\n" $desc $i2 .ID .Name $g .ID -}} 
+    {{- end -}}
+  {{- end -}}
+{{end}} 
+
+{{$embed := cembed "title" "Server Thread List" "description" (title $desc)}}
+
+{{sendMessage nil $embed}}
+{{sendMessage nil "done"}}
+
+{{end}}

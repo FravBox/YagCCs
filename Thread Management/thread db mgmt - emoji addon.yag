@@ -1,0 +1,88 @@
+{{/* emoji addon for thread db management - this is not a stand-alone command. 
+trigger: added + removed reactions
+
+Written by Vars#3616 - https://github.com/FravBox/YagCCs
+*/}}
+
+{{$pin := "📍"}} {{/* emoji to use for pinning posts */}}
+{{$save := "💾"}} {{/* emoji to use for resaving thread info / setting new author */}}
+
+{{$staff := 1234}} {{/* role ID people need to use resave command */}}
+
+{{$time := 15770000 }} {{/* db entry expiration in seconds - make it the same time as the main cc. Default 6 months. */}}
+
+{{$ylog := 2}} {{/* log resaves? 2 for yes. 0 or 1 for no. Default is 2 */}}
+
+{{$ch := 1234 }} {{/* logging channel ID */}}
+
+{{$c3 := 0x6d03ab}} {{/* info/author changed embed color. Keep it the same as the main cc. */}}
+
+
+{{/* DO NOT EDIT BELOW */}}
+
+{{if .Channel.IsThread}}  
+        
+    {{if or (eq .Reaction.Emoji.APIName $pin) (eq .Reaction.Emoji.APIName $save)}}
+
+
+    {{/* make sdict for db */}} 
+    {{$tinfo := sdict 
+    "thread" .Channel 
+    "tname" (getThread nil).Name 
+    "parent" .Channel.ParentID 
+    "cat" (getChannel (getChannel .Channel.ParentID).ParentID).Name
+    "tauthor" .Message.Author
+    }}
+
+    {{/* check for db entry */}}
+    {{$tdb := (dbGet .Channel.ID "threads")}}
+
+        {{/* pins */}}
+        {{if eq .Reaction.Emoji.APIName $pin }}
+        {{if (eq .User.ID (($tdb).Value.tauthor.ID)) }}
+            
+            {{if .ReactionAdded }}
+                {{ pinMessage nil .ReactionMessage.ID}}
+            {{else}}
+                {{unpinMessage nil .ReactionMessage.ID}}
+            {{end}}
+        {{end}}
+        {{end}}
+    
+        {{/* re-save thread info / set new author */}}
+        {{if and (hasRoleID $staff ) (eq .Reaction.Emoji.APIName $save) }}
+
+            {{if .ReactionAdded}}
+                
+                {{$tinfo.Set "tauthor" (.Message.Author)}}
+                {{dbSetExpire .Channel.ID "threads" $tinfo $time}} 
+                {{sleep 1}}
+                           
+                {{$x := sendMessageRetID nil (print "**Thread Information Re-saved.** \n\nNew Thread Author: `" .Message.Author "` \nCurrent Thread Name: `" .Channel.Name "`" )}}
+                {{sleep 1}}
+                {{addMessageReactions nil .Message.ID "✅"}}
+                {{sleep 1}}
+                {{deleteMessageReaction nil .Message.ID .User.ID $save}}
+            
+                {{if (eq $ylog 2)}}
+                    {{/* log thread info change */}}
+                    {{$uid := (print "Action triggered by " .User.String " | User ID: " .User.ID )}}
+                    {{$link := (print .Channel.Mention " | [Link to thread](https://discord.com/channels/" .Guild.ID "/" .Channel.ID ")" )}}
+                    {{$nlink := (print "**[" .Channel.Name "](https://discord.com/channels/" .Guild.ID "/" .Channel.ID ")**" )}}
+                    {{$trig := (print "\n\n[Jump to post](" .Message.Link ") | " $link) }}
+
+                    {{ $embed2 := cembed 
+                    "title" "Thread Information Change" 
+                    "description" (joinStr "" "** " .Message.Author.Mention "** (`" .Message.Author "`) can now control pins in the " $nlink " thread of <#" .Channel.ParentID ">.\n" $trig ) 
+                    "color" $c3 
+                    "footer" (sdict "text" $uid ) "timestamp" .Message.Timestamp
+                    }}
+
+                    {{sendMessage $ch $embed2}}
+                {{else}}
+                    {{deleteMessage nil $x 20}}
+                {{end}}
+            {{end}}
+        {{end}}
+    {{end}}
+{{end}}
