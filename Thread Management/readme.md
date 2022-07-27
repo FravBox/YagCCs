@@ -1,9 +1,6 @@
 # THREAD MANAGEMENT - ABOUT 
 **A set of custom commands for all sorts of Thread features!**
 
-`/learn/` contains heavily commented proof of concept code for saving a thread to the db and making a thread list command.       
-You can use this to help you make your own thread-based commands. There's also some random facts I learned about threads in there.
-
 **Table of Contents**       
 1. Main features/pictures      
 2. [Main mandatory command information.](https://github.com/FravBox/YagCCs/tree/main/Thread%20Management#main-command)     
@@ -13,6 +10,9 @@ You can use this to help you make your own thread-based commands. There's also s
     - [If you've ever used a previous version of these commands](https://github.com/FravBox/YagCCs/tree/main/Thread%20Management#install-this-command-first-if-youve-ever-used-an-older-version)
 3. [Thread List command](https://github.com/FravBox/YagCCs/tree/main/Thread%20Management#thread-list-1)
 4. [Installing the the thread management commands](https://github.com/FravBox/YagCCs/tree/main/Thread%20Management#installing-thread-management-commands)
+
+`/learn/` contains heavily commented proof of concept code for saving a thread to the db and making a thread list command.       
+You can use this to help you make your own thread-based commands. There's also some random facts I learned about threads in there.
 
 ## Database Management
 ![image](https://user-images.githubusercontent.com/20410737/181128287-fc0aab36-1158-446d-9c33-f69be6f46944.png)     
