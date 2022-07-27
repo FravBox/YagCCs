@@ -139,7 +139,8 @@ Depending on how many db entries you range through and the amount of threads in 
 - It will NOT auto-update
 - USE IT SPARINGLY
 
-It does thread mentions and text links to the threads, so it should still work even if the threads get archived, as long as the db entries associated with them were not deleted.
+It does thread mentions and text links to the threads, so it should still work even if the threads get archived, as long as the db entries associated with them were not deleted.       
+Many thanks to Shadow22A, who wrote 90% of this command.
 
 ## `$amt` - The amount of db entries to range through
 The max is 100, but unless you have 100+ channels and/or threads, do not set it this high. The larger the number, the more command will lag. Adjust it to your server's needs.
@@ -153,6 +154,8 @@ The max is 100, but unless you have 100+ channels and/or threads, do not set it 
 **2.** For the main cc, the trigger type is `regex` with the trigger type being `\A`, meaning it will trigger on every message. From there, edit all the variables noted before the "DO NOT EDIT BELOW" line.       
 **The main cc is the only cc you need for thread logging and text commands. All other CCs are optional.**
 
+A note - If you _currently_ have several threads open, whoever is the first to post in those threads after adding this cc becomes the "thread author." It will also generate a log that a thread was created. If you do not want log spam, you may want to disable logs, post in all your threads, then enable logs afterward.
+
 **3.** Add any of the addons:     
 - emoji addon allows you to pin, unpin, and resave threads with message reactions.
 - mass delete db entries allows you to... mass delete invalid thread db entries. Mainly for use to clean up things for the thread list command.\
@@ -162,7 +165,15 @@ The max is 100, but unless you have 100+ channels and/or threads, do not set it 
 
 
 # Notes
-**If you're using my code to help you make your own codes that involve threads, please read these notes**      
+**If you're using my code to help you make your own codes that involve threads, please read these notes...**      
 If the message in the main channel that says "X started a thread" ever gets deleted, the `.Message.Author` comparison won't work. This is why my CCs save the author to database.
 
-Message type 21 is the thread creation message. But you can't use this in a CC to detect when a thread is created, because if anyone makes a thread via the plus icon in the message bar instead of using a pre-existing message to create a thread from, it will not fire. This is why my cc doesn't use message types.
+Message type 21 is the thread creation message. But you can't use this in a CC to detect when a thread is created, because if anyone makes a thread via the plus icon in the message bar instead of using a pre-existing message to create a thread from, it will not fire. This is why my cc doesn't use that message type.
+
+When threads are archived, their channel mentions will appear as `#deleted-channel` and internally, Discord will treat these threads as if they no longer exist, despite the fact that they can be unarchived. This is part of the reason why every action that uses thread mentions also uses text links. The other reason is that thread mentions do not work reliably even when the thread isn't archived - The result varies across platforms.
+
+Related, the thread list CC was unecessarily convulted because I specifically wanted to list archived threads, too. Using `with` or `.Channel.Mention` will automatically excluse all archived threads, because to Discord, those don't exist anymore. ¯\_(ツ)_/¯
+
+The link structure for all threads is: `https://discord.com/channels/GuildID/ChannelID`
+
+If you have any questions about threads or any interesting discoveries related to writing CCs concerning them, please feel free to contact me here or over Discord to tell me about them! Thanks.
