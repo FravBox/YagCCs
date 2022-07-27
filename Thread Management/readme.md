@@ -162,4 +162,5 @@ A note - If you _currently_ have several threads open, whoever is the first to p
 - mass delete db entries allows you to... mass delete invalid thread db entries. Mainly for use to clean up things for the thread list command.\
 - thread list command will list all of the threads in your server.
 
+**Note: None of the addons will work without the main CC.**
 
