@@ -3,6 +3,10 @@ A set of custom commands for all sorts of Thread features!
 
 Table of contents will go here as this will be a long readme
 
+## Database Management
+![image](https://user-images.githubusercontent.com/20410737/181128287-fc0aab36-1158-446d-9c33-f69be6f46944.png)     
+New threads will automatically be added to the database, but there are also commands to manually re-save and delete entries.
+
 ## Logging
 ![image](https://user-images.githubusercontent.com/20410737/181127576-629fedd2-bbbd-4cea-9557-281c96e0f3c0.png)      
 See when threads are created, renamed, and manually resave the info to change who the thread author is.      
@@ -14,16 +18,15 @@ The first person to post in a thread (usually the creator of the thread) can pin
 Included in the main command, thread authors can reply to any post with "pin" or "unpin" to pin the message they replied to.
 Optionally, an additional command can perform these actions with reactions.
 
-## Thread List     
-![image](https://user-images.githubusercontent.com/20410737/181121356-8bdb0456-798a-47e8-be3b-acc26dc2635b.png)      
-An add-on to the main custom command that will list all threads in your server.
-
-## Database Management
-![image](https://user-images.githubusercontent.com/20410737/181128287-fc0aab36-1158-446d-9c33-f69be6f46944.png)     
-New threads will automatically be added to the database, but there are also commands to manually re-save and delete entries.
-
 ## Emoji add-on
-This CC is optional and will add the ability to pin, unpin, and re-save thread db information with message reactions.
+This will add the ability to pin, unpin, and re-save thread db information with message reactions.
+
+## Thread List     
+An add-on to the main custom command that will list all threads in your server. (Mostly) written by Shadow22A.
+![image](https://user-images.githubusercontent.com/20410737/181121356-8bdb0456-798a-47e8-be3b-acc26dc2635b.png)      
+
+## Mass Delete Database Entries
+Written entirely by Shadow22A, this will delete the top 100 db entries of threads that have been deleted or archived. You can use this with a manual text trigger or put it on an interval to help clean up useless db entries and/or the thread list if you use that command often.
 
 
 # MAIN COMMAND
