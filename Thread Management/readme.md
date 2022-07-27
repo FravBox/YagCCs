@@ -1,7 +1,17 @@
 # THREAD MANAGEMENT - ABOUT 
 A set of custom commands for all sorts of Thread features!
 
-Table of contents will go here as this will be a long readme
+**Table of Contents**       
+1. Main features/pictures      
+2. [Main mandatory command information.](https://github.com/FravBox/YagCCs/tree/main/Thread%20Management#main-command)     
+    - Explanation between 2 different versions of main cc
+    - [When db entries should expire](https://github.com/FravBox/YagCCs/tree/main/Thread%20Management#time---when-thread-db-entries-should-expire)
+    - [Included text commands](https://github.com/FravBox/YagCCs/tree/main/Thread%20Management#included-text-commands)
+    - [If you've ever used a previous version of these commands](https://github.com/FravBox/YagCCs/tree/main/Thread%20Management#install-this-command-first-if-youve-ever-used-an-older-version)
+3. [Thread List command](https://github.com/FravBox/YagCCs/tree/main/Thread%20Management#thread-list-1)
+4. [Installing the the thread management commands](https://github.com/FravBox/YagCCs/tree/main/Thread%20Management#installing-thread-management-commands)
+5. [Notes](https://github.com/FravBox/YagCCs/tree/main/Thread%20Management#notes)
+    - If you use these commands to help code your own dealing with threads...
 
 ## Database Management
 ![image](https://user-images.githubusercontent.com/20410737/181128287-fc0aab36-1158-446d-9c33-f69be6f46944.png)     
@@ -68,7 +78,7 @@ It also always keeps the previous thread name and the previous author when a thr
 If someone posts in a thread past the database expiration, it will post a new log for the thread as if it were just created.        
 You can make the db entry last for several years, but this is unecessary in most cases. Please adjust the time to your server's needs, so it expires some time after people normally stop using the threads.
 
-## Included text commands.
+## Included text commands
 
 `-tcheck`      
 Checks if the thread you're in is in the database, and if it is, gives you the info associated with the entry. Only the staff role can use this.
@@ -82,11 +92,43 @@ Reply to any message in a thread with "pin" or "unpin" and, if you are the threa
 `save`     
 Reply to any message in a thread to force re-save the thread database information. The author of the message you replied to will become the new thread author. Can only be used by the staff role.
 
-# Install this command first if you've ever used an older version
+## Install this command first if you've ever used an older version
 I restructured what gets saved to the database, so if you've ever used an older version of this set of commands, upgrading won't work properly. You will have to clear all the old db entries and re-create them all. Apologies.
 
-[Command TBA soonish]
+<details>
+<summary>Click to view command</summary>
 
+```go
+{{/* deletes old db entries from prior versions of the thread management commands. Trigger type: command
+trigger: -tdelall
+
+Only use this once, then delete it.
+*/}}
+
+
+{{$catch := (print "*We reached an error, but this probably just means you didn't have any of these types of entries to delete, so don't panic.*\nThis was the error:\n" .Error)}}
+
+{{/* deletes entries from the original logging CCs by Dei & Vars */}}
+{{sendMessage nil "**1/3 Deleting any old logging db entries...**"}}
+
+{{try}}
+{{dbDelMultiple "ThreadCreate" 100 0}}
+{{catch}}
+{{sendMessage nil $catch}}
+{{end}}
+
+
+{{/* deletes entries from the original ThreadPins CC by Vars */}}
+{{sendMessage nil "**2/3 Now deleting any old Thread Author/Pin db entries...**"}}
+{{try}}
+  {{dbDelMultiple "ThreadAuthor" 100 0}}
+{{catch}}
+  {{sendMessage nil $catch}}
+{{end}}
+
+{{sendMessage nil "**3/3 Finished.** \nYou can delete this command and install the new thread management CC now."}}
+```
+</details>
 
 
 # Thread List
@@ -103,15 +145,15 @@ It does thread mentions and text links to the threads, so it should still work e
 The max is 100, but unless you have 100+ channels and/or threads, do not set it this high. The larger the number, the more command will lag. Adjust it to your server's needs.
 
 # Installing Thread Management Commands
-0. If you have ever used any of my old thread management commands, use this command to clear the old entries first. (TBA)
+**0.** If you have ever used any of my old thread management commands, [use this command](https://github.com/FravBox/YagCCs/tree/main/Thread%20Management#install-this-command-first-if-youve-ever-used-an-older-version) to clear the old entries first. 
 
-1. Pick either the original cc or the stripped down version. Do not use both.     
+**1.** Pick either the original cc or the stripped down version. Do not use both.     
 `thread db management main cc.yag` is the original and `thread db mgmt - stripped down version.yag` is the one that makes less db calls.
 
-2. For the main cc, the trigger type is `regex` with the trigger type being `\A`, meaning it will trigger on every message. From there, edit all the variables noted before the "DO NOT EDIT BELOW" line.       
+**2.** For the main cc, the trigger type is `regex` with the trigger type being `\A`, meaning it will trigger on every message. From there, edit all the variables noted before the "DO NOT EDIT BELOW" line.       
 **The main cc is the only cc you need for thread logging and text commands. All other CCs are optional.**
 
-3. Add any of the addons:     
+**3.** Add any of the addons:     
 - emoji addon allows you to pin, unpin, and resave threads with message reactions.
 - mass delete db entries allows you to... mass delete invalid thread db entries. Mainly for use to clean up things for the thread list command.\
 - thread list command will list all of the threads in your server.
