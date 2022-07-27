@@ -1,5 +1,7 @@
 # THREAD MANAGEMENT - ABOUT 
-A set of custom commands for all sorts of Thread features!
+A set of custom commands for all sorts of Thread features!       
+`/learn/` contains heavily commented proof of concept code for saving a thread to the db and making a thread list command.       
+You can use this to help you make your own thread-based commands. There's also some randomf acts I learned about threads in there.
 
 **Table of Contents**       
 1. Main features/pictures      
@@ -10,8 +12,6 @@ A set of custom commands for all sorts of Thread features!
     - [If you've ever used a previous version of these commands](https://github.com/FravBox/YagCCs/tree/main/Thread%20Management#install-this-command-first-if-youve-ever-used-an-older-version)
 3. [Thread List command](https://github.com/FravBox/YagCCs/tree/main/Thread%20Management#thread-list-1)
 4. [Installing the the thread management commands](https://github.com/FravBox/YagCCs/tree/main/Thread%20Management#installing-thread-management-commands)
-5. [Notes](https://github.com/FravBox/YagCCs/tree/main/Thread%20Management#notes)
-    - If you use these commands to help code your own dealing with threads...
 
 ## Database Management
 ![image](https://user-images.githubusercontent.com/20410737/181128287-fc0aab36-1158-446d-9c33-f69be6f46944.png)     
@@ -162,18 +162,3 @@ A note - If you _currently_ have several threads open, whoever is the first to p
 - thread list command will list all of the threads in your server.
 
 
-
-
-# Notes
-**If you're using my code to help you make your own codes that involve threads, please read these notes...**      
-If the message in the main channel that says "X started a thread" ever gets deleted, the `.Message.Author` comparison won't work. This is why my CCs save the author to database.
-
-Message type 21 is the thread creation message. But you can't use this in a CC to detect when a thread is created, because if anyone makes a thread via the plus icon in the message bar instead of using a pre-existing message to create a thread from, it will not fire. This is why my cc doesn't use that message type.
-
-When threads are archived, their channel mentions will appear as `#deleted-channel` and internally, Discord will treat these threads as if they no longer exist, despite the fact that they can be unarchived. This is part of the reason why every action that uses thread mentions also uses text links. The other reason is that thread mentions do not work reliably even when the thread isn't archived - The result varies across platforms.
-
-Related, the thread list CC was unecessarily convulted because I specifically wanted to list archived threads, too. Using `with` or `.Channel.Mention` will automatically excluse all archived threads, because to Discord, those don't exist anymore. ¯\_(ツ)_/¯
-
-The link structure for all threads is: `https://discord.com/channels/GuildID/ChannelID`
-
-If you have any questions about threads or any interesting discoveries related to writing CCs concerning them, please feel free to contact me here or over Discord to tell me about them! Thanks.
