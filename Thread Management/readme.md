@@ -1,7 +1,8 @@
 # THREAD MANAGEMENT - ABOUT 
-A set of custom commands for all sorts of Thread features!       
+**A set of custom commands for all sorts of Thread features!**
+
 `/learn/` contains heavily commented proof of concept code for saving a thread to the db and making a thread list command.       
-You can use this to help you make your own thread-based commands. There's also some randomf acts I learned about threads in there.
+You can use this to help you make your own thread-based commands. There's also some random facts I learned about threads in there.
 
 **Table of Contents**       
 1. Main features/pictures      
