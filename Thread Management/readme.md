@@ -157,10 +157,10 @@ The max is 100, but unless you have 100+ channels and/or threads, do not set it 
 
 A note - If you _currently_ have several threads open, whoever is the first to post in those threads after adding this cc becomes the "thread author." It will also generate a log that a thread was created. If you do not want log spam, you may want to disable logs, post in all your threads, then enable logs afterward.
 
-**3.** Add any of the addons:     
-- emoji addon allows you to pin, unpin, and resave threads with message reactions.
-- mass delete db entries allows you to... mass delete invalid thread db entries. Mainly for use to clean up things for the thread list command.\
+**3.** Add any of the add-ons:     
+- emoji add-on allows you to pin, unpin, and resave threads with message reactions.
+- mass delete db entries allows you to... mass delete invalid thread db entries. Mainly for use to clean up things for the thread list command.
 - thread list command will list all of the threads in your server.
 
-**Note: None of the addons will work without the main CC.**
+**Note: None of the add-ons will work without the main CC.**
 
