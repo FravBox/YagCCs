@@ -1,4 +1,4 @@
-{{/* deletes top 100 db entries of threads that have been deleted (may also delete archived thread entries - use at your own risk)
+{{/* deletes top 100 db entries of threads that have been archived or deleted. Don't use if you wan tto keep archived threads in your thread lists.
 Command can be on an interval or a text command.
 
 Made by Shadow22A. More info at https://github.com/FravBox/YagCCs 
