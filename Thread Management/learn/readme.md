@@ -1,4 +1,4 @@
-# List all channels (including active threads) in a "server Map"
+# List all channels (including active threads) in a "Server Map" without a database
 Written by [jasofall](https://github.com/jasofall) and saved here with permission.       
 see `servermap.yag`
 
