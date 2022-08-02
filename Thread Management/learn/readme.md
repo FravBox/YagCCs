@@ -1,6 +1,8 @@
 # List all channels (including active threads) in a "Server Map" without a database
 Written by [jasofall](https://github.com/jasofall) and saved here with permission.       
-see `servermap.yag`
+see `servermap.yag`       
+![image](https://user-images.githubusercontent.com/20410737/182485614-413137a8-d215-4c2c-ad73-10b69453a30b.png)
+
 
 
 # Save threads to db and make a thread list
