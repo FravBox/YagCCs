@@ -31,5 +31,6 @@ When threads are renamed, a message is always posted notifying of the rename. Th
 If you have any questions about threads or any interesting discoveries related to writing CCs concerning them, please feel free to contact me here or over Discord to tell me about them! Thanks.
 
 EDIT:
-`.Guild.Threads` will return a list of all active threads. 😭
+`.Guild.Threads` will return a list of all active threads. 😭      
+Wish I had learned about that before I made this...       
 Also this is helpful: https://discord.com/developers/docs/topics/threads#threads
