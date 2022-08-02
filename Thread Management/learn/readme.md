@@ -1,3 +1,8 @@
+# List all channels (including active threads) in a "server Map"
+Written by [jasofall](https://github.com/jasofall) and saved here with permission.       
+see `servermap.yag`
+
+
 # Save threads to db and make a thread list
 
 In the process of making this group of CCs, I learned a lot. Here is the "proof of concept" CC, with a quick way to save a thread to the database and a pre-made thread list. The code is heavily commented so you can modify it to your own wants and maybe make your own CC for thread management.
