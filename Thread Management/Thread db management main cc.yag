@@ -1,5 +1,5 @@
 {{/* Thread Management db controls
-regex: /A
+regex: \A
 Written by Vars#3616 - https://github.com/FravBox/YagCCs
 */}}
 
