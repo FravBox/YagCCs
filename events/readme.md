@@ -113,7 +113,8 @@ Again, Author ID refers to Yag specifically.
 
 # 2wk Remind
 
-Yag detects the event title and timestamp from a message, calculates what the date will be 14 days prior to that timestamp, and posts a `!remind` command for that week prior date. For use with Sesh.fyi. 
+Yag detects the event title and timestamp from a message, calculates what the date will be 14 days prior to that timestamp, and posts a `!remind` command for that week prior date. For use with Sesh.fyi.      
+**NO LONGER WORKS - SESH MOVED TO ALL SLASH COMMANDS**
 
 Use:     
 1. Sesh makes an event post    
