@@ -38,7 +38,7 @@ Made by Shadow22A & Vars#3616. More info: https://github.com/FravBox/YagCCs
     {{- end -}}
     {{- end}} 
 
-    {{$lmsg := cembed "title" "Server Thread List" "description" (title $list)}}
+    {{$lmsg := cembed "title" "Server Thread List" "description" $list }}
     {{sendMessage nil $lmsg}}
     {{deleteMessage nil $w}}
 
