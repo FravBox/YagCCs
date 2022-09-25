@@ -1,0 +1,185 @@
+{{/* thread management emoji addon & simplified starboard */}}
+
+{{/* THREAD MANAGEMENT -
+emoji addon for thread db management - this is not a stand-alone command. 
+trigger: added + removed reactions
+
+Written by Vars#3616 - https://github.com/FravBox/YagCCs
+*/}}
+
+{{$pin := "📍"}} {{/* emoji to use for pinning posts */}}
+{{$save := "💾"}} {{/* emoji to use for resaving thread info / setting new author */}}
+{{$tdel := "❌"}}{{/* emoji for deleting thread data -tdel */}}
+
+{{$staff := 750543521227866215}} {{/* role ID people need to use resave command */}}
+
+{{$time := 15770000 }} {{/* db entry expiration in seconds - make it the same time as the main cc. Default 6 months. */}}
+
+{{$ylog := 2}} {{/* log resaves? 2 for yes. 0 or 1 for no. Default is 2 */}}
+
+{{$ch := 1007036301717016706 }} {{/* logging channel ID */}}
+
+{{$c3 := 0x6d03ab}} {{/* info/author changed embed color. Keep it the same as the main cc. */}}
+
+
+{{/* DO NOT EDIT BELOW */}}
+
+{{if .Channel.IsThread}}  
+        
+    {{if or (eq .Reaction.Emoji.APIName $pin) (eq .Reaction.Emoji.APIName $save) (eq .Reaction.Emoji.APIName $tdel)}}
+
+
+    {{/* make sdict for db */}} 
+    {{$tinfo := sdict 
+    "thread" .Channel 
+    "tname" (getThread nil).Name 
+    "parent" .Channel.ParentID 
+    "cat" (getChannel (getChannel .Channel.ParentID).ParentID).Name
+    "tauthor" .Message.Author
+    }}
+
+    {{/* check for db entry */}}
+    {{$tdb := (dbGet .Channel.ID "threads")}}
+
+        {{/* pins */}}
+        {{if eq .Reaction.Emoji.APIName $pin }}
+        {{if (eq .User.ID (($tdb).Value.tauthor.ID)) }}
+            
+            {{if .ReactionAdded }}
+                {{ pinMessage nil .ReactionMessage.ID}}
+            {{else}}
+                {{unpinMessage nil .ReactionMessage.ID}}
+            {{end}}
+        {{end}}
+        {{end}}
+    
+        {{/* staff actions */}}
+        {{if hasRoleID $staff}}
+
+            {{/* re-save thread info / set new author */}}
+            {{if (eq .Reaction.Emoji.APIName $save) }}
+
+                {{if .ReactionAdded}}
+                    
+                    {{$tinfo.Set "tauthor" (.Message.Author)}}
+                    {{dbSetExpire .Channel.ID "threads" $tinfo $time}} 
+                    {{sleep 1}}
+                            
+                    {{$x := sendMessageRetID nil (print "**Thread Information Re-saved.** \n\nNew Thread Author: `" .Message.Author "` \nCurrent Thread Name: `" .Channel.Name "`" )}}
+                    {{sleep 1}}
+                    {{addMessageReactions nil .Message.ID "✅"}}
+                    {{sleep 1}}
+                    {{deleteMessageReaction nil .Message.ID .User.ID $save}}
+
+                    {{/* start categorized public logging section */}}
+                    {{$l := print (title (joinStr "" .Channel.Mention " | [Link to thread](https://discord.com/channels/" .Guild.ID "/" .Channel.ID ")" ) )}}
+
+                    {{$nl := print (title (joinStr ""  "**[" .Channel.Name "](https://discord.com/channels/" .Guild.ID "/" .Channel.ID ")**" ) )}}
+                    
+                    {{$trig := (print "\n\n[Jump to post](" .Message.Link ") | " $l) }}
+
+                    {{execCC 228 nil 0 (sdict "time" .Message.Timestamp "link" $l "nlink" $nl "jump" $trig "user" .User "ch" .Channel "msg" .Message)}}
+                    {{/* end public logging section */}}
+                
+                    {{if (eq $ylog 2)}}
+                        {{/* log thread info change */}}
+                        {{$uid := (print "Action triggered by " .User.String " | User ID: " .User.ID )}}
+                        {{$link := (print .Channel.Mention " | [Link to thread](https://discord.com/channels/" .Guild.ID "/" .Channel.ID ")" )}}
+                        {{$nlink := (print "**[" .Channel.Name "](https://discord.com/channels/" .Guild.ID "/" .Channel.ID ")**" )}}
+                        {{$trig := (print "\n\n[Jump to post](" .Message.Link ") | " $link) }}
+
+                        {{ $embed2 := cembed 
+                        "title" "Thread Information Change" 
+                        "description" (joinStr "" "** " .Message.Author.Mention "** (`" .Message.Author "`) can now control pins in the " $nlink " thread of <#" .Channel.ParentID ">.\n" $trig ) 
+                        "color" $c3 
+                        "footer" (sdict "text" $uid ) "timestamp" .Message.Timestamp
+                        }}
+
+                        {{sendMessage $ch $embed2}}
+                    {{else}}
+                        {{deleteMessage nil $x 20}}
+                    {{end}}
+                {{end}}   
+            {{end}}
+
+            {{/* tdel */}}
+            {{if and ( .ReactionAdded) (eq .Reaction.Emoji.APIName $tdel) }}
+                {{dbDel .Channel.ID "threads" }}
+                {{sleep 1}}
+                {{addMessageReactions nil .Message.ID "✅"}}
+                {{sleep 5}}
+                {{deleteAllMessageReactions nil .Message.ID}}
+            {{end}}
+
+                
+        {{end}}
+    {{end}}
+{{end}}
+
+{{/* STARBOARD / PINBOARD	
+Trigger: added reactions only
+*/}}
+
+{{$star := "📌"}}{{/* star emoji */}}
+{{$thresh := 3}}{{/* how many reactions needed to move to starboard */}}
+{{$maxAge := "2w"}}{{/* how old a post can be before it can't be added to starboard anymore */}}
+{{$ch := 1020745284365602996}}{{/* ID of starboard channel */}}
+{{$color := 16744192 }}{{/* embed color */}}
+
+
+{{/* count stars & add to starboard */}}
+{{$count := ""}}
+{{if and (eq .Reaction.Emoji.APIName $star) (le (currentTime.Sub .Message.Timestamp.Parse) (toDuration $maxAge)) (.ReactionAdded) }}
+
+	{{range .ReactionMessage.Reactions}}
+		{{- if eq .Emoji.APIName $star -}}
+			{{- $count = .Count -}}
+		{{- end -}}
+	{{- end}}
+
+	{{if $count}}
+		{{if (eq $thresh $count)}}
+			{{/* add to starboard */}}
+
+			{{/* credit embed */}}
+			{{$postembed := cembed
+			"color" $color 
+			"title" "**Above Message Information**"
+			"description" (print "**Author:** " .Message.Author.Mention " (" .Message.Author ") \n**Channel: **" .Channel.Name " (" .Channel.Mention  ") \n[Message Link](" .Message.Link ")\n\n**Originally Posted:** <t:" .Message.Timestamp.Parse.Unix "> \n**Pinned:** <t:" currentTime.Unix ">" )
+			"thumbnail" (sdict "url" (.Message.Author.AvatarURL "512") )
+			}}
+
+			{{/* copying messages */}}
+			{{if and (not .Message.Embeds) (not .Message.Attachments)}}
+				{{sendMessage $ch (complexMessage "content" (print "**Quoted Message:**\n" .Message.ContentWithMentionsReplaced) "embed" $postembed )}}
+
+
+			{{else if and (.Message.Embeds) (not .Message.Attachments)}}
+				{{sendMessage $ch (complexMessage "content" (print "**Quoted Message:**\n" .Message.ContentWithMentionsReplaced ) "embed" (index .Message.Embeds 0) )}}
+				{{sendMessage $ch $postembed}}
+
+
+			{{else if .Message.Attachments}}
+				{{$url := cslice}}
+				{{range .Message.Attachments}}
+					{{- $url = $url.Append .URL -}}
+				{{- end}}
+
+				{{if and (.Message.Embeds) (.Message.Attachments)}}
+					{{sendMessage $ch (complexMessage "content" (print "**Quoted Message:**\n" .Message.ContentWithMentionsReplaced "embed" (index .Message.Embeds 0)) )}}
+					{{sendMessage $ch (print "**Attachments:**\n" (joinStr "\n" $url))}}
+					{{sendMessage $ch $postembed}}
+
+				{{else}}
+					{{sendMessage $ch (print "**Quoted Message:**\n" .Message.ContentWithMentionsReplaced "\n **Attachments:**\n" (joinStr "\n" $url)) }}
+					{{sendMessage $ch $postembed}}
+				{{end}}
+
+			{{end}}
+
+
+		{{end}}
+	{{end}}
+
+
+{{end}}

@@ -9,7 +9,7 @@ Trigger: Add reactions
 
 {{$emoji := "🗑️"}} {{/* emoji to delete yag posts */}}
 {{$yrole := 750565698383773828 }} {{/* roleID to require to delete yag messages */}}
-{{$ma := 60 }} {{/* max age of posts allowed to be deleted, in seconds (discord max is 1 week) */}}
+{{$ma := 120 }} {{/* max age of posts allowed to be deleted, in seconds (discord max is 1 week) */}}
 {{$del := 10 }} {{/* time before "you can't do that" post deletes itself, in seconds */}}
 
 {{/* the message when you're not allowed to delete something */}}
@@ -24,7 +24,7 @@ Trigger: Add reactions
 {{$vidshare := 871735111127793674 }} {{/* vid share channel to not quote vpr message */}}
 
 {{/* the message for the modlog - this will go in an embed */}}
-{{$modmsg := (print " **" .User.Mention " used " $emoji " in <#" .Message.ChannelID ">** at <t:" currentTime.Unix ">\n\n**User ID:** " .User.ID  )}}
+{{$modmsg := (print " **" .User.Mention " used " $emoji " in <#" .Message.ChannelID ">** ([link](https://discord.com/channels/" .Guild.ID "/" .Message.ChannelID ")) at <t:" currentTime.Unix ">\n\n**User ID:** " .User.ID  )}}
 
 
 {{/* Don't edit below */}}
@@ -44,17 +44,16 @@ Trigger: Add reactions
 	{{if not .Message.Embeds}}
 		{{$msg := (cembed "description" (print $modmsg $logfooter $qfooter ) "color" $color )}}
 		{{sendMessage $modch $msg}}
+
+	{{else if (or (eq .Channel.ID $vidshare) ((eq .Channel.ParentID $vidshare) ) )}}
+		{{$user := (print .Message.ContentWithMentionsReplaced)}}
+		{{sendMessage $modch (cembed "description" (print $modmsg $logfooter "\n\n**Deleted Message:**\nVPR Warning for " $user ". " ) "color" $color )}}
+
 		
 	{{else if and .Message.Embeds (ne .Channel.ID $vidshare) }}
 		{{sendMessage $modch (cembed "description" (print $modmsg $logfooter ) "color" $color )}}
 		{{sendMessage $modch (complexMessage "content" "\n**Deleted Message:**" "embed" (index .Message.Embeds 0) )}}
 	
-	{{else if (eq .Channel.ID $vidshare)}}
-		{{$user := (print .Message.ContentWithMentionsReplaced)}}
-		{{sendMessage $modch (cembed "description" (print $modmsg $logfooter "\n\n**Deleted Message:**\nVPR Warning for " $user ". " ) "color" $color )}}
-	{{end}}
-	
-
 	{{else if not (hasRoleID $yrole)}}
 		{{ $nr := " You don't have the right role."}}
 		{{$y := (sendMessageRetID nil (print $nope $nr) ) }}
@@ -73,5 +72,6 @@ Trigger: Add reactions
 		{{deleteMessage nil $y $del}}
 	
 	{{end}}
+{{end}}
 {{end}}
 ```
