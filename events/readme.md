@@ -113,7 +113,8 @@ Again, Author ID refers to Yag specifically.
 
 # 2wk Remind
 
-Yag detects the event title and timestamp from a message, calculates what the date will be 14 days prior to that timestamp, and posts a `!remind` command for that week prior date. For use with Sesh.fyi. 
+Yag detects the event title and timestamp from a message, calculates what the date will be 14 days prior to that timestamp, and posts a `!remind` command for that week prior date. For use with Sesh.fyi.      
+**NO LONGER WORKS - SESH MOVED TO ALL SLASH COMMANDS**
 
 Use:     
 1. Sesh makes an event post    
@@ -162,15 +163,12 @@ Trigger: Command: deadline
                 {{- $d = reFind `\d+` $k | toInt -}}
             {{- end -}}
         {{end}}
-        {{if gt (mult (sub $d 1210000)) currentTime.Unix}}
-			{{$msg1 := print "!remind " (index $e 0 | structToSdict).Title (formatTime ($.UnixEpoch.Add (toDuration (mult (sub $d 604800) $.TimeSecond))) " Monday, Jan 02 at 15:04") "\n\nReact with 🔔 to be DMed **2 weeks before** " (index $e 0 | structToSdict).Title "!\nhttps://discord.com/channels/" $.Guild.ID "/" $.Channel.ID "/" $id ""}}
 
-			{{$msg2 := print "React with 🔔 to be DMed **2 weeks before** " (index $e 0 | structToSdict).Title "!\nhttps://discord.com/channels/" $.Guild.ID "/" $.Channel.ID "/" $id ""}}
+        {{if gt (mult (sub $d 1210000)) currentTime.Unix}}
+			{{$msg1 := print "!remind " (index $e 0 | structToSdict).Title " on" (formatTime ($.UnixEpoch.Add (toDuration (mult (sub $d 604800) $.TimeSecond))) " Monday, Jan 02 at 15:04") "\n\nReact with 🔔 to be DMed **2 weeks before** " (index $e 0 | structToSdict).Title "!\nhttps://discord.com/channels/" $.Guild.ID "/" $.Channel.ID "/" $id ""}}
             
-			{{$msg := sendMessageRetID nil $msg1}}
-			{{sleep 5}}
-			{{editMessage nil $msg $msg2}}
-        
+			{{$msg := sendMessage nil $msg1}}
+			        
 		{{else}}
             {{print "Output date is before current time"}}
         {{end}}

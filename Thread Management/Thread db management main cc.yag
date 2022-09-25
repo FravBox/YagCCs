@@ -1,10 +1,10 @@
 {{/* Thread Management db controls
-regex: /A
+regex: \A
 Written by Vars#3616 - https://github.com/FravBox/YagCCs
 */}}
 
 {{$time := 15770000 }} {{/* db entry expiration in seconds - default 6 months */}}
-{{$staff := 123 }} {{/* role ID to require for db commands */}}
+{{$staff := 1234 }} {{/* role ID to require for db commands */}}
 
 {{$ylog := 2}} {{/* do you want thread logging? 1 - only original creation, 2 - original, force renews, & renames, 0 - no logs. default is 2 */}}
 
@@ -16,7 +16,7 @@ Written by Vars#3616 - https://github.com/FravBox/YagCCs
 {{$c3 := 0x6d03ab}} {{/* info changed */}}
 
 {{/* Thread List */}}
-{{$amt := 10}} {{/* amount of db entries to range - max 100 */}}
+{{$amt := 20}} {{/* amount of db entries to range - max 100 */}}
 
 
 {{/* DO NOT EDIT ANYTHING BELOW */}}
@@ -38,8 +38,8 @@ Written by Vars#3616 - https://github.com/FravBox/YagCCs
     {{/* stuff for log messages */}} 
     {{$uid := (print "Action triggered by " .User.String " | User ID: " .User.ID )}}
     {{$t := .Message.Timestamp }}
-    {{$l := print (title ( .Channel.Mention " | [Link to thread](https://discord.com/channels/" .Guild.ID "/" .Channel.ID ")" ) )}}
-    {{$nl := print (title ( "**[" .Channel.Name "](https://discord.com/channels/" .Guild.ID "/" .Channel.ID ")**" ) )}}
+    {{$l := print (title (joinStr "" .Channel.Mention " | [Link to thread](https://discord.com/channels/" .Guild.ID "/" .Channel.ID ")" ) )}}
+    {{$nl := print (title (joinStr ""  "**[" .Channel.Name "](https://discord.com/channels/" .Guild.ID "/" .Channel.ID ")**" ) )}}
     {{$trig := (print "\n\n[Jump to post](" .Message.Link ") | " $l) }}
 
     {{/* new threads */}}

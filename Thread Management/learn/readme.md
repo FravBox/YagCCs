@@ -1,3 +1,10 @@
+# List all channels (including active threads) in a "Server Map" without a database
+Written by [jasofall](https://github.com/jasofall) and saved here with permission.       
+see `servermap.yag`       
+![image](https://user-images.githubusercontent.com/20410737/182485614-413137a8-d215-4c2c-ad73-10b69453a30b.png)
+
+
+
 # Save threads to db and make a thread list
 
 In the process of making this group of CCs, I learned a lot. Here is the "proof of concept" CC, with a quick way to save a thread to the database and a pre-made thread list. The code is heavily commented so you can modify it to your own wants and maybe make your own CC for thread management.
@@ -29,3 +36,8 @@ When threads are renamed, a message is always posted notifying of the rename. Th
 -----------
 
 If you have any questions about threads or any interesting discoveries related to writing CCs concerning them, please feel free to contact me here or over Discord to tell me about them! Thanks.
+
+EDIT:
+`.Guild.Threads` will return a list of all active threads. 😭      
+Wish I had learned about that before I made this...       
+Also this is helpful: https://discord.com/developers/docs/topics/threads#threads
