@@ -129,13 +129,15 @@ added + removed reactions */}}
 
 	{{if $count}}
 		{{if (eq $thresh $count)}}
-            {{/* announce a msg was added */}}
-            {{sendMessage nil (complexMessage "reply" .Message.ID 
+            {{/* announcement message */}}
+            {{$p := ""}}
+            {{$announce := (complexMessage "reply" .Message.ID 
             "content" "🎉" 
             "embed" (cembed 
-            "description" (print "This message was just added to [#pinboard](https://discord.com/channels/750541618389712896/1020745284365602996)! \nView it [here](" .Message.Link ")." ) 
+            "description" (print "This message was just added to [#pinboard](https://discord.com/channels/750541618389712896/1020745284365602996)! \nView it [here](https://discord.com/channels/750541618389712896/1020745284365602996/" $p ")." ) 
             "color" $color)
             ) }}
+            
 
 			{{/* add to starboard */}}
 
@@ -149,12 +151,16 @@ added + removed reactions */}}
 
 			{{/* copying messages */}}
 			{{if and (not .Message.Embeds) (not .Message.Attachments)}}
-				{{sendMessage $pinch (complexMessage "content" (print "**Quoted Message:**\n" .Message.ContentWithMentionsReplaced) "embed" $postembed )}}
+				{{$p = sendMessageRetID $pinch (complexMessage "content" (print "**Quoted Message:**\n\n" .Message.ContentWithMentionsReplaced) "embed" $postembed )}}
+
+                {{sendMessage nil $announce}}
 
 
 			{{else if and (.Message.Embeds) (not .Message.Attachments)}}
-				{{sendMessage $pinch (complexMessage "content" (print "**Quoted Message:**\n" .Message.ContentWithMentionsReplaced ) "embed" (index .Message.Embeds 0) )}}
+				{{$p = sendMessageRetID $pinch (complexMessage "content" (print "**Quoted Message:**\n\n" .Message.ContentWithMentionsReplaced ) "embed" (index .Message.Embeds 0) )}}
 				{{sendMessage $pinch $postembed}}
+
+                {{sendMessage nil $announce}}
 
 
 			{{else if .Message.Attachments}}
@@ -164,13 +170,17 @@ added + removed reactions */}}
 				{{- end}}
 
 				{{if and (.Message.Embeds) (.Message.Attachments)}}
-					{{sendMessage $pinch (complexMessage "content" (print "**Quoted Message:**\n" .Message.ContentWithMentionsReplaced "embed" (index .Message.Embeds 0)) )}}
-					{{sendMessage $pinch (print "**Attachments:**\n" (joinStr "\n" $url))}}
+					{{$p = sendMessageRetID $pinch (complexMessage "content" (print "**Quoted Message:**\n\n" .Message.ContentWithMentionsReplaced "embed" (index .Message.Embeds 0)) )}}
+					{{sendMessage $pinch (print "\n\n**Attachments:**\n" (joinStr "\n" $url))}}
 					{{sendMessage $pinch $postembed}}
 
+                    {{sendMessage nil $announce}}
+
 				{{else}}
-					{{sendMessage $pinch (print "**Quoted Message:**\n" .Message.ContentWithMentionsReplaced "\n **Attachments:**\n" (joinStr "\n" $url)) }}
+					{{$p = sendMessageRetID $pinch (print "**Quoted Message:**\n\n" .Message.ContentWithMentionsReplaced "\n\n **Attachments:**\n" (joinStr "\n" $url)) }}
 					{{sendMessage $pinch $postembed}}
+
+                    {{sendMessage nil $announce}}
 				{{end}}
 
 			{{end}}
