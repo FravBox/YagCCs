@@ -121,7 +121,7 @@ regex \A
 
         {{end}}
         
-    {{else if and (not (reFind `(?i)^(pin|unpin)` .Message.Content) (hasRoleID $staff))}}
+    {{else if and (not (reFind `(?i)^(pin|unpin)` .Message.Content)) (not (hasRoleID $staff))}}
         You don't have the right role to use this command.
         {{deleteResponse 20}}
         {{deleteTrigger 21}}     
