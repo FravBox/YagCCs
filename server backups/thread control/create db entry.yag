@@ -141,8 +141,7 @@
         {{sendMessage $ed $newt}}
     {{else if or (eq $paren $a) (eq $paren $mu)}}{{/* art & music */}}
         {{sendMessage $am $newt}}
-    {{else}}
-        {{sendMessage $thr.ID (print "It worked but no match.\nI think the catid is: " $catid "\nParent ID: " $paren ) }}
+
     {{end}}
 
 {{else if (eq $type "2")}}
