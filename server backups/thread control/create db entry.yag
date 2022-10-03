@@ -126,11 +126,12 @@
 
     {{/* send thread created message to all logs */}}
 {{sendMessage $modlog $newt}}
-{{sleep 1}}
-    {{if (eq $catid $genc)}}{{/* general */}}
+{{sleep 2}}
+
+    {{if (eq $paren $re)}}{{/* resources */}}
+        {{sendMessage $res $newt}}    
+    {{else if (eq $catid $genc)}}{{/* general */}}
         {{sendMessage $gen $newt}}
-    {{else if (eq $paren $re)}}{{/* resources */}}
-        {{sendMessage $res $newt}}
     {{else if (eq $paren $rwf)}}{{/* read & write */}}
         {{sendMessage $rw $newt}}
     {{else if (eq $paren $gf)}}{{/* gaming */}}
