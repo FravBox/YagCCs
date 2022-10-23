@@ -1,0 +1,86 @@
+{{/* Verification System
+controlled by "Universal Emoji Controller" 
+CC ID: 249
+ */}}
+
+{{$msgid := 947214940907929670}} {{/* msg that needs the verification emoji */}}
+{{$verified := 750565698383773828}} {{/* verified role ID */}}
+
+{{$main := 750541618389712900}} {{/* main talk channel */}}
+{{$joins := 954832185200898128}} {{/* joins-leaves modlog channel - for successful verifications */}}
+{{$modlog := 970007312632795167 }} {{/* yag-cmd-log */}}
+
+{{$v := "☑️"}}{{/* emoji to verify */}}
+
+
+{{/* info grabbed from the triggering CC */}}
+ {{$msg := .ExecData.msg}}
+ {{$rules := .ExecData.ch}} {{/* rules & info channel */}}
+ {{$user := .ExecData.user}}
+ {{$emoji := .ExecData.emoji}}
+ {{$type := .ExecData.type}}
+
+
+{{/* VERIFICATION STUFF */}}
+		
+	{{/* cooldown */}}
+		{{/* CONFIGURATION HERE CHANGE VALUES AS NEEDED */}}
+
+		{{/* 0 for per user, 1 for global */}}
+		{{$isGlobal := 0}}
+		{{/* name your cooldown name (anything works) */}}
+		{{$name := "MemberAnnouncement"}}
+		{{/* Length of the cooldown (in seconds) */}}
+		{{$lengthSec := 90}}
+
+		{{/* CREATING VARIABLES DO NOT TOUCH */}}
+		{{$id := 0}}
+		{{$key := joinStr "" "cooldown_" $name}}
+		{{if eq $isGlobal 0}}
+		{{$id = $user.ID}}
+		{{end}}
+
+
+	{{if dbGet (toInt64 $id) $key}} 
+		{{/* Code to execute when cooldown is active */}}
+		{{else}}
+		{{/* Create cooldown entry */}}
+		{{dbSetExpire (toInt64 $id) $key "cooldown" $lengthSec}}
+
+	{{/* ANNOUNCE VERIFICATION IN MAIN & JOINS-LEAVES */}}
+
+		{{if and (eq $msgid $msg.ID) (eq $emoji $v)}}
+			{{if (eq $type "1")}} 
+                {{sendDM "```\nYou're already verified!\n```" }} 
+            {{else if (eq $type "2")}} 
+                {{addRoleID $verified}}
+                {{sendMessage $main (print "Welcome, " $user.Mention "! 🥳 \nTell us a bit about yourself! \nHow did you find the server? What type of videos do you make, if any?")}}
+            
+                {{/* SENDS VERIFICATION TO Joins-Leaves */}}
+                
+                {{ $VerifyEmbed := cembed "description" (joinStr "" "**" $user.Mention " ("  $user.String ") Verified.**" " \n (ID: " $user.ID ") \n<t:" currentTime.Unix ">** \nTime Taken: " (humanizeDurationHours (currentTime.Sub .Member.JoinedAt.Parse)) "**" "\n\nMembercount: " .Guild.MemberCount "" ) "color" 16772608 }}
+            
+                {{ sendMessage $joins $VerifyEmbed }}
+
+			{{end}}
+		{{end}}
+
+	{{end}}
+
+
+	{{/* LOG INCORRECT VERIFICATIONS */}}
+
+	{{$logmsg := cembed "description" (joinStr "" $user.Mention "( " $user.String ") used " $emoji " on [this message](" $msg.Link "), which was the wrong message to verify.\n\n User ID: " $user.ID "\nAge in server: " (humanizeDurationHours (currentTime.Sub .Member.JoinedAt.Parse)) "\n\n <t:" currentTime.Unix ">" "") "color" 16748800  }}
+
+
+	{{if and (eq $type "2") (ne $msg.ID $msgid) }}
+			{{sendMessage $joins $logmsg}}
+	{{end}}
+
+
+
+
+	{{/* CLEAR VERIFIED-RELATED REACTIONS */}}
+
+	{{sleep 30}}
+	{{deleteAllMessageReactions $rules $msg.ID}}

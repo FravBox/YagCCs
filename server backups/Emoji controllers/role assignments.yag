@@ -1,0 +1,55 @@
+{{/* intelligent role assignments
+controlled by "Universal Emoji Controller" 
+CC ID: 249
+ */}}
+
+ {{/* info grabbed from the triggering CC */}}
+ {{$msg := .ExecData.msg}}
+ {{$ch := .ExecData.ch}}
+ {{$user := .ExecData.user}}
+ {{$emoji := .ExecData.emoji}}
+ {{$type := .ExecData.type}}
+
+ {{/* other variables */}}
+{{$modlog := 970007312632795167}}
+{{$tc := 947352309585821738}}{{/* tag creator role ID */}}
+
+{{/* actual code */}}
+
+{{/* Separator roles */}}
+	{{/* self */}}
+		{{if (eq $msg 750760709888933921 751460177659559936 752182029273268294)}}
+		{{ addRoleID 751451248091332758}}
+		{{end}}
+	{{/* software */}}
+		{{- if (eq $msg 750552851914162297 750553222367936522)}}
+		{{ addRoleID 751446179002318920}}
+		{{end}}
+	{{/* videos */}}
+		{{- if (eq $msg 750555509232369695)}}
+		{{ addRoleID 751450170323107862}}
+		{{end}}
+	{{/* Lists */}}
+		{{- if (eq $msg 947602899100368947 947603673142423562 947604894309834832)}}
+		{{ addRoleID 785020284691808306}}
+		{{end}}
+	{{/* misc/office use */}}
+		{{- if (eq $msg 947605706503249920 947606668265545808 947607265492496485)}}
+		{{ addRoleID 752343360634880060}}
+		{{end}}
+
+{{/* Tag Creator */}}
+	{{if (eq $type "1")}}
+		{{$tagmsg1 := cembed "description" (joinStr ""  $emoji " **" $user.Mention " became a <@&" $tc ">**" $emoji " \n\n User ID: " $user.ID "\nAge in server: " (humanizeDurationHours (currentTime.Sub .Member.JoinedAt.Parse)) "\n\n <t:" currentTime.Unix ">" "") "color" 16119285 }}
+		
+        {{ addRoleID $tc}}
+        {{sendMessage $modlog $tagmsg1 }}
+			
+    {{else if (eq $type "2")}}
+		
+		{{$tagmsg2 := cembed "description" (joinStr "" $emoji " **" $user.Mention " is no longer a <@&" $tc ">**" $emoji " \n\n User ID: " $user.ID "\nAge in server: " (humanizeDurationHours (currentTime.Sub .Member.JoinedAt.Parse)) "\n\n <t:" currentTime.Unix ">" "") "color" 16119285 }}
+		
+        {{ removeRoleID 947352309585821738}}
+        {{sendMessage $modlog $tagmsg2 }}
+			
+		{{end}}

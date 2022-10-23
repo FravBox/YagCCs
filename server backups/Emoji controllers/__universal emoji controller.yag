@@ -1,0 +1,98 @@
+{{/* UNIVERSAL EMOJI CONTROLLER 
+Execs other CCs based on input 
+trigger: added + removed reactions
+
+thread management is separate
+*/}}
+
+{{/* Channel IDs */}}
+{{$rules := 750544650523246623}}
+{{$roles := 750544674011349053}}
+
+
+{{/* emojis */}}
+{{$bookmark := "🔖"}}
+{{$trash := "🗑️"}}
+{{$star := "📌"}}
+{{$tag := "🪧"}}
+{{$ticket := "📩"}}
+
+{{/* misc */}}
+{{$verified := 750565698383773828}} {{/* verified role ID */}}
+{{$tmsg := 947605706503249920}} {{/* tag message ID */}}
+{{$tikmsg := 962879864078221372}} {{/* ticket message ID */}}
+
+{{/* Exec CC IDs */}}
+{{$rolemgmt := 250}}{{/* role assignments */}}
+{{$verify := 251}}{{/* verification system */}}
+{{$tickets := 252}} {{/* open a ticket */}}
+{{$bookmarkcc := 253}}
+{{$noyag := 255 }}
+{{$starboard := 256}}
+
+{{/* variables to help Exec CCs */}}
+{{$user := .User}}
+{{$msg := .Message}}
+{{$ch := .Channel}}
+{{$emoji := .Reaction.Emoji.APIName}}
+{{$1 := "1"}}
+{{$2 := "2"}}
+
+{{/* actual code */}}
+
+{{if (eq .Channel.ID $roles) }}{{/* role assignments */}}
+    
+{{/* tag creator handler */}}
+    {{if and (eq $emoji $tag) (eq .Message.ID $tmsg)}}
+        {{if and (.ReactionAdded) (hasRoleID $verified) }}{{/* add tag creator role */}}
+            {{execCC $rolemgmt nil 0 (sdict "user" $user "msg" $msg.ID "ch" $ch.ID "type" $1 "emoji" $emoji)}}
+        {{else}}{{/* remove tag creator role */}}
+            {{execCC $rolemgmt nil 0 (sdict "user" $user "msg" $msg.ID "ch" $ch.ID "type" $2 "emoji" $emoji)}}
+        {{end}}
+
+{{/* separator roles handler */}}
+    {{else}}
+        {{execCC $rolemgmt nil 0 (sdict "user" $user "msg" $msg.ID "ch" $ch.ID "emoji" $emoji "type" "0")}}
+    {{end}}
+{{end}}
+
+{{if .ReactionAdded}}
+
+
+{{/* rules & info channel - verification system */}}
+    {{if (eq .Channel.ID $rules) }}
+        {{if hasRoleID $verified}}
+            {{execCC $verify nil 0 (sdict "user" $user "msg" $msg "ch" $ch.ID "emoji" $emoji "type" $1)}}
+        {{else}}
+            {{execCC $verify nil 0 (sdict "user" $user "msg" $msg "ch" $ch.ID "emoji" $emoji "type" $2)}}
+        {{end}}
+    {{end}}
+        
+
+{{/* create a ticket from #contact-staff post */}}
+    {{if (and (eq .Reaction.Emoji.Name $ticket) (eq $msg.ID $tikmsg) ) }}
+        {{if hasRoleID $verified}}
+            {{execCC $tickets nil 0 (sdict "user" $user "ch" $ch.ID)}}
+            {{sleep 5}}
+            {{deleteMessageReaction nil $tikmsg .Reaction.UserID $emoji }}
+        {{else}}
+            {{sleep 5}}
+            {{deleteMessageReaction nil $tikmsg .Reaction.UserID $emoji }}
+        {{end}}
+    {{end}}
+
+{{/* DM Bookmarked messages via emoji */}}
+    {{if (eq .Reaction.Emoji.APIName $bookmark)}}
+        {{execCC $bookmarkcc nil 0 (sdict "msg" $msg)}}
+
+{{/* delete yag messages with trash emoji */}}
+    {{else if (and (eq .Reaction.Emoji.APIName $trash) (hasRoleID $verified) (eq .Message.Author.ID 204255221017214977) )}}
+        {{execCC $noyag nil 0 (sdict "user" $user "msg" $msg "ch" $ch "emoji" $emoji "cat" .Channel.ParentID ) }}
+
+{{/* Pinboard / Starboard */}}
+    {{else if (eq .Reaction.Emoji.APIName $star)}}
+        {{execCC $starboard nil 0 (sdict "msg" $msg "ch" $ch "emoji" $emoji)}}
+    {{end}}
+
+
+{{end}}

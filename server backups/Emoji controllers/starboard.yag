@@ -1,0 +1,94 @@
+{{/* simplified starboard / pinboard 
+controlled by "Universal Emoji Controller" 
+CC ID: 249
+*/}}
+
+
+{{/* Data pulled from triggering CC */}}
+{{$msg := .ExecData.msg }}
+{{$emoji := .ExecData.emoji}}
+{{$ch := .ExecData.ch}}
+
+
+{{/* Pinboard variables */}}
+{{$thresh := 3}}{{/* how many reactions needed to move to starboard */}}
+{{$maxAge := "2w"}}{{/* how old a post can be before it can't be added to starboard anymore */}}
+{{$pinch := 1020745284365602996}}{{/* ID of starboard channel */}}
+{{$color := 16744192 }}{{/* embed color */}}
+
+
+
+{{/* count stars & add to starboard */}}
+{{$count := ""}}
+{{if and (le (currentTime.Sub $msg.Timestamp.Parse) (toDuration $maxAge)) }}
+
+	{{range $msg.Reactions}}
+		{{- if eq .Emoji.APIName $emoji -}}
+			{{- $count = .Count -}}
+		{{- end -}}
+	{{- end}}
+
+	{{if $count}}
+		{{if (eq $thresh $count)}}
+            {{/* announcement message */}}
+            {{$p := ""}}
+            {{$announce := (complexMessage "reply" $msg.ID 
+            "content" "🎉" 
+            "embed" (cembed 
+            "description" (print "This message was just added to [#pinboard](https://discord.com/channels/750541618389712896/1020745284365602996)! \nView it [here](https://discord.com/channels/750541618389712896/1020745284365602996/" $p ")." ) 
+            "color" $color)
+            ) }}
+            
+
+			{{/* add to starboard */}}
+
+			{{/* credit embed */}}
+			{{$postembed := cembed
+			"color" $color 
+			"title" "**Above Message Information**"
+			"description" (print "**Author:** " $msg.Author.Mention " (" $msg.Author ") \n**Channel: **" $ch.Name " (" $ch.Mention  ") \n[Message Link](" $msg.Link ")\n\n**Originally Posted:** <t:" $msg.Timestamp.Parse.Unix "> \n**Pinned:** <t:" currentTime.Unix ">" )
+			"thumbnail" (sdict "url" ($msg.Author.AvatarURL "512") )
+			}}
+
+			{{/* copying messages */}}
+			{{if and (not $msg.Embeds) (not $msg.Attachments)}}
+				{{$p = sendMessageRetID $pinch (complexMessage "content" (print "**Quoted Message:**\n\n" $msg.ContentWithMentionsReplaced "\n<:br:937128105821216898>") "embed" $postembed )}}
+
+                {{sendMessage $ch.ID $announce}}
+
+
+			{{else if and ($msg.Embeds) (not $msg.Attachments)}}
+				{{$p = sendMessageRetID $pinch (complexMessage "content" (print "**Quoted Message:**\n\n" $msg.ContentWithMentionsReplaced "\n<:br:937128105821216898>") "embed" (index $msg.Embeds 0) )}}
+				{{sendMessage $pinch $postembed}}
+
+                {{sendMessage $ch.ID $announce}}
+
+
+			{{else if $msg.Attachments}}
+				{{$url := cslice}}
+				{{range $msg.Attachments}}
+					{{- $url = $url.Append .URL -}}
+				{{- end}}
+
+				{{if and ($msg.Embeds) ($msg.Attachments)}}
+					{{$p = sendMessageRetID $pinch (complexMessage "content" (print "**Quoted Message:**\n\n" $msg.ContentWithMentionsReplaced "\n<:br:937128105821216898>") "embed" (index $msg.Embeds 0)) }}
+					{{sendMessage $pinch (print "\n\n**Attachments:**\n" (joinStr "\n" $url))}}
+					{{sendMessage $pinch $postembed}}
+
+                    {{sendMessage $ch.ID $announce}}
+
+				{{else}}
+					{{$p = sendMessageRetID $pinch (print "**Quoted Message:**\n\n" $msg.ContentWithMentionsReplaced "\n\n **Attachments:**\n" (joinStr "\n" $url)) }}
+					{{sendMessage $pinch $postembed}}
+
+                    {{sendMessage $ch.ID $announce}}
+				{{end}}
+
+			{{end}}
+
+
+		{{end}}
+	{{end}}
+
+
+{{end}}

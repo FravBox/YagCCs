@@ -1,0 +1,35 @@
+{{/*
+DM Bookmarked messages from reaction
+controlled by "Universal Emoji Controller" 
+CC ID: 249
+*/}}
+
+
+{{/* info grabbed from the triggering CC */}}
+{{$msg := .ExecData.msg}}
+
+{{$color := 16744192 }}{{/* embed color */}}
+
+
+{{/* credit embed */}}
+{{$postembed := cembed
+"color" $color 
+"title" "**Above Message Information**"
+"description" (print "**Author:** " $msg.Author.Mention " (" $msg.Author ") \n**Channel: **" .Channel.Name " (" .Channel.Mention  ") \n**[Message Link](" $msg.Link ")** \n\n**Originally Posted:** <t:" $msg.Timestamp.Parse.Unix "> \n**Pinned:** <t:" currentTime.Unix ">" )
+"thumbnail" (sdict "url" ($msg.Author.AvatarURL "512") )
+}}
+
+
+{{/* attachment notice */}}
+{{$attach := "*There are attachments in this message that can only be viewed by going to the message link.*"}}
+
+
+{{/* copying messages */}}
+{{if and (not $msg.Embeds) (not $msg.Attachments)}}
+    {{sendDM (complexMessage "content" (print "**Bookmarked Message:**\n\n" $msg.ContentWithMentionsReplaced) "embed" $postembed )}}
+
+
+{{else}}
+    {{sendDM (complexMessage "content" (print "**Bookmarked Message:**\n" $attach "\n\n" $msg.ContentWithMentionsReplaced ) "embed" $postembed )}}
+
+{{end}}

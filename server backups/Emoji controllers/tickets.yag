@@ -1,0 +1,41 @@
+{{/* if reaction on ticket post, open new ticket
+controlled by "Universal Emoji Controller" 
+CC ID: 249
+ */}}
+
+ {{/* info grabbed from the triggering CC */}}
+ {{$ch := .ExecData.ch}} {{/* contact staff channel */}}
+ {{$user := .ExecData.user}}
+
+
+{{/* 30min cooldown */}}
+{{/* 0 for per user, 1 for global */}}
+{{$isGlobal := 0}}
+{{$name := "ticket creation"}}
+{{/* Length of the cooldown (in seconds) */}}
+{{$lengthSec := 1800}}
+
+{{/* cooldown variables */}}
+{{$id := 0}}
+{{$key := joinStr "" "cooldown_" $name}}
+{{if eq $isGlobal 0}}
+{{$id = $user.ID}}
+{{end}}
+
+
+{{if dbGet (toInt64 $id) $key}} 
+{{/* Code to execute when cooldown is active */}}
+
+    {{$ghost := sendMessageRetID $ch $user.Mention }}
+    {{deleteMessage $ch $ghost 0}}
+    {{$clm := sendMessageRetID $ch "**You cannot create multiple tickets.**"}}
+    {{deleteMessage $ch $clm 20}}
+
+{{else}}
+{{/* Create cooldown entry */}}
+    {{dbSetExpire (toInt64 $id) $key "cooldown" $lengthSec}}
+
+{{/* ACTUAL TICKET CREATION */}}
+
+	{{$silent := exec "tickets open" (joinStr "" $user.String "")}}
+{{end}}
