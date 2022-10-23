@@ -1,0 +1,45 @@
+{{/* Thread list command - NOT a standalone command! Need thread db controls cc too. 
+Trigger: command
+-tlist 
+
+Made by Shadow22A & Vars#3616. More info: https://github.com/FravBox/YagCCs
+
+*/}}
+
+{{$amt := 20}} {{/* amount of db entries to range through. Max 100. Longer = slower. */}}
+{{$staff := 750543521227866215}} {{/* roleID to require to use this command */}}
+
+{{/* DO NOT EDIT BELOW */}}
+
+{{if or (not (.Channel.IsThread) ) (hasRoleID $staff) }}
+
+    {{$w := sendMessageRetID nil "Working..."}} 
+
+    {{$dict := dict}}
+
+    {{range (dbTopEntries "threads" $amt 0)}} 
+    {{- $dict.Set .Value.cat (or ($dict.Get .Value.cat) dict) -}} 
+    {{- ($dict.Get .Value.cat).Set .Value.parent ((or (($dict.Get .Value.cat).Get .Value.parent) cslice).Append .Value.thread) -}} 
+    {{- end}}
+
+    {{$list := ""}}
+    {{$g := .Guild.ID}}
+    {{$i := " "}}
+    {{$i2 := print "ㅤ" " " " " }} 
+
+    {{range $k, $v := $dict}} 
+        {{- $list = print $list "\n**" $k "**\n" }} 
+    
+        {{- range $y, $z := $v -}} 
+        {{- $list = printf "%s%s<#%d>\n" $list $i $y -}} 
+        {{- range $z -}}
+            {{- $list = printf "%s%s%[2]s<#%d> | [%s](https://discord.com/channels/%d/%d)\n" $list $i2 .ID .Name $g .ID -}} 
+        {{- end -}}
+    {{- end -}}
+    {{- end}} 
+
+    {{$lmsg := cembed "title" "Server Thread List" "description" $list }}
+    {{sendMessage nil $lmsg}}
+    {{deleteMessage nil $w}}
+
+{{end}}
