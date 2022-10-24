@@ -64,12 +64,15 @@ CC ID: 249
                 {{ sendMessage $joins $VerifyEmbed }}
 
 				{{/* update verification / joindate db */}}
+				{{$vcdb := (dbGet 0 "vcount").Value}}
+				{{dbSet 0 "vcount" (add 1 $vcount)}}
+
 				{{$jdb := (dbGet .User.ID "joindate").Value}}
 				{{if $jdb}}
 					{{$1 := $jdb.Set "vdate" (print "<t:" currentTime.Unix ">")}}
 					{{dbSet .User.ID "joindate" $jdb}}
 				{{else}}
-					{{dbSet .User.ID "joindate" (sdict "joined" (print (humanizeDurationHours (currentTime.Sub .Member.JoinedAt.Parse)) "ago " ) "vdate" (print "<t:" currentTime.Unix ">") "left" "Never" ) }}
+					{{dbSet .User.ID "joindate" (sdict "joined" (print (humanizeDurationHours (currentTime.Sub .Member.JoinedAt.Parse)) " ago" ) "vdate" (print "<t:" currentTime.Unix ">") "left" "Never" ) }}
 				{{end}}
 			{{end}}
 		{{end}}

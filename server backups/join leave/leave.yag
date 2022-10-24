@@ -14,6 +14,12 @@
     {{$1 := $jdb.Set "left" (print "<t:" currentTime.Unix ">")}}
     {{dbSet .User.ID "joindate" $jdb}}
 
+    {{/* update verified count */}}
+    {{if (ne $jdb.Value.vdate "None")}}
+        {{$vcdb := (dbGet 0 "vcount").Value}}
+        {{dbSet 0 "vcount" (sub $vcdb 1)}}
+    {{end}}
+
 {{else}}
     {{ $LeaveEmbed := cembed "description" (joinStr "" "**" .User " (" .user.Username ") Left.**" " \n (ID: " .User.ID ") \n **<t:" currentTime.Unix ">** \n\nMembercount: " .Guild.MemberCount "" )  "color" 7929856 }}
 
