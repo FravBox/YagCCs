@@ -77,3 +77,21 @@ Limit it so it ONLY runs in intros channel */}}
 {{sendMessage $log (cembed "description" (print .User.Mention " (" .User.String ") does not have the <@&" $role "> role and just posted in <#" $ch ">.\n Make sure your permissions are set correctly. \n [View Logs](" $logged ")" ) "color" $2pink )}}
 
 {{end}}
+
+{{/* sticky message for intro count */}}
+{{$sdb := dbGet 1 "introsticky"}}
+
+{{if $sdb}}
+    {{deleteMessage $sdb.Value.ch $sdb.Value.msg 1}}
+{{end}}
+
+{{ $avatar := "https://cdn.discordapp.com/attachments/750544650523246623/947397390887972933/kicking-musubi-w-text.png" }}
+{{$mid := sendMessageRetID $ch (cembed "description" (print "There are currently " (add 1 (dbCount "intro")) " introductions.\n[Jump to the top?](https://discord.com/channels/750541618389712896/1033952269265272863/1033953300061618257)" ) "color" 15559936 "thumbnail" (sdict "url" $avatar) )}}
+
+
+{{$sticky := sdict
+"ch" .Channel.ID
+"msg" $mid
+}}
+
+{{dbSet 1 "introsticky" $sticky}}
