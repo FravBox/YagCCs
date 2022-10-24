@@ -1,0 +1,21 @@
+{{/* variables */}}
+{{$new := 258}}{{/* new user warning*/}}
+{{$ch := 954832185200898128}}{{/* joins-leaves channel */}}
+
+{{/* log the join */}}
+{{ $JoinEmbed := cembed "description" (joinStr "" "**" .User.Mention " Joined.**" " \n (ID: " .User.ID ") \n"  "**<t:" currentTime.Unix ">** \nMembercount: " .Guild.MemberCount "" ) "color" 30978 }}
+{{ sendMessage $ch $JoinEmbed }}
+
+{{/* if user joined before */}}
+{{if (dbGet .User.ID "joindate")}}
+    {{ sendMessage $ch (print "This user joined at least once before. Their last join date was " (dbGet .User.ID "joindate").Value ) }}
+{{end}}
+
+
+{{/* new user warning */}}
+{{execCC $new nil 0 (sdict "min" currentUserAgeMinutes "create" currentUserCreated)}}
+
+{{/* set new join date */}}
+{{dbSet .User.ID "joindate" (print "<t:" currentTime.Unix ">")}}
+
+
