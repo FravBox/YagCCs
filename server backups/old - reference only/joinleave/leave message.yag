@@ -1,0 +1,2 @@
+{{ $LeaveEmbed := cembed "description" (joinStr "" "**" .User " (" .user.Username ") Left.**" " \n (ID: " .User.ID ") \n"   "**<t:" currentTime.Unix ">** \n\nMembercount: " .Guild.MemberCount "" )  "color" 7929856 }}
+{{ sendMessage 954832185200898128 $LeaveEmbed }}
