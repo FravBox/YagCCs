@@ -8,7 +8,7 @@
 
 {{/* if user joined before */}}
 {{if (dbGet .User.ID "joindate")}}
-    {{ sendMessage $ch (print "This user joined at least once before. Their last join date was " (dbGet .User.ID "joindate").Value ) }}
+    {{ sendMessage $ch (print "This user joined at least once before. Their last join date was " ((dbGet .User.ID "joindate").Value.joined) ". \nLast verification date: " ((dbGet .User.ID "joindate").Value.vdate) "\nLast leave date: " ((dbGet .User.ID "joindate").Value.left) ) }}
 {{end}}
 
 
@@ -16,6 +16,6 @@
 {{execCC $new nil 0 (sdict "min" currentUserAgeMinutes "create" currentUserCreated)}}
 
 {{/* set new join date */}}
-{{dbSet .User.ID "joindate" (print "<t:" currentTime.Unix ">")}}
+{{dbSet .User.ID "joindate" (sdict "joined" (print "<t:" currentTime.Unix ">") "vdate" "None" "left" "Never" ) }}
 
 
