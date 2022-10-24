@@ -10,10 +10,13 @@ Limit it so it ONLY runs in intros channel */}}
 {{$ch := 1033952269265272863}}
 
 {{/* intros log */}}
-{{$log := 1023396572953849917}} {{/* yag cmd log */}}
+{{$log := 970007312632795167}} {{/* yag cmd log */}}
 
 {{/* Role to require to post there */}}
 {{$role := 750565698383773828}} {{/* verified */}}
+
+{{/* Update CC ID */}}
+{{$update := 263}}
 
 {{/* DB Entry structure */}}
 {{$intro := (dbGet .User.ID "intro")}}
@@ -54,9 +57,13 @@ Limit it so it ONLY runs in intros channel */}}
         {{deleteTrigger 61}}
         {{deleteMessage $ch $x 61}}
 
+        {{execCC $update $ch 3600 (sdict "user" .User.ID "message" $intro.Value.msg)}}{{/* update the content in an hour */}}
+
     {{else}}
         {{dbSet .User.ID "intro" $infos}}
         {{sendMessage $log $new}}
+
+        {{execCC $update $ch 3600 (sdict "user" .User.ID "message" $intro.Value.msg)}}{{/* update the content in an hour */}}
     {{end}}
 
 {{else}}

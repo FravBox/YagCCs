@@ -1,0 +1,14 @@
+{{/* Scheduled update of Introductions
+Triggered by Introductions CC: #262
+
+When someone tries to post a 2nd intro, 1 hour later, it triggers this CC. 
+Then, the original message content is updated so it can be accurately quoted later.
+*/}}
+
+{{$ch := 1033952269265272863}} {{/* intros channel */}}
+
+{{$intro := (dbGet .ExecData.user "intro")}}
+{{$newtext := ((getMessage $ch .ExecData.message).ContentWithMentionsReplaced)}}
+
+{{$1 := $intro.Value.infos.Get "text"}}
+{{$2 := $intro.Value.infos.Set "text" $newtext}}
