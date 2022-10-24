@@ -65,7 +65,7 @@ CC ID: 249
 
 				{{/* update verification / joindate db */}}
 				{{$vcdb := (dbGet 0 "vcount").Value}}
-				{{dbSet 0 "vcount" (add 1 $vcount)}}
+				{{dbSet 0 "vcount" (add 1 $vcdb)}}
 
 				{{$jdb := (dbGet .User.ID "joindate").Value}}
 				{{if $jdb}}
