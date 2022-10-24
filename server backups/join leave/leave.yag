@@ -1,8 +1,6 @@
 {{/* variables */}}
 {{$ch := 954832185200898128}}{{/* joins-leaves channel */}}
 {{$modl := 750544945474961448}}{{/* modlog */}}
-{{$ich := 1}}{{/* intros channel */}}
-
 
 {{/* show join date, if possible */}}
 {{if (dbGet .User.ID "joindate")}}
@@ -17,19 +15,20 @@
 
 {{/* delete Intro post, if applicable */}}
 {{$idb := (dbGet .User.ID "intro")}}
+{{$ich := $idb.Value.ch}}
 
 {{if $idb}}
-    {{sendMessage $modl (cembed "description" (print "<@" ($idb.Value.user).ID "> (" ($idb.Value.user).Username "#" ($idb.Value.user).Discriminator ")'s <#" $ich "> post (#" ($idb.Value.place) " of " (dbCount "intro") ") was deleted since they left the server.\n\nIntro Content:\n >>> " ($idb.Value.text) ) "color" 16737921) }}
+    {{sendMessage $modl (cembed "description" (print "<@" ($idb.Value.user).ID "> (" ($idb.Value.user).Username "#" ($idb.Value.user).Discriminator ")'s <#" $ich "> post (#" ($idb.Value.place) " of " (dbCount "intro") ") was deleted since they left the server.\n\nIntro Content:\n >>> " (getMessage $idb.Value.ch $idb.Value.msg).ContentWithMentionsReplaced ) "color" 16737921) }}
 
     {{deleteMessage $ich ($idb.Value.msg) 1}}
     {{dbDel .User.ID "intro"}}
-    {{sendMessage $ch "Their intro post was also deleted."}}
+    {{sendMessage $ch (print "Their <#" $ich "> post was also deleted.")}}
 {{end}}
 
 
 {{/* ban if user left while muted or timed out */}}
 {{if (dbGet .User.ID "noexit")}}
-    {{$LeaveBan := (print "🔨 Automatically banned " .User.Mention " (" .User.ID ") for leaving server white muted or timed out. " )}}
+    {{$LeaveBan := (print "🔨 Automatically banned <@" .User.ID "> (ID: " .User.ID ") for leaving server white muted or timed out. " )}}
 
     {{sendMessage  $modl $LeaveBan}}{{/* modlog */}}
     {{sendMessage  $ch $LeaveBan}}{{/* joins-leaves */}}

@@ -57,13 +57,13 @@ Limit it so it ONLY runs in intros channel */}}
         {{deleteTrigger 61}}
         {{deleteMessage $ch $x 61}}
 
-        {{execCC $update $ch 3600 (sdict "user" .User.ID "message" $intro.Value.msg)}}{{/* update the content in an hour */}}
+        {{scheduleUniqueCC $update $ch 3600 .User.ID (sdict "user" .User.ID "message" $intro.Value.msg)}}{{/* update the content in an hour */}}
 
     {{else}}
         {{dbSet .User.ID "intro" $infos}}
         {{sendMessage $log $new}}
 
-        {{execCC $update $ch 3600 (sdict "user" .User.ID "message" $intro.Value.msg)}}{{/* update the content in an hour */}}
+        {{scheduleUniqueCC $update $ch 3600 .User.ID (sdict "user" .User.ID "message" $intro.Value.msg)}}{{/* update the content in an hour */}}
     {{end}}
 
 {{else}}

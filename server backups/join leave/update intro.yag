@@ -5,10 +5,10 @@ When someone tries to post a 2nd intro, 1 hour later, it triggers this CC.
 Then, the original message content is updated so it can be accurately quoted later.
 */}}
 
-{{$ch := 1033952269265272863}} {{/* intros channel */}}
 
-{{$intro := (dbGet .ExecData.user "intro")}}
-{{$newtext := ((getMessage $ch .ExecData.message).ContentWithMentionsReplaced)}}
+{{$intro := (dbGet .ExecData.user.ID "intro")}}
+{{$newtext := (print (getMessage $intro.Value.ch $intro.Value.msg).ContentWithMentionsReplaced )}}
 
-{{$1 := $intro.Value.infos.Get "text"}}
-{{$2 := $intro.Value.infos.Set "text" $newtext}}
+{{$idb := $intro.Value}}
+{{$1 := $idb.Set "text" $newtext}}
+{{dbSet .ExecData.user.ID "intro" $idb}}
