@@ -9,6 +9,7 @@ CC ID: 249
 {{$main := 750541618389712900}} {{/* main talk channel */}}
 {{$joins := 954832185200898128}} {{/* joins-leaves modlog channel - for successful verifications */}}
 {{$modlog := 970007312632795167 }} {{/* yag-cmd-log */}}
+{{$intros := 1033952269265272863}}
 
 {{$v := "☑️"}}{{/* emoji to verify */}}
 
@@ -54,7 +55,7 @@ CC ID: 249
                 {{sendDM "```\nYou're already verified!\n```" }} 
             {{else if (eq $type "2")}} 
                 {{addRoleID $verified}}
-                {{sendMessage $main (print "Welcome, " $user.Mention "! 🥳 \nTell us a bit about yourself! \nHow did you find the server? What type of videos do you make, if any?")}}
+                {{sendMessage $main (print "Welcome, " $user.Mention "! 🥳 \nTell us a bit about yourself! \nHow did you find the server? What type of videos do you make, if any? \n 📝 Optionally, put a more formal post in <#" $intros "> when you're ready! ")}}
             
                 {{/* SENDS VERIFICATION TO Joins-Leaves */}}
                 
