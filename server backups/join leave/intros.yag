@@ -1,0 +1,71 @@
+{{/* INTRODUCTIONS
+a channel where everyone can only post one time. 
+If they post again, their current post is deleted.
+It they leave the server, their post is deleted.
+
+Trigger: regex \A
+Limit it so it ONLY runs in intros channel */}}
+
+{{/* Intros channel */}}
+{{$ch := 1033952269265272863}}
+
+{{/* intros log */}}
+{{$log := 1023396572953849917}} {{/* yag cmd log */}}
+
+{{/* Role to require to post there */}}
+{{$role := 750565698383773828}} {{/* verified */}}
+
+{{/* DB Entry structure */}}
+{{$intro := (dbGet .User.ID "intro")}}
+{{$ust1 := (print .User.String) }}
+{{$infos := sdict 
+    "ch" .Channel.ID 
+    "msg" .Message.ID
+    "link" .Message.Link
+    "text" .Message.ContentWithMentionsReplaced 
+    "time" (print "<t:" currentTime.Unix ":R>") 
+    "user" .Message.Author
+    "place" (add 1 (dbCount "intro"))
+    }}
+
+{{/* colors */}}
+{{$red := 7929856}}
+{{$newpink := 16760265 }}
+{{$2pink := 16737921 }}
+
+{{/* Warning if they had posted before */}}
+{{ $warn := (cembed "description" (print  .User.Mention ", **the message you just sent will be deleted in 60 seconds.** \nCopy the contents immediately if you want to keep it! \n\nIf you want to update your intro, [edit your previous post](" $intro.Value.link ") from " $intro.Value.time "." )  "color" $red ) }}
+
+{{/* logging intros */}}
+{{$logged := execAdmin "logs 2"}}
+
+{{$new := cembed "description" (print .User.Mention " **(" .User.String ") just posted their first [intro](https://discord.com/channels/" .Guild.ID "/" $ch ")** at <t:" currentTime.Unix "> \nFind it [here](" .Message.Link "). \n\n Intro #" (add 1 (dbCount "intro") ) "\nUser ID: " .User.ID "\n[Logs](" $logged ")" ) "color" $newpink}}
+
+{{$2nd := cembed "description" (print .User.Mention " **(" .User.String ") just tried to post a second [intro](https://discord.com/channels/" .Guild.ID "/" $ch ")** at <t:" currentTime.Unix ">. \n Their first intro is [here](" $intro.Value.link "). \n\nIntro " $intro.Value.place " of " (dbCount "intro") "\nOriginal post date: " $intro.Value.time "\nUser ID: " .User.ID "\n[Logs](" $logged ")") "color" $2pink }}
+
+{{/* actual code */}}
+{{if hasRoleID $role}}
+    {{if $intro}}
+        {{$logged := execAdmin "logs 5"}}
+
+        {{$x := sendMessageNoEscapeRetID $ch (complexMessage "reply" .Message.ID  "embed" $warn)}}
+        {{sendMessage $log $2nd}}
+
+        {{deleteTrigger 61}}
+        {{deleteMessage $ch $x 61}}
+
+    {{else}}
+        {{dbSet .User.ID "intro" $infos}}
+        {{sendMessage $log $new}}
+    {{end}}
+
+{{else}}
+{{$x := sendMessageRetID $ch (print .User.Mention ", you can't post here. Your post will be deleted in 30 seconds.")}}
+
+{{deleteTrigger 31}}
+{{deleteMessage $ch $x 31}}
+
+
+{{sendMessage $log (cembed "description" (print .User.Mention " (" .User.String ") does not have the <@&" $role "> role and just posted in <#" $ch ">.\n Make sure your permissions are set correctly. \n [View Logs](" $logged ")" ) "color" $2pink )}}
+
+{{end}}
