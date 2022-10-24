@@ -9,8 +9,9 @@ Limit it so it ONLY runs in intros channel */}}
 {{/* Intros channel */}}
 {{$ch := 1033952269265272863}}
 
-{{/* intros log */}}
-{{$log := 970007312632795167}} {{/* yag cmd log */}}
+{{/* logging channels */}}
+{{$jl := 954832185200898128}} {{/* joins leaves - for first time intros */}}
+{{$log := 970007312632795167}}{{/* yag cmd log - for 2nd intros */}}
 
 {{/* Role to require to post there */}}
 {{$role := 750565698383773828}} {{/* verified */}}
@@ -61,7 +62,7 @@ Limit it so it ONLY runs in intros channel */}}
 
     {{else}}
         {{dbSet .User.ID "intro" $infos}}
-        {{sendMessage $log $new}}
+        {{sendMessage $jl $new}}
 
         {{scheduleUniqueCC $update $ch 3600 .User.ID (sdict "user" .User.ID "message" $intro.Value.msg)}}{{/* update the content in an hour */}}
     {{end}}
