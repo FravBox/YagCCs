@@ -85,7 +85,7 @@ Limit it so it ONLY runs in intros channel */}}
     {{deleteMessage $sdb.Value.ch $sdb.Value.msg 1}}
 {{end}}
 
-{{$mid := sendMessageRetID $ch (cembed "description" (print "There are currently " (sub (dbCount "intro") 1) " introductions. \n[Jump to the top?](https://discord.com/channels/750541618389712896/1033952269265272863/1033953300061618257)" ) "color" 15559936 )}}
+{{$mid := sendMessageRetID $ch (cembed "description" (print "There are currently " (dbCount "intro") " introductions. \n[Jump to the top?](https://discord.com/channels/750541618389712896/1033952269265272863/1033953300061618257)" ) "color" 15559936 )}}
 
 
 {{$sticky := sdict

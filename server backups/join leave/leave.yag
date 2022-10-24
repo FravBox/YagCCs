@@ -35,3 +35,11 @@
     {{dbDel .User.ID "noexit"}}
 {{end}}
 
+{{/* update verification / joindate db */}}
+				{{$jdb := (dbGet .User.ID "joindate").Value}}
+				{{if $jdb}}
+					{{$1 := $jdb.Set "left" (print "<t:" currentTime.Unix ">")}}
+					{{dbSet .User.ID "joindate" $jdb}}
+				{{else}}
+					{{dbSet .User.ID "joindate" (sdict "joined" "Some time before November 2022, when this CC was implemented" "vdate" "Unknown" "left" (print "<t:" currentTime.Unix ">") ) }}
+				{{end}}
