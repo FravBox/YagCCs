@@ -1,16 +1,26 @@
 {{/* variables */}}
 {{$ch := 954832185200898128}}{{/* joins-leaves channel */}}
 {{$modl := 750544945474961448}}{{/* modlog */}}
+{{$jdb := (dbGet .User.ID "joindate")}}
+
 
 {{/* show join date, if possible */}}
-{{if (dbGet .User.ID "joindate")}}
-    {{ $LeaveEmbed := cembed "description" (joinStr "" "**" .User " (" .user.Username ") Left.**" " \n (ID: " .User.ID ") \n"   "**<t:" currentTime.Unix ">** \nMember since: " .Value "\n\nMembercount: " .Guild.MemberCount "" )  "color" 7929856 }}
+{{if $jdb}}
+    {{ $LeaveEmbed := cembed "description" (joinStr "" "**" .User " (" .user.Username ") Left.**" " \n (ID: " .User.ID ") \n"   "**<t:" currentTime.Unix ">** \nMember since: " $jdb.Value.joined "\nVerified on: " $jdb.Value.vdate "\n\nMembercount: " .Guild.MemberCount "" )  "color" 7929856 }}
 
     {{ sendMessage $ch $LeaveEmbed }}
+
+{{/* update leave date */}}
+    {{$1 := $jdb.Set "left" (print "<t:" currentTime.Unix ">")}}
+    {{dbSet .User.ID "joindate" $jdb}}
+
 {{else}}
     {{ $LeaveEmbed := cembed "description" (joinStr "" "**" .User " (" .user.Username ") Left.**" " \n (ID: " .User.ID ") \n **<t:" currentTime.Unix ">** \n\nMembercount: " .Guild.MemberCount "" )  "color" 7929856 }}
 
     {{ sendMessage $ch $LeaveEmbed }}
+
+    {{/* set leave date */}}
+    {{dbSet .User.ID "joindate" (sdict "joined" "Some time before November 2022, when this CC was implemented" "vdate" "Unknown" "left" (print "<t:" currentTime.Unix ">") ) }}
 {{end}}
 
 {{/* delete Intro post, if applicable */}}
@@ -34,12 +44,3 @@
     {{sendMessage  $ch $LeaveBan}}{{/* joins-leaves */}}
     {{dbDel .User.ID "noexit"}}
 {{end}}
-
-{{/* update verification / joindate db */}}
-				{{$jdb := (dbGet .User.ID "joindate").Value}}
-				{{if $jdb}}
-					{{$1 := $jdb.Set "left" (print "<t:" currentTime.Unix ">")}}
-					{{dbSet .User.ID "joindate" $jdb}}
-				{{else}}
-					{{dbSet .User.ID "joindate" (sdict "joined" "Some time before November 2022, when this CC was implemented" "vdate" "Unknown" "left" (print "<t:" currentTime.Unix ">") ) }}
-				{{end}}
