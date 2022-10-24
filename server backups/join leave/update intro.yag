@@ -6,9 +6,9 @@ Then, the original message content is updated so it can be accurately quoted lat
 */}}
 
 
-{{$intro := (dbGet .ExecData.user.ID "intro")}}
+{{$intro := (dbGet .ExecData.user "intro")}}
 {{$newtext := (print (getMessage $intro.Value.ch $intro.Value.msg).ContentWithMentionsReplaced )}}
 
 {{$idb := $intro.Value}}
 {{$1 := $idb.Set "text" $newtext}}
-{{dbSet .ExecData.user.ID "intro" $idb}}
+{{dbSet .ExecData.user "intro" $idb}}
