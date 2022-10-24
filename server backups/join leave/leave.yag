@@ -18,11 +18,11 @@
 {{$ich := $idb.Value.ch}}
 
 {{if $idb}}
-    {{sendMessage $modl (cembed "description" (print "<@" ($idb.Value.user).ID "> (" ($idb.Value.user).Username "#" ($idb.Value.user).Discriminator ")'s <#" $ich "> post (#" ($idb.Value.place) " of " (dbCount "intro") ") was deleted since they left the server.\n\nIntro Content:\n >>> " (getMessage $idb.Value.ch $idb.Value.msg).ContentWithMentionsReplaced ) "color" 16737921) }}
+    {{$x := sendMessageRetID $modl (cembed "description" (print "<@" ($idb.Value.user).ID "> (" ($idb.Value.user).Username "#" ($idb.Value.user).Discriminator ")'s <#" $ich "> post (#" ($idb.Value.place) " of " (dbCount "intro") ") was deleted since they left the server.\n\nIntro Content:\n >>> " (getMessage $idb.Value.ch $idb.Value.msg).ContentWithMentionsReplaced ) "color" 16737921) }}
 
     {{deleteMessage $ich ($idb.Value.msg) 1}}
     {{dbDel .User.ID "intro"}}
-    {{sendMessage $ch (print "Their <#" $ich "> post was also deleted.")}}
+    {{sendMessage $ch (cembed "description" (print "Their [intro post](" (getMessage $modl $x).Link ") was also deleted.") )}}
 {{end}}
 
 
