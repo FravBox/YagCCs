@@ -1,0 +1,51 @@
+{{/* JOIN MESSAGE CC */}}
+
+{{/* variables */}}
+{{$ch := 954832185200898128}}{{/* joins-leaves channel */}}
+{{$user := .ExecData.user}}
+{{$min := .ExecData.min}}
+{{$create := .ExecData.create}}
+{{$staff := 750543521227866215}} {{/* role id */}}
+
+{{/* log the join */}}
+{{ $JoinEmbed := cembed "description" (joinStr "" "**" $user.Mention " Joined.**" " \n (ID: " $user.ID ") \n"  "**<t:" currentTime.Unix ">** \nMembercount: " .Guild.MemberCount "" ) "color" 30978 }}
+{{ sendMessage $ch $JoinEmbed }}
+
+{{/* if user joined before */}}
+{{if (dbGet $user.ID "joindate")}}
+    {{ sendMessage $ch (print "This user joined at least once before. Their last join date was " ((dbGet $user.ID "joindate").Value.joined) ". \nLast verification date: " ((dbGet $user.ID "joindate").Value.vdate) "\nLast leave date: " ((dbGet $user.ID "joindate").Value.left) ) }}
+{{end}}
+
+{{/*	New User Warning
+	Trigger Type: Join Messsage (server)
+
+	Copyright (c): Black Wolf, 2021
+	License: MIT
+	Repository: https://github.com/BlackWolfWoof/yagpdb-cc/
+*/}}
+
+{{$roleid := $staff}}
+{{/*This will be the role that gets pinged for new user notification. */}}
+{{$age := 10080}}
+{{/* Account age in minutes. 43829 = one month. 20160 = 2 weeks */}}
+{{$channel := $ch }}
+{{/*Channel to send message in. Currently set to joins-leaves. */}}
+
+{{if lt ($min) $age}}
+	{{if not (dbGet $user.ID "warningcooldown")}}
+		{{$embed := sdict "author" (sdict "icon_url" ($user.AvatarURL "1024") "name" "A user with a new account joined!") "fields" (cslice (sdict "name" "**• User:**" "value" (print $user.Mention " `" $user.String "`") "inline" true) (sdict "name" "**• ID:**" "value" (print $user.ID) "inline" true) (sdict "name" "**• Age:**" "value" (humanizeDurationSeconds (currentTime.Sub $create)) "inline" true)) "footer" (sdict "text" (print $user.String " joined")) "timestamp"  currentTime "color" 16426522}}
+		{{if lt ($min) 1440}}
+			{{$embed.Set "fields" ($embed.fields.Append (sdict "name" "**• WARNING:**" "value" "This account is probably an alt or a spam / raid account‼" "inline" true))}}
+			{{$embed.Set "color" 15158332}}
+			{{sendMessageNoEscape $channel (complexMessage "embed" (cembed $embed) "content" (print "❗WARNING: User with extremely new account joined! " (mentionRoleID $roleid) ))}}
+		{{else}}
+			{{sendMessageNoEscape $channel (complexMessage "embed" (cembed $embed) "content" (print "⚠️User with new account joined! " (mentionRoleID $roleid) ))}}
+		{{end}}
+		{{dbSetExpire $user.ID "warningcooldown" true 86400}}
+	{{end}}
+{{end}}
+{{/* end new user warning cc */}}
+
+
+{{/* set new join date */}}
+{{dbSet $user.ID "joindate" (sdict "joined" (print "<t:" currentTime.Unix ">") "vdate" "None" "left" "Never" ) }}
