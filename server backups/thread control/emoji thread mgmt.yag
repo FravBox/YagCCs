@@ -9,7 +9,7 @@ added + removed reactions */}}
 {{$ccid := 244}}
 
 {{/* thread management variables */}}
-{{$pin := "📍"}} {{/* emoji to use for pinning posts */}}
+{{$pin := (cslice "📍" "📌" ) }} {{/* emoji to use for pinning posts */}}
 {{$save := "💾"}} {{/* emoji to use for resaving thread info / setting new author */}}
 {{$tdel := "❌"}}{{/* emoji for deleting thread data -tdel */}}
 
@@ -39,13 +39,13 @@ added + removed reactions */}}
     "tauthor" $thra
     }}
  
-    {{if or (eq .Reaction.Emoji.APIName $pin) (eq .Reaction.Emoji.APIName $save) (eq .Reaction.Emoji.APIName $tdel)}}
+    {{if or (in $pin .Reaction.Emoji.APIName) (eq .Reaction.Emoji.APIName $save) (eq .Reaction.Emoji.APIName $tdel)}}
 
     {{/* check for db entry */}}
     {{$tdb := (dbGet .Channel.ID "threads")}}
 
         {{/* pins */}}
-        {{if eq .Reaction.Emoji.APIName $pin }}
+        {{if in $pin .Reaction.Emoji.APIName }}
             {{if (eq .User.ID (($tdb).Value.tauthor.ID)) }}
                 
                 {{if .ReactionAdded }}

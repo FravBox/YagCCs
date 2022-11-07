@@ -8,13 +8,15 @@
 
 {{/* Logging Channels 4 thread notifs*/}}
 {{$modlog := 1007036301717016706 }} 
-{{$gen := 1020748602928267426}}{{/* General */}}
-{{$res := 1020749701022240869}}{{/* resources */}}
-{{$rw := 1020750390754553979}}{{/* Reading & Writing */}}
-{{$gam := 1020750570367221881}}{{/* gaming */}}
-{{$ev := 1020748338590666762}}{{/* event chats */}}
-{{$ed := 1020749047742599238}}{{/* editing */}}
-{{$am := 1020750225637384322}}{{/* Art & music */}}
+{{/* most threads get posted to #side-talk now */}}
+{{$side := 750544732450717728}} {{/* side-talk */}}
+{{$gen := $side}} {{/* general */}}
+{{$res := $side}} {{/* resources */}}
+{{$rw := 1020383604657889381}}{{/* reading & writing general thread */}}
+{{$gam := 1020370283481280512}}{{/* general gaming chat thread */}}
+{{$ev := $side}}{{/* event chats */}}
+{{$ed := $side}}{{/* editing */}}
+{{$am := $side}}{{/* Art & music */}}
 
 {{/* Channel list */}}
 {{$ec := 1020404948179091527 }}{{/* event chats forum */}}
@@ -134,8 +136,10 @@
         {{sendMessage $gen $newt}}
     {{else if (eq $paren $rwf)}}{{/* read & write */}}
         {{sendMessage $rw $newt}}
+        {{sendMessage $side $newt}}
     {{else if (eq $paren $gf)}}{{/* gaming */}}
         {{sendMessage $gam $newt}}
+        {{sendMessage $side $newt}}
     {{else if (eq $paren $ec)}}{{/* event chats */}}
         {{sendMessage $ev $newt}}
     {{else if and (eq $catid $edit) (ne $paren $re)}}{{/* editing but not resources */}}
