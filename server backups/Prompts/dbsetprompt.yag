@@ -1,0 +1,7 @@
+{{/* use once only to setup system, then delete 
+Trigger: Commands -dbsetprompt */}}
+
+{{dbSet .Guild.ID "prompts" (sdict
+    "number" 0
+    "prompts" (sdict)
+)}}

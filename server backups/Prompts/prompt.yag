@@ -1,0 +1,45 @@
+{{/* 
+    Description: Prompt command
+    Trigger Type: Command
+    Recommended Trigger: prompt
+    Restrictions: -
+
+    Author Tag: Grafik#8209
+    Author ID: 473466385222205452
+*/}}
+
+{{/* Configuration */}}
+
+{{$error := "Not enough arguments passed!"}}
+{{$thanksMessage := (print "Thank you for your vid prompt!\n New prompts are randomly chosen and posted in <#923031270563393557> every few weeks.")}}
+
+{{$colorOkay := 0x81f496}}
+{{$colorError := 0xf48192}}
+
+{{/* Configuration area ends */}}
+
+{{$database := (dbGet .Guild.ID "prompts").Value}}
+{{$embed := cembed}}
+{{$cslice := cslice}}
+{{$sort := ""}}
+
+{{if ge (len .CmdArgs) 1}}
+    {{$embed = cembed
+        "author" (sdict "name" .User.String "icon_url" (.User.AvatarURL "512"))
+        "description" $thanksMessage
+        "color" $colorOkay
+    }}
+    {{$database.Set "number" (add $database.number 1)}}
+    {{$database.prompts.Set (toString $database.number) (sdict
+        "author" .User.ID
+        "content" .StrippedMsg
+    )}}
+    {{dbSet .Guild.ID "prompts" $database}}
+{{else}}
+    {{$embed = cembed
+        "author" (sdict "name" .User.String "icon_url" (.User.AvatarURL "512"))
+        "description" $error
+        "color" $colorError
+    }}
+{{end}}
+{{sendMessage nil $embed}}

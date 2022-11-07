@@ -1,0 +1,23 @@
+{{/* 
+    Description: Prompt list command
+    Trigger Type: Command
+    Recommended Trigger: prompt-list
+    Restrictions: Moderators only
+
+    Author Tag: Grafik#8209
+    Author ID: 473466385222205452
+*/}}
+
+{{$database := (dbGet .Guild.ID "prompts").Value}}
+
+{{$list := ""}}
+{{$user := ""}}
+
+{{- range $k,$v := $database.prompts}}
+    {{if (getMember .author)}}
+        {{$user = (getMember .author).User.String}}
+    {{end}}
+    {{- $list = (print $list "\n" $k ". Author: " $user " (" .author ") - " .content)}}
+{{- end}}
+
+{{sendMessage nil (complexMessage "file" (or $list "Too silent...") "content" "**Active prompts:**")}}
