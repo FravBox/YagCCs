@@ -10,10 +10,10 @@ CC ID: 249
 {{$ch := .ExecData.ch}}
 
 
-{{/* Pinboard variables */}}
+{{/* Starboard variables */}}
 {{$thresh := 3}}{{/* how many reactions needed to move to starboard */}}
 {{$maxAge := "2w"}}{{/* how old a post can be before it can't be added to starboard anymore */}}
-{{$pinch := 1020745284365602996}}{{/* ID of starboard channel */}}
+{{$pinch := 1038951032467755008}}{{/* ID of starboard channel */}}
 {{$color := 16744192 }}{{/* embed color */}}
 
 
@@ -35,7 +35,7 @@ CC ID: 249
             {{$announce := (complexMessage "reply" $msg.ID 
             "content" "🎉" 
             "embed" (cembed 
-            "description" (print "This message was just added to [#pinboard](https://discord.com/channels/750541618389712896/1020745284365602996)! \nView it [here](https://discord.com/channels/750541618389712896/1020745284365602996/" $p ")." ) 
+            "description" (print "This message was just added to <#" $pinch ">! \nView it [here](https://discord.com/channels/750541618389712896/1038951032467755008" $p ")." ) 
             "color" $color)
             ) }}
             
