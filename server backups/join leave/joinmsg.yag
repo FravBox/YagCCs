@@ -8,7 +8,7 @@
 {{$staff := 750543521227866215}} {{/* role id */}}
 
 {{/* log the join */}}
-{{ $JoinEmbed := cembed "description" (joinStr "" "**" $user.Mention " Joined.**" " \n (ID: " $user.ID ") \n"  "**<t:" currentTime.Unix ">** \nMembercount: " .Guild.MemberCount "" ) "color" 30978 }}
+{{ $JoinEmbed := cembed "description" (joinStr "" "**" $user.Mention " (" $user ") Joined.**" " \n (ID: " $user.ID ") \n"  "**<t:" currentTime.Unix ">** \nMembercount: " .Guild.MemberCount "" ) "color" 30978 }}
 {{ sendMessage $ch $JoinEmbed }}
 
 {{/* if user joined before */}}
