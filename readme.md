@@ -3,6 +3,12 @@ Everything here assumes you can at least read basic code. I tell you what to edi
 
 `server backups` is my personal server backups and aren't useful to outsiders.
 
+
+<details>
+<summary>Basic Starboard</summary>
+Simplified starboard/pinboard without all the unecessary fancy crap. Replies to the message that was just moved (without pinging the original user) and quotes the message in the pinboard channel.
+</details>
+
 <details>
 <summary>Custom Report System</summary>
 
@@ -53,7 +59,7 @@ Allows the author of the first message in a thread to manage pins in the thread 
 <summary>Misc</summary>
 
 - Basic server stats     
-- Improved bookmark command      
+- Improved bookmark commands      
 - MessagePreview    
 </details>
 
