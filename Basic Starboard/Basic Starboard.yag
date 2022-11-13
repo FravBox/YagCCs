@@ -7,7 +7,7 @@ Made by Vars#3616 - https://github.com/FravBox/YagCCs
 {{/* Starboard variables */}}
 {{$emoji := "⭐" }}{{/* emoji you want to use for the starboard */}}
 {{$thresh := 3}}{{/* how many reactions needed to move to starboard */}}
-{{$maxAge := "2w"}}{{/* how old a post can be before it can't be added to starboard anymore 1h 2d 3w 4m 5y is 1 hour, 2 days, 2 weeks, 5 years. */}}
+{{$maxAge := "2w"}}{{/* how old a post can be before it can't be added to starboard anymore 1h 2d 3w 4m 5y is 1 hour, 2 days, 3 weeks, 4 months, 5 years. */}}
 {{$pinch := 123}}{{/* ID of starboard channel */}}
 {{$color := 16744192 }}{{/* embed color */}}
 
