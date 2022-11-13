@@ -1,3 +1,6 @@
+# License
+You can use my code & edit it however you want **except the stuff in server backups.** Please ask before using any of that.
+
 # How To Use
 Everything here assumes you can at least read basic code. I tell you what to edit for your server, but some are easier to use than others.
 
