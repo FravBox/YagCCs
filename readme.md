@@ -1,5 +1,5 @@
 # License
-You can use my (Vars#2616 / Fravbox) code & edit it however you want **except the stuff in server backups & things by people other than me.**     
+You can use my (Vars#3616 / Fravbox) code & edit it however you want **except the stuff in server backups & things by people other than me.**     
 If another user is credited, you must keep the credit in the code. If the code is in my server backups folder, please ask before using it.
 
 # How To Use
