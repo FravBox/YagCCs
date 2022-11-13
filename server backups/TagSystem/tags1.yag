@@ -3,8 +3,6 @@
 	See <https://yagpdb-cc.github.io/tags/main-cc> for more information.
 
 	Author: jo3-l <https://github.com/jo3-l>
-	
-	Trigger: starts with ;
 */}}
 
 {{/* Configurable values start - 1st snippet creator then staff roles */}}
@@ -233,7 +231,7 @@
 		{{ $data := sdict "Name" $tagName }}
 		{{ template "getTag" $data }}
 		{{ with $data.Tag }}
-			{{ sendMessage nil (cembed "title" $tagName "description" .Value) }}
+			{{ sendMessage nil (cembed "title" (title $tagName) "description" .Value) }}
 		{{ end }}
 	{{ end }}
 {{ end }}
