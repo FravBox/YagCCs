@@ -1,0 +1,91 @@
+{{/* simplified starboard / pinboard 
+Trigger: Added Reactions only
+Made by Vars#3616 - https://github.com/FravBox/YagCCs
+*/}}
+
+
+{{/* Starboard variables */}}
+{{$emoji := "⭐" }}{{/* emoji you want to use for the starboard */}}
+{{$thresh := 3}}{{/* how many reactions needed to move to starboard */}}
+{{$maxAge := "2w"}}{{/* how old a post can be before it can't be added to starboard anymore 1h 2d 3w 4m 5y is 1 hour, 2 days, 2 weeks, 5 years. */}}
+{{$pinch := 123}}{{/* ID of starboard channel */}}
+{{$color := 16744192 }}{{/* embed color */}}
+
+
+{{/* DO NOT EDIT BELOW */}}
+
+{{if eq .Emoji.APIName $emoji}}
+{{/* count stars & add to starboard */}}
+{{$count := ""}}
+{{if and (le (currentTime.Sub .Message.Timestamp.Parse) (toDuration $maxAge)) }}
+
+	{{range .Message.Reactions}}
+		{{- if eq .Emoji.APIName $emoji -}}
+			{{- $count = .Count -}}
+		{{- end -}}
+	{{- end}}
+
+	{{if $count}}
+		{{if (eq $thresh $count)}}
+            {{/* announcement message */}}
+            {{$p := ""}}
+            {{$announce := (complexMessage "reply" .Message.ID 
+            "content" "🎉" 
+            "embed" (cembed 
+            "description" (print "This message was just added to <#" $pinch ">! \nView it [here](https://discord.com/channels/" .Guild.ID "/" $pinch "/" $p ")." ) 
+            "color" $color)
+            ) }}
+            
+
+			{{/* add to starboard */}}
+
+			{{/* credit embed */}}
+			{{$postembed := cembed
+			"color" $color 
+			"title" "**Above Message Information**"
+			"description" (print "**Author:** " .Message.Author.Mention " (" .Message.Author ") \n**Channel: **" .Channel.Name " (" .Channel.Mention  ") \n[Message Link](" .Message.Link ")\n\n**Originally Posted:** <t:" .Message.Timestamp.Parse.Unix "> \n**Pinned:** <t:" currentTime.Unix ">" )
+			"thumbnail" (sdict "url" (.Message.Author.AvatarURL "512") )
+			}}
+
+			{{/* copying messages */}}
+			{{if and (not .Message.Embeds) (not .Message.Attachments)}}
+				{{$p = sendMessageRetID $pinch (complexMessage "content" (print "**Quoted Message:**\n\n" .Message.ContentWithMentionsReplaced "\n<:br:937128105821216898>") "embed" $postembed )}}
+
+                {{sendMessage .Channel.ID $announce}}
+
+
+			{{else if and (.Message.Embeds) (not .Message.Attachments)}}
+				{{$p = sendMessageRetID $pinch (complexMessage "content" (print "**Quoted Message:**\n\n" .Message.ContentWithMentionsReplaced "\n<:br:937128105821216898>") "embed" (index .Message.Embeds 0) )}}
+				{{sendMessage $pinch $postembed}}
+
+                {{sendMessage .Channel.ID $announce}}
+
+
+			{{else if .Message.Attachments}}
+				{{$url := cslice}}
+				{{range .Message.Attachments}}
+					{{- $url = $url.Append .URL -}}
+				{{- end}}
+
+				{{if and (.Message.Embeds) (.Message.Attachments)}}
+					{{$p = sendMessageRetID $pinch (complexMessage "content" (print "**Quoted Message:**\n\n" .Message.ContentWithMentionsReplaced "\n<:br:937128105821216898>") "embed" (index .Message.Embeds 0)) }}
+					{{sendMessage $pinch (print "\n\n**Attachments:**\n" (joinStr "\n" $url))}}
+					{{sendMessage $pinch $postembed}}
+
+                    {{sendMessage .Channel.ID $announce}}
+
+				{{else}}
+					{{$p = sendMessageRetID $pinch (print "**Quoted Message:**\n\n" .Message.ContentWithMentionsReplaced "\n\n **Attachments:**\n" (joinStr "\n" $url)) }}
+					{{sendMessage $pinch $postembed}}
+
+                    {{sendMessage .Channel.ID $announce}}
+				{{end}}
+
+			{{end}}
+
+
+		{{end}}
+	{{end}}
+
+{{end}}
+{{end}}
