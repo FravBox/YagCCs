@@ -55,7 +55,7 @@ CC ID: 249
                 {{sendDM "```\nYou're already verified!\n```" }} 
             {{else if (eq $type "2")}} 
                 {{addRoleID $verified}}
-                {{sendMessage $main (print "Welcome, " $user.Mention "! 🥳 \nTell us a bit about yourself! \nHow did you find the server? What type of videos do you make, if any? \n 📝 Optionally, put a more formal post in <#" $intros "> when you're ready! ")}}
+                {{sendMessage $main (print "Welcome to BentoVid, " $user.Mention "! 🥳 \nFeel free to jump in any time. If you want to tell us more about yourself, check out <#" $intros "> when you're ready! ")}}
             
                 {{/* SENDS VERIFICATION TO Joins-Leaves */}}
                 
