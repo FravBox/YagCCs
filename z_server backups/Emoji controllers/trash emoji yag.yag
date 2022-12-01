@@ -47,7 +47,7 @@ CC ID: 249
 
 {{if and (ne $cat $server) (ne $cat $rules) (ne $cat $vidgames) (ne $ch.ID $ps) }}
 
-    {{if and (le $x $ma) (not $msg.Pinned) (not (reFind `(?i)(fruits basket)` $msg.Content) ) }}
+    {{if and (le $x $ma) (not $msg.Pinned) (not (reFind `<@!?\d{17,}>` $msg.Content) ) }}
 	{{deleteMessage $ch.ID $msg.ID 1}}	
 
         {{$logit := exec "logs" $la}}
