@@ -10,27 +10,28 @@
 
 {{/* show join date, if possible */}}
 {{if $jdb}}
-    {{ $LeaveEmbed := cembed "description" (joinStr "" "**" $user " (" $user.Username ") Left.**" " \n (ID: " $user.ID ") \n"   "**<t:" currentTime.Unix ">** \nMember since: " $jdb.Value.joined "\nVerified on: " $jdb.Value.vdate "\n\nMembercount: " .Guild.MemberCount "" )  "color" 7929856 }}
 
-    {{ sendMessage $ch $LeaveEmbed }}
+    {{$leavemsg := (print "📤\n🟥 **" $user.Mention " (" $user ") Left** \n🟥 ID: " $user.ID "\n🟥 **<t:" currentTime.Unix ">** \n<:br:937128105821216898> Joined: " ((dbGet $user.ID "joindate").Value.joined) "\n<:br:937128105821216898> Verified: " ((dbGet $user.ID "joindate").Value.vdate) "\n<:br:937128105821216898> *Membercount: " .Guild.MemberCount "*")}}
 
-{{/* update leave date */}}
+    {{sendMessage $ch $leavemsg}}
+
+    {{/* update leave date */}}
     {{$1 := ($jdb.Value).Set "left" (print "<t:" currentTime.Unix ">")}}
     {{dbSet $user.ID "joindate" $jdb.Value}}
 
     {{/* update verified count */}}
-    {{if (ne $jdb.Value.vdate "None")}}
+    {{if or (ne $jdb.Value.vdate "None") (ne $jdb.Value.vdate "N/A")}}
         {{$vcdb := (dbGet 0 "vcount").Value}}
         {{dbSet 0 "vcount" (sub $vcdb 1)}}
     {{end}}
 
 {{else}}
-    {{ $LeaveEmbed := cembed "description" (joinStr "" "**" $user " (" $user.Username ") Left.**" " \n (ID: " $user.ID ") \n **<t:" currentTime.Unix ">** \n\nMembercount: " .Guild.MemberCount "" )  "color" 7929856 }}
+    {{$leavemsg := (print "📤\n🟥 **" $user.Mention " (" $user ") Left** \n🟥 ID: " $user.ID "\n🟥 **<t:" currentTime.Unix ">** \n<:br:937128105821216898> Joined: Unknown \n<:br:937128105821216898> Verified: Unknown \n<:br:937128105821216898> *Membercount: " .Guild.MemberCount "*")}}
 
-    {{ sendMessage $ch $LeaveEmbed }}
+    {{sendMessage $ch $leavemsg}}
 
-    {{/* set leave date */}}
-    {{dbSet $user.ID "joindate" (sdict "joined" "Some time before November 2022, when this CC was implemented" "vdate" "Unknown" "left" (print "<t:" currentTime.Unix ">") ) }}
+    {{/* set new leave date */}}
+    {{dbSet $user.ID "joindate" (sdict "joined" "Before November 2022, when this CC was implemented" "vdate" "Unknown" "left" (print "<t:" currentTime.Unix ">") ) }}
 {{end}}
 
 {{/* delete Intro post, if applicable */}}
@@ -48,7 +49,7 @@
 
 {{/* ban if user left while muted or timed out */}}
 {{if (dbGet $user.ID "noexit")}}
-    {{$LeaveBan := (print "🔨 Automatically banned <@" $user.ID "> (ID: " $user.ID ") for leaving server white muted or timed out. " )}}
+    {{$LeaveBan := (print "🔨 Automatically banned <@" $user.ID "> (ID: " $user.ID ") for leaving server while muted or timed out. " )}}
 
     {{sendMessage  $modl $LeaveBan}}{{/* modlog */}}
     {{sendMessage  $ch $LeaveBan}}{{/* joins-leaves */}}
