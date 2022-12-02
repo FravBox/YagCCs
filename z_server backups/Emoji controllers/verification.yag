@@ -69,8 +69,12 @@ CC ID: 249
 
 				{{$jdb := (dbGet .User.ID "joindate")}}
 				{{if $jdb}}
-					{{$1 := $jdb.Value.Set "vdate" (print "<t:" currentTime.Unix ">")}}
-					{{dbSet .User.ID "joindate" $jdb.Value}}
+					{{$jinfo := sdict
+					"joined" $jdb.Value.joined
+					"vdate" (print "<t:" currentTime.Unix ">")
+					"left" $jdb.Value.left
+					}}
+					{{dbSet .User.ID "joindate" $jinfo}}
 				{{else}}
 					{{dbSet .User.ID "joindate" (sdict "joined" (print (humanizeDurationHours (currentTime.Sub .Member.JoinedAt.Parse)) " ago" ) "vdate" (print "<t:" currentTime.Unix ">") "left" "Never" ) }}
 				{{end}}
