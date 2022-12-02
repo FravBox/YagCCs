@@ -7,13 +7,30 @@
 {{$create := .ExecData.create}}
 {{$staff := 750543521227866215}} {{/* role id */}}
 
-{{/* log the join */}}
-{{ $JoinEmbed := cembed "description" (joinStr "" "**" $user.Mention " (" $user ") Joined.**" " \n (ID: " $user.ID ") \n"  "**<t:" currentTime.Unix ">** \nMembercount: " .Guild.MemberCount "" ) "color" 30978 }}
-{{ sendMessage $ch $JoinEmbed }}
+{{$jinfo := sdict
+"joined" (print "<t:" currentTime.Unix ">")
+"vdate" "N/A"
+"left" "Never"
+}}
 
-{{/* if user joined before */}}
-{{if (dbGet $user.ID "joindate")}}
-    {{ sendMessage $ch (print "This user joined at least once before. Their last join date was " ((dbGet $user.ID "joindate").Value.joined) ". \nLast verification date: " ((dbGet $user.ID "joindate").Value.vdate) "\nLast leave date: " ((dbGet $user.ID "joindate").Value.left) ) }}
+{{/* join message */}}
+{{$joinmsg := (print "📥\n🟩 **" $user.Mention " (" $user ") Joined** \n🟩 ID: " $user.ID "\n🟩 **<t:" currentTime.Unix ">** \n🟩 Originally: " ((dbGet $user.ID "joindate").Value.joined) "\n<:br:937128105821216898> Last Verified: " ((dbGet $user.ID "joindate").Value.vdate) "\n<:br:937128105821216898> Last Left: " ((dbGet $user.ID "joindate").Value.left) "\n<:br:937128105821216898> *Membercount: " .Guild.MemberCount "*")}}
+
+{{if not (dbGet $user.ID "joindate") }}
+ 
+    {{dbSet $user.ID "joindate" $jinfo }}
+
+    {{sendMessage $ch $joinmsg}}
+{{else}}
+
+    {{sendMessage $ch $joinmsg}}
+
+{{$jinfo := sdict
+"joined" (print "<t:" currentTime.Unix ">")
+"vdate" ((dbGet $user.ID "joindate").Value.vdate)
+"left" ((dbGet $user.ID "joindate").Value.left)
+}}
+    {{dbSet $user.ID "joindate" $jinfo}}
 {{end}}
 
 {{/*	New User Warning
@@ -45,7 +62,3 @@
 	{{end}}
 {{end}}
 {{/* end new user warning cc */}}
-
-
-{{/* set new join date */}}
-{{dbSet $user.ID "joindate" (sdict "joined" (print "<t:" currentTime.Unix ">") "vdate" "None" "left" "Never" ) }}
