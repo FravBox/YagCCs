@@ -1,14 +1,13 @@
 {{/* Bot Commands TOC 
 regex: ^(-bottoc|-helpme)
 */}}
-{{ $avatar := ("https://cdn.discordapp.com/attachments/750544650523246623/947397390887972933/kicking-musubi-w-text.png") }}
+{{ $avatar := ("https://bentovid.com/images/BentoVid.png") }}
 {{$message := cembed 
     "title" ("Bot Commands Index" ) 
-    "description" "**[Jump to the top of the bot commands list](https://discord.com/channels/750541618389712896/947229226220789811/947264973564936224)**\nAll commands only work in <#751106748676309043> unless otherwise specified.\n\n[Reminders](https://discord.com/channels/750541618389712896/947229226220789811/947265397244186665)\n[Suggestions](https://discord.com/channels/750541618389712896/947229226220789811/947265408954679377)\n[Tags](https://discord.com/channels/750541618389712896/947229226220789811/947265414449221642)\n[Miscellaneous](https://discord.com/channels/750541618389712896/947229226220789811/947269249028747264)\n\nSee also:\n[How to Tag System](https://discord.com/channels/750541618389712896/947229919895769108)\n[How to Events](https://discord.com/channels/750541618389712896/947229349239738440)\n[How to Report](https://discord.com/channels/750541618389712896/947212821517725706)" 
+    "description" "**[All Bot Commands](https://bentovid.com/sguides/bot-commands)**\nAll commands only work in <#1019933777826426940> unless otherwise specified.\n\n
+    [Birthdays](https://bentovid.com/sguides/bot-commands#birthdays) | `-mybirthday mm/dd/yyyy`, `-getbirthday @user`\n[Reminders](https://bentovid.com/sguides/bot-commands#reminders) | `-remind` \n[Suggestions](https://bentovid.com/sguides/bot-commands#suggestion) | `-suggest text` \n[Tags](https://bentovid.com/sguides/tags) | `;tag` \n[Searching](https://bentovid.com/sguides/bot-commands#threads) | `-anime`, `-manga`, `-amvorg`, `-amv` \n[Bookmarks](https://bentovid.com/sguides/bot-commands#bookmarks) | `-bookmark url` | 🔖 \n[Threads](https://bentovid.com/sguides/bot-commands#threads) | reply with un/pin | 📍 \n[Yag Control](https://bentovid.com/sguides/bot-commands#yag-contro) | 🗑️ \n[Miscellaneous](https://bentovid.com/sguides/bot-commands#miscellane)\n\nSee also:\n[How to Events](https://bentovid.com/sguides/events)\n[How to Report](https://bentovid.com/sguides/reporting) (or <#962877591050653726>)" 
 	"color" 0xff6a00
     "thumbnail" (sdict "url" $avatar) 
 }}
 
-
 {{sendMessage nil $message}}
-{{deleteTrigger 0}}
