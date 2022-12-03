@@ -19,8 +19,10 @@
 {{if not (dbGet $user.ID "joindate") }}
  
     {{dbSet $user.ID "joindate" $jinfo }}
-
-    {{sendMessage $ch $joinmsg}}
+	
+	{{dbGet $user.ID "joindate"}}
+    
+	{{sendMessage $ch $joinmsg}}
 {{else}}
 
     {{sendMessage $ch $joinmsg}}
