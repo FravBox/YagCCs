@@ -14,7 +14,7 @@ Limit it so it ONLY runs in intros channel */}}
 {{$log := 970007312632795167}}{{/* yag cmd log - for 2nd intros */}}
 
 {{/* Role to require to post there */}}
-{{$role := 750565698383773828}} {{/* verified */}}
+{{$role := 1048764993925034065}} {{/* verified */}}
 
 {{/* Update CC ID */}}
 {{$update := 263}}

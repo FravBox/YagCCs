@@ -4,7 +4,7 @@ CC ID: 249
  */}}
 
 {{$msgid := 947214940907929670}} {{/* msg that needs the verification emoji */}}
-{{$verified := 750565698383773828}} {{/* verified role ID */}}
+{{$verified := 1048764993925034065}} {{/* verified role ID */}}
 
 {{$main := 750541618389712900}} {{/* main talk channel */}}
 {{$joins := 954832185200898128}} {{/* joins-leaves modlog channel - for successful verifications */}}

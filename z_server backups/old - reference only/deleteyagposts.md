@@ -8,7 +8,7 @@ Trigger: Add reactions
 */}}
 
 {{$emoji := "🗑️"}} {{/* emoji to delete yag posts */}}
-{{$yrole := 750565698383773828 }} {{/* roleID to require to delete yag messages */}}
+{{$yrole := 1048764993925034065 }} {{/* roleID to require to delete yag messages */}}
 {{$ma := 120 }} {{/* max age of posts allowed to be deleted, in seconds (discord max is 1 week) */}}
 {{$del := 10 }} {{/* time before "you can't do that" post deletes itself, in seconds */}}
 

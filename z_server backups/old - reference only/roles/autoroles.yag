@@ -1,7 +1,7 @@
 {{/* intelligent role assignment */}} {{/* trigger: added + removed reactions */}}
 
 {{$msg := 947214940907929670}} {{/* msg that needs the verification emoji */}}
-{{$verified := 750565698383773828}} {{/* verified role ID */}}
+{{$verified := 1048764993925034065}} {{/* verified role ID */}}
 {{$rules := 750544650523246623}} {{/* rules & info channel */}}
 {{$main := 750541618389712900}} {{/* main talk channel */}}
 {{$joins := 954832185200898128}} {{/* joins-leaves modlog channel - for successful verifications */}}
@@ -31,7 +31,7 @@
 		{{end}}
 
 {{/* Tag Creator */}}
-	{{if and (hasRoleID 750565698383773828) (eq .Message.ID 947605706503249920) (eq .Reaction.Emoji.Name "🪧")}}
+	{{if and (hasRoleID 1048764993925034065) (eq .Message.ID 947605706503249920) (eq .Reaction.Emoji.Name "🪧")}}
 		{{if .ReactionAdded}}
 		
 		{{$tagmsg1 := cembed "description" (joinStr "" "🪧 **" .Member.User " became a <@&947352309585821738>** 🪧 \n\n User ID: " .User.ID "\nAge in server: " (humanizeDurationHours (currentTime.Sub .Member.JoinedAt.Parse)) "\n\n <t:" currentTime.Unix ">" "") "color" 16119285 }}

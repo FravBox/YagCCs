@@ -18,7 +18,7 @@ thread management is separate
 {{$ticket := "📩"}}
 
 {{/* misc */}}
-{{$verified := 750565698383773828}} {{/* verified role ID */}}
+{{$verified := 1048764993925034065}} {{/* verified role ID */}}
 {{$tmsg := 947605706503249920}} {{/* tag message ID */}}
 {{$tikmsg := 962879864078221372}} {{/* ticket message ID */}}
 
