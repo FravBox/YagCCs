@@ -24,7 +24,6 @@ thread management is separate
 
 {{/* Exec CC IDs */}}
 {{$rolemgmt := 250}}{{/* role assignments */}}
-{{$verify := 251}}{{/* verification system */}}
 {{$tickets := 252}} {{/* open a ticket */}}
 {{$bookmarkcc := 253}}
 {{$noyag := 255 }}
@@ -56,29 +55,14 @@ thread management is separate
     {{end}}
 {{end}}
 
+
 {{if .ReactionAdded}}
-
-
-{{/* rules & info channel - verification system */}}
-    {{if (eq .Channel.ID $rules) }}
-        {{if hasRoleID $verified}}
-            {{execCC $verify nil 0 (sdict "user" $user "msg" $msg "ch" $ch.ID "emoji" $emoji "type" $1)}}
-        {{else}}
-            {{execCC $verify nil 0 (sdict "user" $user "msg" $msg "ch" $ch.ID "emoji" $emoji "type" $2)}}
-        {{end}}
-    {{end}}
-        
 
 {{/* create a ticket from #contact-staff post */}}
     {{if (and (eq .Reaction.Emoji.Name $ticket) (eq $msg.ID $tikmsg) ) }}
-        {{if hasRoleID $verified}}
             {{execCC $tickets nil 0 (sdict "user" $user "ch" $ch.ID)}}
             {{sleep 5}}
             {{deleteMessageReaction nil $tikmsg .Reaction.UserID $emoji }}
-        {{else}}
-            {{sleep 5}}
-            {{deleteMessageReaction nil $tikmsg .Reaction.UserID $emoji }}
-        {{end}}
     {{end}}
 
 {{/* DM Bookmarked messages via emoji */}}
