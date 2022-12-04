@@ -24,7 +24,7 @@ Set it to only run in main talk channel
 
     {{/* SENDS VERIFICATION TO Joins-Leaves */}}
             
-    {{ $VerifyEmbed := cembed "description" (joinStr "" "**" $user.Mention " ("  $user.String ") Verified.**" " \n (ID: " $user.ID ") \n<t:" currentTime.Unix ">** \nTime Taken: " (humanizeDurationHours (currentTime.Sub .Member.JoinedAt.Parse)) "**" "\n\nMembercount: " .Guild.MemberCount "" ) "color" 16772608 }}
+    {{ $VerifyEmbed := cembed "description" (joinStr "" "** <@" $id "> ("  .Message.Author ") Verified.**" " \n (ID: " $id ") \n<t:" currentTime.Unix ">** \nTime Taken: " (humanizeDurationHours (currentTime.Sub .Member.JoinedAt.Parse)) "**" "\n\nMembercount: " .Guild.MemberCount "" ) "color" 16772608 }}
 
     {{ sendMessage $joins $VerifyEmbed }}
 
