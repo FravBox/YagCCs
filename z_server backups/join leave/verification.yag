@@ -18,7 +18,7 @@ Set it to only run in main talk channel
 {{if and (eq .Channel.ID $main) (eq .Message.Type 7)}}
         
     {{addRoleID $verified}}
-
+    {{deleteTrigger 1}}
     {{sendMessage $main (print "Welcome to BentoVid, <@" $id ">! 🥳 \nFeel free to jump in any time. If you want to tell us more about yourself, check out <#" $intros "> when you're ready! ")}}
 
 
