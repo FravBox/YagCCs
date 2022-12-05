@@ -1,17 +1,15 @@
-{{/* THREAD LIST AUTO INTERVAL - PART 2 
-Vid Games 
-*/}}
+{{/* THREAD LIST UPDATE ON INTERVAL - PART 1 */}}
 
 {{/* amount of db entries to range through. Max 100. Longer = slower. */}}
 {{$amt := 100}}
 {{/* Category name (case sensitive) : corresponding message ID to edit with thread list
 	Special case is a dict with {ChannelID:MessageID} structure */}}
 {{$msgs := sdict
-	"Vid Games"     (dict
-    923031270563393557 1049138013852151939
-    1020192256851980358 1049138014896525372
-    923039490212241408  1049138032688762950
-	)
+	"Rules & Roles" 1021114899197345843
+	"server"        1021114900145242182
+	"Events"        1021114901806186496
+	"General"       1021114902775087125
+	"Editing"       1021114903588765836
 }}
 
 {{/* DO NOT EDIT BELOW */}}
@@ -30,16 +28,13 @@ Vid Games
 
 {{range $cat, $mID := $msgs}}
 	{{- $list := "" -}}
-
-	{{- if eq $cat "Vid Games" -}}
 		{{- range $y, $z := $dict.Get $cat -}}
-			{{- $list = ""}}
+			{{- $list = printf "%s%s<#%d>\n" $list $i $y -}}
 			{{- range $z}}
-				{{- $list = printf "%s%s%[2]s[%s](%s/%d)\n" $list $i2 .Name $baseURL .ID}}
-			{{- end}}
-
-			{{- $lmsg := cembed "title" (print (title $cat) ) "description" (printf "Last Updated: <t:%d>\n\n<#%d>\n%s" $ct.Unix $y $list) -}}
-			{{- editMessage nil ($mID.Get $y) $lmsg -}}
+				{{- $list = printf "%s%s%[2]s<#%d> | [%s](%s/%d)\n" $list $i2 .ID .Name $baseURL .ID -}}
+			{{- end -}}
 		{{- end}}
-	{{- end}}
+
+		{{- $lmsg := cembed "title" (print (title $cat )) "description" (printf "Last Updated: <t:%d>\n\n%s" $ct.Unix $list) -}}
+		{{- editMessage nil $mID $lmsg -}}
 {{- end}}

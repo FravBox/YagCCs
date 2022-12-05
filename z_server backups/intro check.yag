@@ -1,0 +1,14 @@
+{{/* Gets your intro post information.
+trigger: -intro
+Can't remember if you made an intro or not?
+Need a convenient link to edit it because it's so far up?
+Use this. */}}
+
+{{$intro := (dbGet .User.ID "intro")}}
+{{$ic :=1033952269265272863}} {{/* intro channel id */}}
+
+{{if not $intro}}
+    {{print "You haven't made any <#" $ic "> yet!"}}
+{{else}}
+    {{print "Your <#" $ic "> is number " $intro.Value.place ", was made " $intro.Value.time ", and can be found here: \n" $intro.Value.link}} 
+{{end}}

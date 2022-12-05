@@ -1,4 +1,4 @@
-{{/* Creates the db entries with the proper time to expire based on channel & sends to logs - executed from master thread mgmt cc */}}
+{{/* Creates the db entries with the proper time to expire based on channel & sends to logs - executed from master thread mgmt cc 243 */}}
 
 {{/* Times - db entry expiration in seconds */}}
 {{$1m := 2630000}}{{/* 1 month */}}
@@ -45,7 +45,7 @@
 {{$vc := 767881039048605696}}{{/* vc text */}}
 
 {{/* Category IDs */}}
-{{$rr := 962876705364639815}}{{/* Rules & Roles */}}
+{{$rr := 1048735282528276490}}{{/* Reference */}}
 {{$svr := 751674884765253754}}{{/* server */}}
 {{$evc := 768268852903411722}}{{/* events */}}
 {{$genc := 750541618389712898 }}{{/* general */}}

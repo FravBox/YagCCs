@@ -1,15 +1,17 @@
-{{/* THREAD LIST UPDATE ON INTERVAL - PART 1 */}}
+{{/* AUTO UPDATE THREAD LIST
+PART 1
+Reference, server, editing, feeds
+*/}}
 
 {{/* amount of db entries to range through. Max 100. Longer = slower. */}}
 {{$amt := 100}}
 {{/* Category name (case sensitive) : corresponding message ID to edit with thread list
-	Special case is a dict with {ChannelID:MessageID} structure */}}
+	*/}}
 {{$msgs := sdict
-	"Rules & Roles" 1021114899197345843
-	"server"        1021114900145242182
-	"Events"        1021114901806186496
-	"General"       1021114902775087125
-	"Editing"       1021114903588765836
+	"Reference" 1049137988908630026
+	"Server"        1049137989772652625
+	"Editing"       1049137991685247076
+	"Feeds"       1049172518554046465
 }}
 
 {{/* DO NOT EDIT BELOW */}}
@@ -31,7 +33,7 @@
 		{{- range $y, $z := $dict.Get $cat -}}
 			{{- $list = printf "%s%s<#%d>\n" $list $i $y -}}
 			{{- range $z}}
-				{{- $list = printf "%s%s%[2]s<#%d> | [%s](%s/%d)\n" $list $i2 .ID .Name $baseURL .ID -}}
+				{{- $list = printf "%s%s%[2]s[%s](%s/%d)\n" $list $i2 .ID .Name $baseURL .ID -}}
 			{{- end -}}
 		{{- end}}
 

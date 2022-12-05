@@ -1,5 +1,5 @@
 {{/* Reporting TOC */}}
-{{ $avatar := "https://cdn.discordapp.com/attachments/750544650523246623/947397390887972933/kicking-musubi-w-text.png" }}
+{{ $avatar := "https://bentovid.com/user/images/BentoVid.png" }}
 {{$message := cembed 
     "title" ("Reporting Index" ) 
     "description" "**[Jump to the top](https://discord.com/channels/750541618389712896/947212821517725706/947315239521746956)**\n\n**[Staff Structure](https://discord.com/channels/750541618389712896/947212821517725706/947316755624255528)**\nIf you want to DM or ping staff.\n\n**[The Report Bot Command](https://discord.com/channels/750541618389712896/947212821517725706/947320054544994344)**\nHow to use the command, how it works, and what staff sees.\n\n**[Create a Ticket](https://discord.com/channels/750541618389712896/962877591050653726/962879864078221372)**\nA private channel between you and server staff." 

@@ -1,5 +1,5 @@
 {{/* IRL Meetups TOC */}}
-{{ $avatar := "https://cdn.discordapp.com/attachments/750544650523246623/947397390887972933/kicking-musubi-w-text.png" }}
+{{ $avatar := "https://bentovid.com/user/images/BentoVid.png" }}
 {{$message := cembed 
     "title" ("IRL Meetup Index" ) 
     "description" "**[Jump to the top](https://discord.com/channels/750541618389712896/947211336432091186/947331114370990080)**\n\n**[Guidelines](https://discord.com/channels/750541618389712896/947211336432091186/947332050740990022)**\n<:br:937128105821216898>-[Before the Meetup](https://discord.com/channels/750541618389712896/947211336432091186/947333318695858196)\n<:br:937128105821216898>-[During and After the Meetup](https://discord.com/channels/750541618389712896/947211336432091186/947334684440924210)\n\n**[How to Report](https://discord.com/channels/750541618389712896/947212821517725706)**" 

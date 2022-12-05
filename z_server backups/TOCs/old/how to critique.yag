@@ -1,5 +1,5 @@
 {{/* How to Critique TOC */}}
-{{ $avatar := ("https://cdn.discordapp.com/attachments/750544650523246623/947397390887972933/kicking-musubi-w-text.png") }}
+{{ $avatar := ("https://bentovid.com/user/images/BentoVid.png") }}
 {{$message := cembed 
     "title" ("How to Critique Index" ) 
     "description" "[Introduction](https://discord.com/channels/750541618389712896/947205206456815687/947235453843701840)\n[How to Give It](https://discord.com/channels/750541618389712896/947205206456815687/947235665567948850)\n[How to Take It](https://discord.com/channels/750541618389712896/947205206456815687/947236075015921684)\n[How to Ask for It](https://discord.com/channels/750541618389712896/947205206456815687/947236507448647680)\n\n*See also: [How to Musubi Method](https://discord.com/channels/750541618389712896/947237113408155688)*"
