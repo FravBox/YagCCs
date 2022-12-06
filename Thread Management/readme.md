@@ -14,6 +14,8 @@
 `/learn/` contains heavily commented proof of concept code for saving a thread to the db and making a thread list command.       
 You can use this to help you make your own thread-based commands. There's also some random facts I learned about threads in there.
 
+`/reisir-ver/` is a modified version of the stripped down thread management and contains an auto-updating thread list that works with it. **If you know how to modify custom commands,** I highly recommend using this one. This version is not compatible with the the commands in the main folder. So if you wanted, for example, the emoji addon, you would have to modify it first. 
+
 ## Database Management
 ![image](https://user-images.githubusercontent.com/20410737/181128287-fc0aab36-1158-446d-9c33-f69be6f46944.png)     
 New threads will automatically be added to the database, but there are also commands to manually re-save and delete entries.
