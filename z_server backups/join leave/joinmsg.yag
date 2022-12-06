@@ -13,14 +13,12 @@
 "left" "Never"
 }}
 
-{{/* join message */}}
-{{$joinmsg := (print "📥\n🟩 **" $user.Mention " (" $user ") Joined** \n🟩 ID: " $user.ID "\n🟩 **<t:" currentTime.Unix ">** \n🟩 Originally: " ((dbGet $user.ID "joindate").Value.joined) "\n<:br:937128105821216898> Last Verified: " ((dbGet $user.ID "joindate").Value.vdate) "\n<:br:937128105821216898> Last Left: " ((dbGet $user.ID "joindate").Value.left) "\n<:br:937128105821216898> *Membercount: " .Guild.MemberCount "*")}}
+{{$j := dbGet $user.ID "joindate"}}
 
-{{if not (dbGet $user.ID "joindate") }}
- 
+{{/* join message */}}
+{{if not $j }}
     {{dbSet $user.ID "joindate" $jinfo }}
-	
-	{{dbGet $user.ID "joindate"}}
+	{{$joinmsg := (print "📥\n🟩 **" $user.Mention " (" $user ") Joined** \n🟩 ID: " $user.ID "\n🟩 **<t:" currentTime.Unix ">** \n🟩 Originally: " ($j.Value.joined) "\n<:br:937128105821216898> Last Verified: " ($j.Value.vdate) "\n<:br:937128105821216898> Last Left: " ($j.Value.left) "\n<:br:937128105821216898> *Membercount: " .Guild.MemberCount "*")}}
     
 	{{sendMessage $ch $joinmsg}}
 {{else}}
@@ -29,8 +27,8 @@
 
 {{$jinfo := sdict
 "joined" (print "<t:" currentTime.Unix ">")
-"vdate" ((dbGet $user.ID "joindate").Value.vdate)
-"left" ((dbGet $user.ID "joindate").Value.left)
+"vdate" (print $j.Value.vdate)
+"left" (print $j.Value.left)
 }}
     {{dbSet $user.ID "joindate" $jinfo}}
 {{end}}
