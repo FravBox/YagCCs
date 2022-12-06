@@ -19,14 +19,16 @@ Set it to only run in main talk channel
         
     {{addRoleID $verified}}
     {{deleteTrigger 1}}
-    {{sendMessage $main (print "Welcome to BentoVid, <@" $id ">! 🥳 \nFeel free to jump in any time. If you want to tell us more about yourself, check out <#" $intros "> when you're ready! ")}}
+    {{$announce := (complexMessage "content" (print "<@" $id "> 🥳") "embed" (cslice (cembed "thumbnail" (sdict "url" "https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/google/350/confetti-ball_1f38a.png") "color" 43775 "description"  (print "**Welcome to BentoVid, <@" $id ">!**\nFeel free to jump in any time!")) (cembed "color" 16744192 "description" "**Optional things to do**\n\n 🔸 Add <#750544674011349053>\n 🔸 Create your <#" $intros ">\n 🔸 `/birthday register` in <#1019933777826426940> / [Public Testing](https://discord.com/channels/750541618389712896/1047909689310052392)\n 🔸 Read <#1049023382680784978>\n\n[More Server Guides](https://bentovid.com/sguides)" )) )}}
+
+    {{sendMessage $main $announce }}
 
 
     {{/* SENDS VERIFICATION TO Joins-Leaves */}}
             
-    {{ $VerifyEmbed := cembed "description" (joinStr "" "** <@" $id "> ("  .Message.Author ") Verified.**" " \n (ID: " $id ") \n<t:" currentTime.Unix ">** \nTime Taken: " (humanizeDurationHours (currentTime.Sub .Member.JoinedAt.Parse)) "**" "\n\nMembercount: " .Guild.MemberCount "" ) "color" 16772608 }}
+    {{ $VerifyMsg := (print "🎗️ \n🟨 **<@" $id "> ("  .Message.Author ") Verified.** \n🟨 (ID: " $id ") \n🟨 <t:" currentTime.Unix ">\n🟨 **Time Taken: " (humanizeDurationHours (currentTime.Sub .Member.JoinedAt.Parse)) "** \n*Membercount: " .Guild.MemberCount "*" ) }}
 
-    {{ sendMessage $joins $VerifyEmbed }}
+    {{ sendMessage $joins $VerifyMsg }}
 
     {{/* update verification / joindate db */}}
 
