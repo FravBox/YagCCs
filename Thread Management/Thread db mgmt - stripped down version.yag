@@ -3,13 +3,12 @@ regex \A
 Made by Vars#3616 - https://github.com/FravBox/YagCCs
 */}}
 
-
 {{$time := 15770000 }} {{/* db entry expiration in seconds - default 6 months */}}
-{{$staff := 1234 }} {{/* role ID of people who can use the database commands */}}
+{{$staff := 1049747926190133279 }} {{/* role ID of people who can use the database commands */}}
 
 {{$ylog := 2}} {{/* do you want thread logging? 1 - only original thread creation, 2 - original, force renews, & thread renames, 0 - no logs. default is 2 */}}
 
-{{$ch := 765344516034265099 }} {{/* logging channel ID */}}
+{{$ch := 1049747530474344518 }} {{/* logging channel ID */}}
 
 {{/* embed colors */}}
 {{$c1 := 0xaa5ffa}} {{/* thread created */}}
@@ -22,11 +21,11 @@ Made by Vars#3616 - https://github.com/FravBox/YagCCs
 {{if .Channel.IsThread }}
 
     {{$tinfo := sdict 
-    "thread" .Channel 
-    "tname" (getThread nil).Name 
-    "parent" .Channel.ParentID 
-    "cat" (getChannel (getChannel .Channel.ParentID).ParentID).Name
-    "tauthor" .Message.Author
+        "channelObject" .Channel
+        "name" (getThread nil).Name 
+        "parentID" .Channel.ParentID 
+        "categoryName" (getChannel (getChannel .Channel.ParentID).ParentID).Name
+        "author" .Message.Author
     }}
 
     {{/* check db for entry */}} 
@@ -55,7 +54,6 @@ Made by Vars#3616 - https://github.com/FravBox/YagCCs
                 {{sendMessage $ch $embed1}} 
             {{end}}
         {{end}}
-    
     {{/* save thread renames to db */}}
     {{else if (eq .Message.Type 4)}}
         
@@ -74,14 +72,14 @@ Made by Vars#3616 - https://github.com/FravBox/YagCCs
             {{sendMessage $ch $embed2}}
 
             {{/* make new db entry */}}
-            {{$tinfo.Set "tname" $x}}
+            {{$tinfo.Set "name" $x}}
             {{dbSetExpire .Channel.ID "threads" $tinfo $time}} 
         {{end}}
     {{end}}
 
     {{/* Check current database : -tcheck */}}
 
-    {{$tcheck := (print "**The thread is already in the database.** \n\nSaved Thread Author: `" $tdb.Value.tauthor.Username "#" $tdb.Value.tauthor.Discriminator "` \nPrevious Thread Name: `" $tdb.Value.thread.Name "`\nCurrent Name: `" $tdb.Value.tname "`")}} 
+    {{$tcheck := (print "**The thread is already in the database.** \n\nSaved Thread Author: `" $tdb.Value.author.Username "#" $tdb.Value.author.Discriminator "` \nPrevious Thread Name: `" $tdb.Value.channelObject.Name "`\nCurrent Name: `" $tdb.Value.name "`")}} 
    
         {{if and (reFind `^-tcheck$` .Message.Content) (hasRoleID $staff)}}
             {{if $tdb}}
@@ -127,10 +125,10 @@ Made by Vars#3616 - https://github.com/FravBox/YagCCs
                     {{$tc3 := editMessage nil $tc1 (print $tcheck2 $new2 "\n\n *This message will delete in 20 seconds.*") }}
                     {{deleteMessage nil $tc1 20}}
 
-                    {{$tinfo.Set "tauthor" $tauth}} {{/* save new author */}}
+                    {{$tinfo.Set "author" $tauth}} {{/* save new author */}}
                     {{dbSetExpire .Channel.ID "threads" $tinfo $time}}
                 {{else}}
-                    {{$tinfo.Set "tauthor" $tauth}} {{/* save new author */}}
+                    {{$tinfo.Set "author" $tauth}} {{/* save new author */}}
                     {{dbSetExpire .Channel.ID "threads" $tinfo $time}}
                     {{$tdb := (dbGet .Channel.ID "threads") }}
 
@@ -139,7 +137,7 @@ Made by Vars#3616 - https://github.com/FravBox/YagCCs
                 {{end}}
                
             {{else}}    
-                {{$tinfo.Set "tauthor" $tauth}} {{/* save new author */}}
+                {{$tinfo.Set "author" $tauth}} {{/* save new author */}}
                 {{dbSetExpire .Channel.ID "threads" $tinfo $time}} 
                 {{sleep 1}}
 
@@ -172,7 +170,7 @@ Made by Vars#3616 - https://github.com/FravBox/YagCCs
 
     {{/* Allow thread authors to manage pins in their own threads : reply to message with "pin" or "unpin" */}}
     {{if and ($tdb) (.Message.ReferencedMessage) (reFind `(?i)^(pin|unpin)$` .Message.Content)}}
-        {{if eq .User.ID $tdb.Value.tauthor.ID}}
+        {{if eq .User.ID $tdb.Value.author.ID}}
             {{deleteTrigger 6}}
         
             {{if eq (lower .Message.Content) "pin" }} {{/* pin command */}}
@@ -193,7 +191,7 @@ Made by Vars#3616 - https://github.com/FravBox/YagCCs
                 {{end}}
             {{end}}
         {{else}}
-            {{print "Only the thread author can manage pins.\nThe current thread author is `" $tdb.Value.tauthor.Username "`"}}
+            {{print "Only the thread author can manage pins.\nThe current thread author is `" $tdb.Value.author.Username "`"}}
             
             {{deleteResponse 5}}
             {{deleteTrigger 6}}
