@@ -5,6 +5,8 @@ If you wanted to use the emoji addon for example, you would need to rewrite the 
 Here's the changes between the db entries:    
 ![image](https://user-images.githubusercontent.com/20410737/206024168-52ddb57e-3b63-4d3c-a94b-52a6eb445f91.png)
 
+These modifications were made by Reisir#5441
+
 # Database Creation
 `stripped down db creation.yag`    
 This functions the same as the stripped down version in the parent folder.
@@ -54,5 +56,3 @@ is
 	)
 }}
 ```
-
-These modifications were made by Reisir#5441
