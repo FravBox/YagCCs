@@ -33,7 +33,7 @@ Repeat this for as many categories as you want to list. Delete whatever ones you
 
 Once done, you can run the list cc for the first time, and it should update all of your placeholder posts.
 
-**If there is an error about how the response is too long, you will have to split up the categories into multiple messages.**
+### If there is an error about how the response is too long, you will have to split up the categories into multiple messages.
 
 I do not have a public example of how to do that. But the one I use in my server [is here](https://github.com/FravBox/YagCCs/blob/main/z_server%20backups/thread%20control/Auto%20updating%20thread%20list/part%202.yag). You will have to adjust the values it looks for so they match reisir's naming scheme.     
 
