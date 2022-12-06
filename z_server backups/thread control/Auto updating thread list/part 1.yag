@@ -1,6 +1,6 @@
-{{/* AUTO UPDATE THREAD LIST
-PART 1
+{{/* AUTO UPDATE THREAD LIST PART 1
 Reference, server, editing, feeds
+730 hours = 1 month
 */}}
 
 {{/* amount of db entries to range through. Max 100. Longer = slower. */}}
@@ -33,7 +33,7 @@ Reference, server, editing, feeds
 		{{- range $y, $z := $dict.Get $cat -}}
 			{{- $list = printf "%s%s<#%d>\n" $list $i $y -}}
 			{{- range $z}}
-				{{- $list = printf "%s%s%[2]s[%s](%s/%d)\n" $list $i2 .ID .Name $baseURL .ID -}}
+				{{- $list = printf "%s%s%[2]s[%s](%s/%d)\n" $list $i2 .Name $baseURL .ID -}}
 			{{- end -}}
 		{{- end}}
 
