@@ -56,7 +56,7 @@ Alternatively, you can let people delete their own intro posts & db entries with
 trigger command: -delintro
 */}}
 
-{{$idb := (dbGet $user.ID "intro")}}
+{{$idb := (dbGet .User.ID "intro")}}
 {{$ich := $idb.Value.ch}}
 
 {{if $idb}}
