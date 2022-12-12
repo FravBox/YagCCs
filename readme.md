@@ -29,24 +29,6 @@ Delete posts from YAGPDB with an emoji. Has several custom options.
 </details>
 
 <details>
-<summary>Prompts</summary>
-
-A very basic system that allows users to submit prompts for writing, art, etc. Yag collects them, randomizes them, and then posts them periodically.
-
-</details>
-
-<details>
-<summary>Thread Management</summary>
- 
- * Thread Pins    
-Allows the author of the first message in a thread to manage pins in the thread via post replies.
-
- * Thread Creation Log     
- Sends a log message to a specific channel when a thread is created
-
-</details>
-
-<details>
 <summary>Events</summary>
 
 - Some give and take role reskins
@@ -54,9 +36,21 @@ Allows the author of the first message in a thread to manage pins in the thread 
 - Enter Menu     
     Posts something similar to a role menu that assigns a role on reaction and automatically removes the role in 7 days if the user never unreacts later.
 
-- 2wk Remind     
-    Yag detects the event title and timestamp from a message, calculates what the date will be 14 days prior to that timestamp, and posts a `!remind` command for that week prior date. For use with Sesh.fyi.
+- 2wk Remind [ no longer works with sesh]     
+    Yag detects the event title and timestamp from a message, calculates what the date will be 14 days prior to that timestamp, and posts a `!remind` command for that week prior date. For use with Sesh.fyi. 
 
+</details>
+
+<details>
+<summary>Introductions Channel</summary>
+
+Allows users to post once in a channel and then never again. Deletes new posts and keeps the original one. Logs when people make the first post and logs again when they make another attempt. Deletes the original post when the user leaves the server. Also good for advertising channels.
+</details>
+
+<details>
+<Summary>LeaveBan</summary>
+ 
+If someone is muted or timed out and then leaves while they're still muted/timed out, they are banned.
 </details>
 
 <details>
@@ -65,6 +59,13 @@ Allows the author of the first message in a thread to manage pins in the thread 
 - Basic server stats     
 - Improved bookmark commands      
 - MessagePreview    
+</details>
+
+<details>
+<summary>Prompts</summary>
+
+A very basic system that allows users to submit prompts for writing, art, etc. Yag collects them, randomizes them, and then posts them periodically.
+
 </details>
 
 <details>
@@ -85,6 +86,17 @@ Random quick reference for snippets & templates.
 </details>
 
 <details>
+<summary>Thread Management</summary>
+ 
+ * Thread Pins    
+Allows the author of the first message in a thread to manage pins in the thread via post replies.
+
+ * Thread Creation Log     
+ Sends a log message to a specific channel when a thread is created
+
+</details>
+
+<details>
 <summary>Verification System</summary>
 
 An entire verification system based on reacting with a specific emoji to a specific post. Heavily commented, customizable, and has some picture examples.    
@@ -93,15 +105,6 @@ This is probably my most user-friendly code in the repo.
 Also has a nice join and leave message template.
 
 </details>
-
-<details>
-<Summary>LeaveBan</summary>
- 
-If someone is muted or timed out and then leaves while they're still muted/timed out, they are banned.
-</details>
-
-
-
 
 P.S. ~~I don't know how to code at all.~~ I now BARELY know how to code, but most of these are frankensteined together from various publicly available snippets/templates, context clues, and Yag support lmao. So while these all work, they might not be the most efficient.
 
