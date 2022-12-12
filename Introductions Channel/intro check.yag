@@ -1,0 +1,18 @@
+{{/* Gets your intro post information.
+trigger: -intro
+Can't remember if you made an intro or not?
+Need a convenient link to edit it because it's so far up?
+Use this. 
+
+Made by Vars#3616 : https://github.com/FravBox/YagCCs
+
+*/}}
+
+{{$intro := (dbGet .User.ID "intro")}}
+{{$ic := 123456}} {{/* intro channel id */}}
+
+{{if not $intro}}
+    {{print "You haven't made any <#" $ic "> yet!"}}
+{{else}}
+    {{print "Your <#" $ic "> is number " $intro.Value.place ", was made " $intro.Value.time ", and can be found here: \n" $intro.Value.link}} 
+{{end}}
