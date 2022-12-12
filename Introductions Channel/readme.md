@@ -25,7 +25,7 @@ If someone makes their first post in the intros channel, then deletes it, the in
 Save it, and note the CC ID Number.     
 https://media.discordapp.net/attachments/707661790443733022/764877102901362738/Screenshot_20201011_184823.jpg
 
-**6.** Go back to the main command and input the CC ID of the CC you just saved for `$update`.
+**6.** Go back to the main command and input the CC ID of the CC you just saved for `$update`.      
 **7.** Now you can save the main command in the YAGPDB dashboard. Set the trigger to be Regex `\A` and limit it so it ONLY runs in the intros channel.  
 
 **8. To delete intros when a user leaves,** add `del intro on leave.yag` command to your leave message. Change `$modl` to the channel ID of your modlog.
