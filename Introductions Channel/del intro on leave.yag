@@ -1,0 +1,20 @@
+{{/* Delete introductions when a user leaves. Put this in your leave message. 
+Made by Vars#3616 : https://github.com/FravBox/YagCCs
+*/}}
+
+
+
+{{/* delete Intro post, if applicable */}}
+{{$modl := 1234}}{{/* modlog channel */}}
+
+{{/* actual code */}}
+{{$idb := (dbGet $user.ID "intro")}}
+{{$ich := $idb.Value.ch}}
+
+{{if $idb}}
+    {{$x := sendMessageRetID $modl (cembed "description" (print "<@" ($idb.Value.user).ID "> (" ($idb.Value.user).Username "#" ($idb.Value.user).Discriminator ")'s <#" $ich "> post (#" ($idb.Value.place) " of " (dbCount "intro") ") was deleted since they left the server.\n\nIntro Content:\n >>> " (getMessage $idb.Value.ch $idb.Value.msg).ContentWithMentionsReplaced ) "color" 16737921) }}
+
+    {{deleteMessage $ich ($idb.Value.msg) 1}}
+    {{dbDel $user.ID "intro"}}
+    {{sendMessage $ch (cembed "description" (print "Their [intro post](" (getMessage $modl $x).Link ") was also deleted.") )}}
+{{end}}

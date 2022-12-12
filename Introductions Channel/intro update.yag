@@ -1,0 +1,17 @@
+{{/* Scheduled update of Introductions
+Triggered by Introductions CC.
+
+[Set "Trigger" to None]
+
+When someone tries to post a 2nd intro, 1 hour later, it triggers this CC. 
+Then, the original message content is updated so it can be accurately quoted later.
+Made by Vars#3616 : https://github.com/FravBox/YagCCs
+*/}}
+
+
+{{$intro := (dbGet .ExecData.user "intro")}}
+{{$newtext := (print (getMessage $intro.Value.ch $intro.Value.msg).ContentWithMentionsReplaced )}}
+
+{{$idb := $intro.Value}}
+{{$1 := $idb.Set "text" $newtext}}
+{{dbSet .ExecData.user "intro" $idb}}
