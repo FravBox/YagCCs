@@ -7,29 +7,36 @@
 {{$create := .ExecData.create}}
 {{$staff := 750543521227866215}} {{/* role id */}}
 
-{{$jinfo := sdict
-"joined" (print "<t:" currentTime.Unix ">")
-"vdate" "N/A"
-"left" "Never"
-}}
 
 {{$j := dbGet $user.ID "joindate"}}
 
 {{/* join message */}}
 {{if not $j }}
-    {{dbSet $user.ID "joindate" $jinfo }}
-	{{$joinmsg := (print "📥\n🟩 **" $user.Mention " (" $user ") Joined** \n🟩 ID: " $user.ID "\n🟩 **<t:" currentTime.Unix ">** \n🟩 Originally: " ($j.Value.joined) "\n<:br:937128105821216898> Last Verified: " ($j.Value.vdate) "\n<:br:937128105821216898> Last Left: " ($j.Value.left) "\n<:br:937128105821216898> *Membercount: " .Guild.MemberCount "*")}}
-    
+
+	{{$jinfo := sdict
+	"joined" (print "<t:" currentTime.Unix ">")
+	"vdate" "N/A"
+	"left" "Never"
+	}}
+
+	{{$joinmsg := (print "📥 🆕\n🟩 **" $user.Mention " (" $user ") Joined** \n🟩 ID: " $user.ID "\n🟩 **" $jinfo.joined "** \n<:br:937128105821216898> *Membercount: " .Guild.MemberCount "*")}}
+
 	{{sendMessage $ch $joinmsg}}
+
+    {{dbSet $user.ID "joindate" $jinfo }}
+
 {{else}}
+
+	{{$joinmsg := (print "📥\n🟩 **" $user.Mention " (" $user ") Joined** \n🟩 ID: " $user.ID "\n🟩 **<t:" currentTime.Unix ">** \n🔁 Originally: " ($j.Value.joined) "\n<:br:937128105821216898> Last Verified: " ($j.Value.vdate) "\n<:br:937128105821216898> Last Left: " ($j.Value.left) "\n<:br:937128105821216898> *Membercount: " .Guild.MemberCount "*")}}
 
     {{sendMessage $ch $joinmsg}}
 
-{{$jinfo := sdict
-"joined" (print "<t:" currentTime.Unix ">")
-"vdate" (print $j.Value.vdate)
-"left" (print $j.Value.left)
-}}
+	{{$jinfo := sdict
+	"joined" (print "<t:" currentTime.Unix ">")
+	"vdate" (print $j.Value.vdate)
+	"left" (print $j.Value.left)
+	}}
+
     {{dbSet $user.ID "joindate" $jinfo}}
 {{end}}
 
