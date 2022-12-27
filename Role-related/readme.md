@@ -16,7 +16,7 @@
 Role mention: `<@&1234>` where `1234` is the role ID.
 
 #### Update rolemenu
-`-rolemenu update (message id)`
+`-rolemenu update 1234` where `1234` is the message ID.
 
 #### Give someone multiple roles
 ```go
