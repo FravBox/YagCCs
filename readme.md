@@ -29,19 +29,6 @@ Delete posts from YAGPDB with an emoji. Has several custom options.
 </details>
 
 <details>
-<summary>Events</summary>
-
-- Some give and take role reskins
-
-- Enter Menu     
-    Posts something similar to a role menu that assigns a role on reaction and automatically removes the role in 7 days if the user never unreacts later.
-
-- 2wk Remind [ no longer works with sesh]     
-    Yag detects the event title and timestamp from a message, calculates what the date will be 14 days prior to that timestamp, and posts a `!remind` command for that week prior date. For use with Sesh.fyi. 
-
-</details>
-
-<details>
 <summary>Introductions Channel</summary>
 
 Allows users to post once in a channel and then never again. Deletes new posts and keeps the original one. Logs when people make the first post and logs again when they make another attempt. Deletes the original post when the user leaves the server. Also good for advertising channels.
@@ -72,6 +59,18 @@ A very basic system that allows users to submit prompts for writing, art, etc. Y
 <summary>Reaction tickets</summary>
 
 VERY Basic "make a ticket when clicking a reaction" command.
+
+</details>
+
+<details>
+<summary>Role-related</summary>
+
+- Give and take role reskins
+
+- Custom  RoleMenu     
+    Posts something similar to a role menu that assigns a role on reaction and can automatically remove the role some time after if the user never unreacts.
+
+- Some quick references/templates
 
 </details>
 
