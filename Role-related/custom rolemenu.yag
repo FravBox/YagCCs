@@ -1,0 +1,14 @@
+{{/* Entrant rolemenu part 2 - gives entrant role on emoji add. role expires in a week */}}
+{{/* trigger: added reactions only */}}
+
+{{ $RoleIDToUse := 782386811473231880 }}
+{{ $TimeInSeconds := 604800 }}
+
+{{/* Don't edit below here */}}
+{{$channelid := .Reaction.ChannelID}}
+{{$emoji := .Reaction.Emoji.Name}}
+{{$message := .Reaction.MessageID}}
+{{if eq .Message.Author.ID 204255221017214977}}
+{{addRoleID $RoleIDToUse}}
+{{removeRoleID $RoleIDToUse $TimeInSeconds}}
+{{end}}
