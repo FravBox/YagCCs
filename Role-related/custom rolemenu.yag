@@ -1,14 +1,40 @@
-{{/* Entrant rolemenu part 2 - gives entrant role on emoji add. role expires in a week */}}
-{{/* trigger: added reactions only */}}
+{{/* Custom rolemenu
+ gives a role on emoji add & takes away the role if they unreact.
+ If they never unreact, role can be automatically removed in a week.
+- 
+Trigger: added + removed reactions 
+Restrict it to only 1 channel 
+by https://github.com/FravBox/YagCCs/ aka Vars#3616 on Discord 
 
-{{ $RoleIDToUse := 782386811473231880 }}
-{{ $TimeInSeconds := 604800 }}
+*/}}
+
+{{ $RoleIDToUse := 123 }}
+{{ $autoRemove := "0"}} {{/* schedule a role removal if they never unreact? "1" for yes, "0" for no. */}}
+{{ $TimeInSeconds := 604800 }} {{/* 1 week = 604800 */}}
+{{ $emoji := "🏆" }}
+{{ $mID := 456}} {{/* point it to a custom message ID */}}
+
+{{$logit := "1"}} {{/* do you want yag to post who got/removed the role when they react? 1 for yes, 0 for no */}}
 
 {{/* Don't edit below here */}}
-{{$channelid := .Reaction.ChannelID}}
-{{$emoji := .Reaction.Emoji.Name}}
-{{$message := .Reaction.MessageID}}
-{{if eq .Message.Author.ID 204255221017214977}}
-{{addRoleID $RoleIDToUse}}
-{{removeRoleID $RoleIDToUse $TimeInSeconds}}
+{{if and (eq .Message.ID $mID) (eq .Reaction.Emoji.APIName $emoji) }}
+    {{if and (.ReactionAdded) (not (hasRoleID $RoleIDToUse)) }}
+        {{addRoleID $RoleIDToUse}}
+        {{if ne $autoRemove "0"}}
+            {{removeRoleID $RoleIDToUse $TimeInSeconds}}
+        {{end}}
+        {{if ne $logit "0"}}
+            {{sendMessage nil (print "**" (or .Member.Nick .User) "** got the **`" ((getRole $RoleIDToUse).Name) "`** role for " (humanizeDurationHours (mult .TimeSecond $TimeInSeconds)) ".")}}
+        {{end}}
+
+    {{else if (and (not .ReactionAdded) (eq .Reaction.Emoji.APIName $emoji))}}
+        {{if hasRoleID $RoleIDToUse}}
+            {{removeRoleID $RoleIDToUse}}
+
+            {{if ne $logit "0"}}
+                {{sendMessage nil (print "The **`" ((getRole $RoleIDToUse).Name) "`** role was removed from **" (or .Member.Nick .User) "**.")}}
+            {{end}}
+
+        {{end}}
+    {{end}}
 {{end}}
