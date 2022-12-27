@@ -1,0 +1,43 @@
+{{/* Custom give/take role command.
+trigger type is command; choose any word you want.
+ex -verify @user 2d
+duration is optional.
+If the user already has the role, it will be taken away.
+
+by https://github.com/FravBox/YagCCs/ aka Vars#3616 on Discord 
+*/}}
+
+{{$rID := 1234 }} {{/* Role ID to give or take */}}
+
+
+{{/* actual command */}}
+{{$args := parseArgs 1 (print "Please use the following format: `" .Cmd " <user> <duration>`")
+    (carg "member" "Mention or ID")
+    (carg "string" "Duration in (s, m, h, w etc) (optional)")
+	}}
+
+{{$a := ($args.Get 0)}}
+
+{{if targetHasRoleID $a.User.ID $rID}}
+    {{/* remove this if you don't want to take away the role if they already have it */}}
+	{{$x := exec "trole" $a.User.ID $rID }}
+	
+	{{print  "`**" ((getRole $rID).Name) "`** was taken away from **" (or $a.Nick $a.User.Username) "**. "}} 
+    {{/* stop removing things */}}
+
+{{else if $args.IsSet 0}}
+	{{if $args.IsSet 1}}
+		{{$x := exec "grole" $a.User.ID $rID ($args.Get 1) }}
+        {{print "**" (or $a.Nick $a.User.Username) "** has the **`" ((getRole $rID).Name) "`** role for " (humanizeDurationHours (mult .TimeSecond ($args.Get 1))) "!"}} 
+
+	{{else}}
+		{{$x := exec "grole" $a.User.ID $rID }}
+		{{print "**" (or $a.Nick $a.User.Username) "** now has the **`" ((getRole $rID).Name) "`** role!"}} 
+	{{end}}
+{{ end }}
+
+{{/* deletes the command (triggering message) */}}
+{{deleteTrigger 5}}
+
+{{/* deletes the bot's responses */}}
+{{deleteResponse 5}}
