@@ -1,0 +1,137 @@
+{{/* Custom rolemenu TEMPLATE FOR MULTIPLE ROLES
+ gives a role on emoji add & takes away the role if they unreact.
+ If they never unreact, role can be automatically removed in a week.
+- 
+Trigger: added + removed reactions 
+Restrict it to only 1 channel 
+by https://github.com/FravBox/YagCCs/ aka Vars#3616 on Discord 
+
+- THIS WILL NOT WORK AS-IS, IT IS A TEMPLATE MADE TO BE EDITED - 
+
+*/}}
+
+
+{{/* GLOBAL VARIABLES */}}
+{{ $mID := 456}} {{/* point it to a custom message ID the rolemenu is on */}}
+{{ $ch := 777}} {{/* If you want logs, put the channel ID of where they should go here. Use 777 for no logs. */}}
+
+{{ $autoRemove := 0}} {{/* schedule a role removal if they never unreact? 1 for yes, 0 for no. */}}
+
+{{/* ROLE-BASED VARIABLES */}}
+{{/* for this, add a number for every emoji, role, and time you'd like to assign. 
+Time is in seconds. 
+*/}}
+
+{{ $emoji1 := "🏆" }}
+{{ $role1 := 123 }}
+{{ $time1 := 604800 }} {{/* 1 week = 604800 */}}
+
+{{$emoji2 := "🎉"}}
+{{ $role2 := 123 }}
+{{ $time2 := 60 }} 
+
+{{/* .. etcetera. Limit of 20 emoji per post */}} 
+
+
+{{/* COMMAND START */}}
+{{if (eq .Message.ID $mID)}}
+
+
+{{/* BEGIN EMOJI 1 */}}
+{{if (eq .Reaction.Emoji.APIName $emoji1)}}
+    {{if and (.ReactionAdded) (not (hasRoleID $role1))}}
+        {{addRoleID $role1}}
+
+        {{/* start auto removal & logs of getting the role */}}
+        {{if ne $autoRemove 0}}
+            {{removeRoleID $role1 $time1}}
+        {{else if ne $ch 777}}
+            {{sendMessage $ch (print "**" (or .Member.Nick .User) "** got the **`" ((getRole $role1).Name) "`** role for " (humanizeDurationHours (mult .TimeSecond $time1)) ".")}}
+        {{end}}
+        {{/* end auto removal & logs */}}
+
+    {{/* start remove role on unreact */}}
+    {{else if (and (not .ReactionAdded) (eq .Reaction.Emoji.APIName $emoji1))}}
+        {{if hasRoleID $role1}}
+            {{removeRoleID $role1}}
+
+            {{/* start log of role removal on unreact */}}
+            {{if ne $ch 777}}
+                {{sendMessage $ch (print "The **`" ((getRole $role1).Name) "`** role was removed from **" (or .Member.Nick .User) "**.")}}
+            {{end}}
+            {{/* end log of role removal */}}
+
+        {{end}}
+    {{end}}
+{{end}}
+{{/* END EMOJI 1 */}}
+
+{{/* ALTERNATIVELY - BEGIN EMOJI 1 GIVING ROLES 1 & 2 */}}
+{{if (eq .Reaction.Emoji.APIName $emoji1)}}
+    {{if and (.ReactionAdded) (or (not (hasRoleID $role1)) (not (hasRoleID $role2)) )}}
+        {{addRoleID $role1}}
+        {{addRoleID $role2}}
+
+        {{/* start auto removal & logs of getting the role */}}
+        {{/* if you autoremove - you can use different times for each role, but you do not have to */}}
+        {{if ne $autoRemove 0}}
+            {{removeRoleID $role1 $time1}}
+            {{removeRoleID $role2 $time2}}
+        {{else if ne $ch 777}}
+            {{sendMessage $ch (print "**" (or .Member.Nick .User) "** got the **`" ((getRole $role1).Name) "` and `" ((getRole $role2).Name) "`** roles for " (humanizeDurationHours (mult .TimeSecond $time1)) " and " (humanizeDurationHours (mult .TimeSecond $time2)) " respectively.")}}
+        {{end}}
+        {{/* end auto removal & logs */}}
+
+    {{/* start remove roles on unreact */}}
+    {{else if (and (not .ReactionAdded) (eq .Reaction.Emoji.APIName $emoji1))}}
+        {{if hasRoleID $role1}}
+            {{removeRoleID $role1}}
+        {{else if hasRoleID $role2}}
+            {{removeRoleID $role2}}
+
+            {{/* start log of role removal on unreact */}}
+            {{if ne $ch 777}}
+                {{sendMessage $ch (print "The **`" ((getRole $role1).Name) "` and " ((getRole $role2).Name) "`** roles were removed from **" (or .Member.Nick .User) "**.")}}
+            {{end}}
+            {{/* end log of roles removal */}}
+
+        {{end}}
+    {{end}}
+{{end}}
+{{/* ALTERNATIVELY - END EMOJI 1 GIVING ROLES 1 & 2 */}}
+
+{{/* BEGIN EMOJI 2 */}}
+{{if (eq .Reaction.Emoji.APIName $emoji2)}}
+    {{if and (.ReactionAdded) (not (hasRoleID $role2))}}
+        {{addRoleID $role2}}
+
+        {{/* start auto removal & logs of getting the role */}}
+        {{if ne $autoRemove 0}}
+            {{removeRoleID $role2 $time2}}
+        {{else if ne $ch 777}}
+            {{sendMessage $ch (print "**" (or .Member.Nick .User) "** got the **`" ((getRole $role2).Name) "`** role for " (humanizeDurationHours (mult .TimeSecond $time1)) ".")}}
+        {{end}}
+        {{/* end auto removal & logs */}}
+
+    {{/* start remove role on unreact */}}
+    {{else if (and (not .ReactionAdded) (eq .Reaction.Emoji.APIName $emoji2))}}
+        {{if hasRoleID $role2}}
+            {{removeRoleID $role2}}
+
+            {{/* start log of role removal on unreact */}}
+            {{if ne $ch 777}}
+                {{sendMessage $ch (print "The **`" ((getRole $role2).Name) "`** role was removed from **" (or .Member.Nick .User) "**.")}}
+            {{end}}
+            {{/* end log of role removal */}}
+
+        {{end}}
+    {{end}}
+{{end}}
+{{/* END EMOJI 2 */}}
+
+{{/* Copy / paste as many sections as you need, remembering to update the numbers in $emoji, $role, $time 
+If you want more than one emoji to give more than one role, you can copy/paste the alternate version as many times as you need, as long as you update those variables. */}}
+
+
+{{/* END COMMAND - DO NOT REMOVE THIS */}}
+{{end}}
