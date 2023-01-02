@@ -8,7 +8,7 @@
 	
 	{{$color := 16711680}} {{/* red */}}
 
-	{{sleep 5}}
+	{{sleep 2}}
 	
 	
 	{{$x := index .CmdArgs 0}} {{/* grabs amount you cleaned */}}
@@ -19,6 +19,7 @@
 	
 	
 	{{$logmsg := cembed "description" (joinStr "" .User.Mention " used **`" .Message.Content "`** in " .Channel.Mention " at <t:" currentTime.Unix "> \n [View Logs](" $log ")" "") "color" $color }}
+	{{deleteTrigger 1}}
 	
 	
 	{{sendMessage $modlog $logmsg}}
@@ -27,6 +28,7 @@
 {{/* CATCH LOG COMMAND */}}
 
 {{else if (reFind `(-logs?)` .Message.Content)}}
+	{{deleteResponse 1}}
 
 	{{$color := 16776960 }} {{/* yellow */}}
 	
