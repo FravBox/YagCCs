@@ -1,0 +1,34 @@
+{{/* sends an anonymous message for staff */}}
+
+{{$x := .StrippedMsg}}
+{{deleteTrigger 0}}
+
+{{$thumb := "https://cdn.discordapp.com/attachments/1056714618380230800/1059562647743373312/hazard-harmful-icon.webp" }}
+
+{{$anon := sendMessageRetID nil (cembed 
+"description" (print $x ) 
+"color" 16711680 
+"thumbnail" (sdict "url" $thumb ) 
+) }}
+
+{{/* get message info */}}
+{{$a := getMessage nil $anon}}
+
+{{/* create db entry for 5min */}}
+{{dbSetExpire 9 "nodel" (toString $a.ID) 300}}
+
+
+{{/* LOG IT */}}
+{{$color := 16711680}} {{/* red */}}
+{{$modlog := 750544945474961448 }}{{/* #modlog */}}
+{{$log := execAdmin "logs 50" }} 
+
+{{$split := (split .StrippedMsg "\n" )}}
+{{$quote := (joinStr "\n> " $split )}}
+
+{{$logmsg := cembed 
+"description" (print .User.Mention " used **`" .Cmd "`** in " .Channel.Mention " at <t:" currentTime.Unix "> \n Link to: [Logs](" $log ") | [Message](" $a.Link ") \n\n **Message:** \n> " $quote ) 
+"color" $color 
+"thumbnail" (sdict "url" $thumb ) }}
+
+{{sendMessage $modlog $logmsg}}
