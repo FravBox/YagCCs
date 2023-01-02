@@ -23,7 +23,7 @@ CC ID: 249
 
 
 
-{{$ma := 120 }} {{/* max age of posts allowed to be deleted, in seconds (discord max is 1 week) */}}
+{{$ma := 298 }} {{/* max age of posts allowed to be deleted, in seconds (discord max is 1 week) */}}
 {{$del := 10 }} {{/* time before "you can't do that" post deletes itself, in seconds */}}
 
 {{/* the message when you're not allowed to delete something */}}
@@ -47,7 +47,7 @@ CC ID: 249
 
 {{if and (ne $cat $server) (ne $cat $rules) (ne $cat $vidgames) (ne $ch.ID $ps) }}
 
-    {{if and (le $x $ma) (not $msg.Pinned) (not (reFind `<@!?\d{17,}>` $msg.Content) ) }}
+    {{if and (ne (toString $msg.ID) (dbGet 9 "nodel" ).Value ) (le $x $ma) (not $msg.Pinned) (not (reFind `<@!?\d{17,}>` $msg.Content) ) }}
 	{{deleteMessage $ch.ID $msg.ID 1}}	
 
         {{$logit := exec "logs" $la}}
