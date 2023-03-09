@@ -1,0 +1,54 @@
+{{/* Sticky messages - Photosensitivity, events 
+Regex: \A
+Limit to specific channels */}}
+
+{{/* Sticky message for Photosensitivity - 5min cooldown per user */}}
+	{{if (eq .Channel.ID 944675758410965002)}}
+		{{/* 0 for per user, 1 for global */}}
+		{{$isGlobal := 0}}
+		{{/* name your cooldown name (anything works) */}}
+		{{$name := "photosensitive sm cd"}}
+		{{/* Length of the cooldown (in seconds) */}}
+		{{$lengthSec := 300}}
+
+		{{/* CREATING VARIABLES DO NOT TOUCH */}}
+		{{$id := 0}}
+		{{$key := joinStr "" "cooldown1_" $name}}
+		{{if eq $isGlobal 0}}
+		{{$id = .User.ID}}
+
+
+		{{if dbGet (toInt64 $id) $key}} 
+		{{/* Code to execute when cooldown is active */}}
+		{{else}}
+		{{/* Create cooldown entry */}}
+		{{dbSetExpire (toInt64 $id) $key "cooldown1" $lengthSec}}
+
+		{{/* Photosensitivity sticky */}}
+
+		{{$message := cembed "title" "This channel has strict rules" "description" "See the [pinned post](https://discord.com/channels/750541618389712896/944675758410965002/944677317874155570).\n Summarize the triggers that may be in your posted videos AND gifs. If you don't think they have any triggers, *you still have to state that.* \nSpoiler gifs if they might have triggers.\n **See the VPR website for a list of common triggers!**\nhttps://bentovid.com/vpr\n\n**Malicious noncompliance will get you banned.** \n" "color" 0xff6a00}}
+
+		{{/* do not edit below */}}
+		{{if $db := dbGet .Channel.ID "stickymessage"}}
+			{{deleteMessage nil (toInt $db.Value) 0}}
+		{{end}}
+		{{$id := sendMessageRetID nil $message}}
+		{{dbSet .Channel.ID "stickymessage" (str $id)}}
+
+		{{end}}
+		{{end}}
+	{{end}}
+
+{{/* Events sticky message */}}
+	{{if (eq .Channel.ID 752317819873394780)}}
+		{{ $avatar := "https://bentovid.com/user/images/BentoVid.png" }}
+
+		{{$message := cembed "description" "**[CLICK HERE TO CREATE AN EVENT!](https://sesh.fyi/dashboard/750541618389712896/events/create)** \nOr view the <#989945286107496469> instead.\n\n[Read the pinned post](https://discord.com/channels/750541618389712896/752317819873394780/1082789013674524732) for guides and ping list info.\nCreate & participate in conversations about the events in <#1020404948179091527>" "color" 15559936 "thumbnail" (sdict "url" $avatar)}}
+
+		{{/* do not edit below */}}
+		{{if $db := dbGet .Channel.ID "stickymessage"}}
+			{{deleteMessage nil (toInt $db.Value) 0}}
+		{{end}}
+		{{$id := sendMessageRetID nil $message}}
+		{{dbSet .Channel.ID "stickymessage" (str $id)}}
+	{{end}}
