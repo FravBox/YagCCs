@@ -6,6 +6,9 @@ It they leave the server, their post is deleted.
 Trigger: regex \A
 Limit it so it ONLY runs in intros channel */}}
 
+{{$error := 1023396572953849917}} {{/* channel to put errors in */}}
+
+{{try}}
 {{/* Intros channel */}}
 {{$ch := 1033952269265272863}}
 
@@ -21,6 +24,8 @@ Limit it so it ONLY runs in intros channel */}}
 
 {{/* DB Entry structure */}}
 {{$intro := (dbGet .User.ID "intro")}}
+{{$ct1 := dbSetExpire 0 "temp_intro_count" (dbCount "intro") 60}}
+{{$count := print ((dbGet 0 "temp_intro_count").Value) }}
 {{$ust1 := (print .User.String) }}
 {{$infos := sdict 
     "ch" .Channel.ID 
@@ -29,7 +34,7 @@ Limit it so it ONLY runs in intros channel */}}
     "text" .Message.ContentWithMentionsReplaced 
     "time" (print "<t:" currentTime.Unix ":R>") 
     "user" .Message.Author
-    "place" (add 1 (dbCount "intro"))
+    "place" (add 1 ($count))
     }}
 
 {{/* colors */}}
@@ -43,9 +48,9 @@ Limit it so it ONLY runs in intros channel */}}
 {{/* logging intros */}}
 {{$logged := execAdmin "logs 2"}}
 
-{{$new := cembed "description" (print .User.Mention " **(" .User.String ") just posted their first [intro](https://discord.com/channels/" .Guild.ID "/" $ch ")** at <t:" currentTime.Unix "> \nFind it [here](" .Message.Link "). \n\n Intro #" (add 1 (dbCount "intro") ) "\nUser ID: " .User.ID "\n[Logs](" $logged ")" ) "color" $newpink}}
+{{$new := cembed "description" (print .User.Mention " **(" .User.String ") just posted their first [intro](https://discord.com/channels/" .Guild.ID "/" $ch ")** at <t:" currentTime.Unix "> \nFind it [here](" .Message.Link "). \n\n Intro #" (add 1 ($count) ) "\nUser ID: " .User.ID "\n[Logs](" $logged ")" ) "color" $newpink}}
 
-{{$2nd := cembed "description" (print .User.Mention " **(" .User.String ") just tried to post a second [intro](https://discord.com/channels/" .Guild.ID "/" $ch ")** at <t:" currentTime.Unix ">. \n Their first intro is [here](" $intro.Value.link "). \n\nIntro " $intro.Value.place " of " (dbCount "intro") "\nOriginal post date: " $intro.Value.time "\nUser ID: " .User.ID "\n[Logs](" $logged ")") "color" $2pink }}
+{{$2nd := cembed "description" (print .User.Mention " **(" .User.String ") just tried to post a second [intro](https://discord.com/channels/" .Guild.ID "/" $ch ")** at <t:" currentTime.Unix ">. \n Their first intro is [here](" $intro.Value.link "). \n\nIntro " $intro.Value.place " of " ($count) "\nOriginal post date: " $intro.Value.time "\nUser ID: " .User.ID "\n[Logs](" $logged ")") "color" $2pink }}
 
 {{/* actual code */}}
 {{if hasRoleID $role}}
@@ -85,7 +90,7 @@ Limit it so it ONLY runs in intros channel */}}
     {{deleteMessage $sdb.Value.ch $sdb.Value.msg 1}}
 {{end}}
 
-{{$mid := sendMessageRetID $ch (cembed "description" (print "There are currently " (dbCount "intro") " introductions out of " ((dbGet 0 "vcount").Value) " verified users. \n[Jump to the top?](https://discord.com/channels/750541618389712896/1033952269265272863/1033953300061618257)" ) "color" 15559936 )}}
+{{$mid := sendMessageRetID $ch (cembed "description" (print "There are currently " ($count) " introductions out of " ((dbGet 0 "vcount").Value) " verified users. \n[Jump to the top?](https://discord.com/channels/750541618389712896/1033952269265272863/1033953300061618257)" ) "color" 15559936 )}}
 
 
 {{$sticky := sdict
@@ -94,3 +99,7 @@ Limit it so it ONLY runs in intros channel */}}
 }}
 
 {{dbSet 1 "introsticky" $sticky}}
+
+{{catch}}
+{{sendMessageNoEscape $error (print "<@217140800922976257> \n"  .Error)}}
+{{end}}
