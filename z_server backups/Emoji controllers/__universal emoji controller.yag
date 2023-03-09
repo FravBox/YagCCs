@@ -13,7 +13,7 @@ thread management is separate
 {{/* emojis */}}
 {{$bookmark := "🔖"}}
 {{$trash := "🗑️"}}
-{{$star := "📌"}}
+{{$star := "⭐"}}
 {{$tag := "🪧"}}
 {{$ticket := "📩"}}
 
