@@ -130,7 +130,7 @@ regex \A
     
     {{/* Allow thread authors to manage pins in their own threads : reply to message with "pin" or "unpin" */}}
     {{if and ($tdb) (.Message.ReferencedMessage) (reFind `(?i)^(pin|unpin)$` .Message.Content)}}
-        {{if eq .User.ID $tdb.Value.tauthor.ID}}
+        {{if or (eq .User.ID $tdb.Value.tauthor.ID) (eq .User.ID .Channel.OwnerID)}}
             {{deleteTrigger 2}}
         
             {{if eq (lower .Message.Content) "pin" }} {{/* pin command */}}
@@ -151,7 +151,7 @@ regex \A
                 {{end}}
             {{end}}
         {{else}}
-            {{print "Only the thread author can manage pins.\nThe current thread author is `" $tdb.Value.tauthor.Username "`"}}
+            {{print "Only the thread authors can manage pins.\nThe current thread authors are `" $tdb.Value.tauthor.Username "` and `" (getMember .Channel.OwnerID).User.Username "`" }}
             
             {{deleteResponse 5}}
             {{deleteTrigger 6}}

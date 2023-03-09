@@ -1,0 +1,98 @@
+{{/* thread management emoji addon 
+added + removed reactions */}}
+
+{{$staff := 750543521227866215 }}
+{{$towner := .Channel.OwnerID }}
+
+{{/* db saving & thread logging cc for execCC */}}
+{{$ccid := 244}}
+
+{{/* thread management variables */}}
+{{$pin := (cslice "📍" "📌" ) }} {{/* emoji to use for pinning posts */}}
+{{$save := "💾"}} {{/* emoji to use for resaving thread info / setting new author */}}
+{{$tdel := "❌"}}{{/* emoji for deleting thread data -tdel */}}
+
+{{/* Actual code */}}
+
+{{/* thread management */}}
+{{if .Channel.IsThread}}
+
+    {{/* info to help exec other CCs */}}
+    {{$thr := .Channel}}
+    {{$thrn := (getThread nil).Name}}
+    {{$paren := .Channel.ParentID}}
+    {{$cate := (getChannel (getChannel .Channel.ParentID).ParentID).Name}}
+    {{$thra := .Message.Author}}
+    {{$catid := (getChannel (getChannel .Channel.ParentID).ParentID)}}
+    {{$1 := "1"}}
+    {{$2 := "2"}}
+    {{$3 := "3"}}
+
+    {{$tinfo := sdict 
+    "thread" $thr 
+    "tname" $thrn 
+    "parent" $paren 
+    "cat" $cate
+    "tauthor" $thra
+    }}
+
+{{if or (in $pin .Reaction.Emoji.APIName) (eq .Reaction.Emoji.APIName $save) (eq .Reaction.Emoji.APIName $tdel)}}
+
+    {{/* check for db entry */}}
+    {{$tdb := (dbGet .Channel.ID "threads")}}
+    
+	{{if or (eq .User.ID $towner) (hasRoleID $staff) ((eq .User.ID (($tdb).Value.tauthor.ID))) }}
+
+        {{/* pins */}}
+        {{if in $pin .Reaction.Emoji.APIName }}
+            {{if .ReactionAdded }}
+                {{ pinMessage nil .ReactionMessage.ID}}
+            {{else}}
+                {{unpinMessage nil .ReactionMessage.ID}}
+            {{end}}
+        {{end}}
+
+        {{/* resave */}}
+        {{if and (.ReactionAdded) (eq .Reaction.Emoji.APIName $save) }}
+            {{$tinfo.Set "tauthor" (.Message.Author)}}
+            {{$tauth := .Message.Author }}{{/* gets author of parent message */}}
+            {{$ra := .Message.Author.Mention}}
+            {{$ra2 := .Message.Author}}
+            
+                {{if $tdb}}
+                    {{/* save new author  & log it */}}
+                    
+                    {{execCC $ccid nil 0 (sdict "thread" $thr "tname" $thrn "parent" $paren "cat" $cate "tauthor" $thra "tauthor2" $tauth "user" .User "msgl" .Message.Link "catid" $catid "type" $3 "ra" $ra "ra2" $ra2)}}
+                
+                {{else}}
+                    {{/* treat it like new thread creation */}}
+                    {{execCC $ccid nil 0 (sdict "thread" $thr "tname" $thrn "parent" $paren "cat" $cate "tauthor" $thra "user" .User "msgl" .Message.Link "catid" $catid "type" $1)}}
+                {{end}}
+                        
+            {{$x := sendMessageRetID nil (print "**Thread Information Re-saved.** \n\nNew Thread Author: `" .Message.Author "` \nCurrent Thread Name: `" .Channel.Name "`" )}}
+            {{sleep 1}}
+            {{addMessageReactions nil .Message.ID "✅"}}
+            {{sleep 1}}
+            {{deleteMessageReaction nil .Message.ID .User.ID $save}}
+                            
+            {{deleteMessage nil $x 20}}
+
+            {{deleteMessageReaction nil .Message.ID 204255221017214977 "✅"}}
+
+        {{end}}
+
+        {{/* tdel */}}
+        {{if hasRoleID $staff}}
+            {{if and ( .ReactionAdded) (eq .Reaction.Emoji.APIName $tdel) }}
+                {{dbDel .Channel.ID "threads" }}
+                {{sleep 1}}
+                {{addMessageReactions nil .Message.ID "✅"}}
+                {{sleep 5}}
+                {{deleteMessageReaction nil .Message.ID .User.ID $tdel}}
+                {{deleteMessageReaction nil .Message.ID 204255221017214977 "✅"}}
+            {{end}}
+        {{end}}
+    {{end}}
+{{end}}
+
+{{end}}
