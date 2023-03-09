@@ -5,6 +5,8 @@ When someone tries to post a 2nd intro, 1 hour later, it triggers this CC.
 Then, the original message content is updated so it can be accurately quoted later.
 */}}
 
+{{$error := 1023396572953849917}} {{/* channel to put errors in */}}
+{{try}}
 
 {{$intro := (dbGet .ExecData.user "intro")}}
 {{$newtext := (print (getMessage $intro.Value.ch $intro.Value.msg).ContentWithMentionsReplaced )}}
@@ -12,3 +14,7 @@ Then, the original message content is updated so it can be accurately quoted lat
 {{$idb := $intro.Value}}
 {{$1 := $idb.Set "text" $newtext}}
 {{dbSet .ExecData.user "intro" $idb}}
+
+{{catch}}
+{{sendMessageNoEscape $error (print "<@217140800922976257> \n"  .Error)}}
+{{end}}
