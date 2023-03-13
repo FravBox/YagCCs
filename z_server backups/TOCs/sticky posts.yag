@@ -39,8 +39,39 @@ Limit to specific channels */}}
 		{{end}}
 	{{end}}
 
-{{/* Events sticky message */}}
+{{/* Events channel */}}
 	{{if (eq .Channel.ID 752317819873394780)}}
+	{{/* mention events role if not done already */}}
+		{{if not (reFind `<@&\d*>` .Message.Content)}}
+
+			{{/* cooldown */}}
+			{{/* 0 for per user, 1 for global */}}
+			{{$isGlobal := 1}}
+			{{/* name your cooldown name (anything works) */}}
+			{{$name := "events ping cd"}}
+			{{/* Length of the cooldown (in seconds) */}}
+			{{$lengthSec := 3600}}
+
+			{{/* CREATING VARIABLES DO NOT TOUCH */}}
+			{{$id := 0}}
+			{{$key := joinStr "" "cooldown1_" $name}}
+			{{if eq $isGlobal 0}}
+				{{$id = .User.ID}}
+
+
+				{{if dbGet (toInt64 $id) $key}} 
+					{{/* Code to execute when cooldown is active */}}
+				{{else}}
+					{{/* Create cooldown entry */}}
+					{{dbSetExpire (toInt64 $id) $key "cooldown1" $lengthSec}}
+
+					{{sendMessageNoEscape nil (complexMessage "reply" .Message.ID "content" "<@&773487900779348000>" )}}
+				{{end}}
+			{{end}}
+		{{end}}
+
+
+	{{/* Events sticky message */}}
 		{{ $avatar := "https://bentovid.com/user/images/BentoVid.png" }}
 
 		{{$message := cembed "description" "**[CLICK HERE TO CREATE AN EVENT!](https://sesh.fyi/dashboard/750541618389712896/events/create)** \nOr view the <#989945286107496469> instead.\n\n[Read the pinned post](https://discord.com/channels/750541618389712896/752317819873394780/1082789013674524732) for guides and ping list info.\nCreate & participate in conversations about the events in <#1020404948179091527>" "color" 15559936 "thumbnail" (sdict "url" $avatar)}}
