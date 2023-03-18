@@ -39,11 +39,11 @@ thread management is separate
 
 {{/* actual code */}}
 
-{{if (eq .Channel.ID $roles) }}{{/* role assignments */}}
+{{if and (hasRoleID $verified) (eq .Channel.ID $roles) }}{{/* role assignments */}}
     
 {{/* tag creator handler */}}
     {{if and (eq $emoji $tag) (eq .Message.ID $tmsg)}}
-        {{if and (.ReactionAdded) (hasRoleID $verified) }}{{/* add tag creator role */}}
+        {{if .ReactionAdded }}{{/* add tag creator role */}}
             {{execCC $rolemgmt nil 0 (sdict "user" $user "msg" $msg.ID "ch" $ch.ID "type" $1 "emoji" $emoji)}}
         {{else}}{{/* remove tag creator role */}}
             {{execCC $rolemgmt nil 0 (sdict "user" $user "msg" $msg.ID "ch" $ch.ID "type" $2 "emoji" $emoji)}}
@@ -59,7 +59,7 @@ thread management is separate
 {{if .ReactionAdded}}
 
 {{/* create a ticket from #contact-staff post */}}
-    {{if (and (eq .Reaction.Emoji.Name $ticket) (eq $msg.ID $tikmsg) ) }}
+    {{if (and (eq .Reaction.Emoji.Name $ticket) (eq $msg.ID $tikmsg) (hasRoleID $verified) ) }}
             {{execCC $tickets nil 0 (sdict "user" $user "ch" $ch.ID)}}
             {{sleep 5}}
             {{deleteMessageReaction nil $tikmsg .Reaction.UserID $emoji }}
