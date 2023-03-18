@@ -1,0 +1,13 @@
+{{/* Yag answers good/bad yag and good/bad vegas. trigger: regex
+^(good|bad) (yag|vegas) */}}
+
+
+{{if (reFind `(?i)^good yag` .Message.Content) }}
+	{{sendMessage nil (complexMessage "reply" .Message.ID "content" "I'm helping!" ) }}
+	
+	{{else if (reFind `(?i)vegas` .Message.Content) }}
+		{{sendMessage nil (complexMessage "reply" .Message.ID "content" " " "embed" (cembed "description" "I'm helping!\n<:br:937128105821216898> [-Vegas, probably](https://discord.com/channels/750541618389712896/750545021333274707/1067628145685041202)") ) }}
+
+	{{else if (reFind `(?i)^bad yag` .Message.Content) }}
+		{{addReactions "sorry:760899542400368680"}}
+	{{end}}
