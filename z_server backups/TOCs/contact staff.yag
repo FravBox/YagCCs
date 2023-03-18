@@ -1,0 +1,12 @@
+{{/* Contact Staff TOC */}}
+{{ $avatar := "https://bentovid.com/user/images/SadEnby.png" }}
+{{$message := cembed 
+    "title" ("Contact Staff" ) 
+    "description" "**[Jump to the top](https://discord.com/channels/750541618389712896/962877591050653726/962877810534391889)**\n\n[Server Staff](https://discord.com/channels/750541618389712896/962877591050653726/962877810534391889)\n[Create a Ticket](https://discord.com/channels/750541618389712896/962877591050653726/962879864078221372)\n[/report command](https://discord.com/channels/750541618389712896/962877591050653726/1086772222586277968)" 
+	"color" 0xff6a00
+    "thumbnail" (sdict "url" $avatar) 
+}}
+
+
+{{sendMessage nil $message}}
+{{deleteTrigger 0}}
