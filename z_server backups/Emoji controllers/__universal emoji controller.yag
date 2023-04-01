@@ -16,6 +16,7 @@ thread management is separate
 {{$star := "⭐"}}
 {{$tag := "🪧"}}
 {{$ticket := "📩"}}
+{{$tutboard := "tutorialboard:1091487556564156426"}}
 
 {{/* misc */}}
 {{$verified := 1048764993925034065}} {{/* verified role ID */}}
@@ -26,8 +27,9 @@ thread management is separate
 {{$rolemgmt := 250}}{{/* role assignments */}}
 {{$tickets := 252}} {{/* open a ticket */}}
 {{$bookmarkcc := 253}}
-{{$noyag := 255 }}
+{{$noyag := 255}}
 {{$starboard := 256}}
+{{$tutboardcc := 311}}
 
 {{/* variables to help Exec CCs */}}
 {{$user := .User}}
@@ -76,7 +78,10 @@ thread management is separate
 {{/* Pinboard / Starboard */}}
     {{else if (eq .Reaction.Emoji.APIName $star)}}
         {{execCC $starboard nil 0 (sdict "msg" $msg "ch" $ch "emoji" $emoji)}}
-    {{end}}
 
+{{/* tutorial board */}}
+    {{else if (eq .Reaction.Emoji.APIName $tutboard)}}
+        {{execCC $tutboardcc nil 0 (sdict "msg" $msg "ch" $ch "emoji" $emoji)}}
+    {{end}}
 
 {{end}}
