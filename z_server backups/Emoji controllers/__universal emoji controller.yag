@@ -8,7 +8,8 @@ thread management is separate
 {{/* Channel IDs */}}
 {{$rules := 750544650523246623}}
 {{$roles := 750544674011349053}}
-
+{{$sbch := 1038951032467755008}} {{/* starboard */}}
+{{$tbch := 1091489519389384866}} {{/* tutorial board */}}
 
 {{/* emojis */}}
 {{$bookmark := "🔖"}}
@@ -39,6 +40,7 @@ thread management is separate
 {{$1 := "1"}}
 {{$2 := "2"}}
 
+{{try}}
 {{/* actual code */}}
 
 {{if and (hasRoleID $verified) (eq .Channel.ID $roles) }}{{/* role assignments */}}
@@ -55,6 +57,7 @@ thread management is separate
     {{else}}
         {{execCC $rolemgmt nil 0 (sdict "user" $user "msg" $msg.ID "ch" $ch.ID "emoji" $emoji "type" "0")}}
     {{end}}
+{{return}}    
 {{end}}
 
 
@@ -65,23 +68,32 @@ thread management is separate
             {{execCC $tickets nil 0 (sdict "user" $user "ch" $ch.ID)}}
             {{sleep 5}}
             {{deleteMessageReaction nil $tikmsg .Reaction.UserID $emoji }}
+            {{return}}
     {{end}}
 
 {{/* DM Bookmarked messages via emoji */}}
     {{if (eq .Reaction.Emoji.APIName $bookmark)}}
         {{execCC $bookmarkcc nil 0 (sdict "msg" $msg)}}
+        {{return}}
 
 {{/* delete yag messages with trash emoji */}}
     {{else if (and (eq .Reaction.Emoji.APIName $trash) (hasRoleID $verified) (eq .Message.Author.ID 204255221017214977) )}}
         {{execCC $noyag nil 0 (sdict "user" $user "msg" $msg "ch" $ch "emoji" $emoji "cat" .Channel.ParentID ) }}
+        {{return}}
 
 {{/* Pinboard / Starboard */}}
-    {{else if (eq .Reaction.Emoji.APIName $star)}}
+    {{else if (and (ne .Channel.ID $sbch) (eq .Reaction.Emoji.APIName $star) )}}
         {{execCC $starboard nil 0 (sdict "msg" $msg "ch" $ch "emoji" $emoji)}}
+        {{return}}
 
 {{/* tutorial board */}}
-    {{else if (eq .Reaction.Emoji.APIName $tutboard)}}
+    {{else if (and (ne .Channel.ID $tbch) (eq .Reaction.Emoji.APIName $tutboard) )}}
         {{execCC $tutboardcc nil 0 (sdict "msg" $msg "ch" $ch "emoji" $emoji)}}
+        {{return}}
     {{end}}
 
+{{end}}
+
+{{catch}}
+{{sendMessage 1023396572953849917 (print "<@217140800922976257>\n" .Error)}}
 {{end}}
