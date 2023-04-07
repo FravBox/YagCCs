@@ -1,0 +1,16 @@
+
+{{/* delete user intro db entry */}}
+
+{{$args := parseArgs 1 (print "Please use the following format: `" .Cmd " <user>`")
+    (carg "user" "Mention or ID")
+	}}
+
+{{$a := ($args.Get 0).ID}}
+{{$intro := dbGet $a "intro"}}
+
+{{if not $intro}}
+    {{sendMessage nil (cembed "description" (print "<@" $a "> doesn't have an intro yet.") )}}
+{{else}}
+    {{dbDel $a "intro"}}
+    {{sendMessage nil (cembed "description" (print "Deleted <@" $a ">'s intro.") )}}
+{{end}}
