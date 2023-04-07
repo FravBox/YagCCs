@@ -39,15 +39,20 @@ https://media.discordapp.net/attachments/707661790443733022/764877102901362738/S
 If someone deleted their first intro post and yag won't let them post again, you can manually delete their intro db entry with the following command:
 ```go
 {{/* manually delete intro db entry */}}
+{{$args := parseArgs 1 (print "Please use the following format: `" .Cmd " <user>`")
+    (carg "user" "Mention or ID")
+	}}
 
-{{$uid := 12345 */}} {{/* user ID of the person whose db entry needs to be deleted */}}
+{{$a := ($args.Get 0).ID}}
+{{$intro := dbGet $a "intro"}}
 
-{{/* actual code */}}
-{{dbDel $uid "intro"}}
-Done
+{{if not $intro}}
+    {{sendMessage nil (cembed "description" (print "<@" $a "> doesn't have an intro yet.") )}}
+{{else}}
+    {{dbDel $a "intro"}}
+    {{sendMessage nil (cembed "description" (print "Deleted <@" $a ">'s intro.") )}}
+{{end}}
 ```
-There is no way to do this with args because I'm lazy and have well-behaved server members. xP
-
 
 Alternatively, you can let people delete their own intro posts & db entries with the following (don't edit anything):
 
