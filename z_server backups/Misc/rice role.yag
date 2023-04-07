@@ -1,0 +1,6 @@
+{{/* Give RICE Role to everyone at once */}}
+
+{{$rice := 1234}} {{/* Rice role ID */}}
+{{range .Message.Mentions}}
+{{- giveRoleID $rice -}}
+{{- end}}
