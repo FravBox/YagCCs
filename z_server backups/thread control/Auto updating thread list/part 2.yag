@@ -1,4 +1,4 @@
-{{/* THREAD LIST AUTO INTERVAL - PART 2
+{{/* THREAD LIST AUTO INTERVAL - PART 2 - Daisy Chain MEPs
 Vid Games - 730 hours = 1 month 
 */}}
 
@@ -8,7 +8,6 @@ Vid Games - 730 hours = 1 month
 	Special case is a dict with {ChannelID:MessageID} structure */}}
 {{$msgs := sdict
 	"Vid Games"     (dict
-    923039490212241408   1049138032688762950
     1020192256851980358  1049138014896525372
 	)
 }}
