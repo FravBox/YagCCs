@@ -11,19 +11,22 @@ CC ID: 249
 {{$ch := .ExecData.ch}}
 {{$cat := .ExecData.cat}}
 
+{{/* ignore these */}}
+{{$server := 751674884765253754}} {{/* server category */}}
+{{$ref := 1103417972699177081}}{{/* reference category */}}
+{{$sb := 1038951032467755008}} {{/* starboard channel */}}
+{{$intros := 1033952269265272863}} {{/* introductions channel */}}
+
+{{if or (eq $cat $server) (eq $cat $ref)}}
+    {{return}}
+{{else if or (eq $ch.ID $sb) (eq $ch.ID $intros)}}
+    {{return}}
+{{end}}
+
 
 {{/* other variables */}}
 
-{{/* list of channels/categories that posts CANNOT be deleted in */}}
-{{$server := 751674884765253754}}
-{{$rules := 962876705364639815}}
-{{$vidgames := 923030968686743602}}
-{{$ps := 944675758410965002}}{{/* photosensitivity */}}
-
-
-
-
-{{$ma := 298 }} {{/* max age of posts allowed to be deleted, in seconds (discord max is 1 week) */}}
+{{$ma := 900 }} {{/* max age of posts allowed to be deleted, in seconds (discord max is 1 week) */}}
 {{$del := 10 }} {{/* time before "you can't do that" post deletes itself, in seconds */}}
 
 {{/* the message when you're not allowed to delete something */}}
@@ -42,55 +45,66 @@ CC ID: 249
 
 {{$x := (currentTime.Sub $msg.Timestamp.Parse).Seconds|round|toInt}} {{/* Math to get seconds */}}
 
+{{/* error handling */}}
 
+{{try}}
 {{/* actual code */}}
+{{if and (le $x $ma) (not $msg.Pinned) (not (reFind `<@!?\d{17,}>` $msg.Content) ) }}
+{{deleteMessage $ch.ID $msg.ID 1}}	
 
-{{if and (ne $cat $server) (ne $cat $rules) (ne $cat $vidgames) (ne $ch.ID $ps) }}
+    {{$logit := exec "logs" $la}}
 
-    {{if and (ne (toString $msg.ID) (dbGet 9 "nodel" ).Value ) (le $x $ma) (not $msg.Pinned) (not (reFind `<@!?\d{17,}>` $msg.Content) ) }}
-	{{deleteMessage $ch.ID $msg.ID 1}}	
-
-        {{$logit := exec "logs" $la}}
-
-        {{$logfooter := (joinStr "" "\n" "**" "[View Logs](" $logit ")" "**" )}}
-            
-        {{$split := (split $msg.Content "\n")}}
-        {{$quoteit := (joinStr "> " $split)}}
-        {{$qfooter := (print "\n\n**Deleted Message:**\n> " $quoteit ) }}	
-
-
-        {{if not $msg.Embeds}}
-            {{$msg := (cembed "description" (print $modmsg $logfooter $qfooter ) "color" $color )}}
-            {{sendMessage $modch $msg}}
+    {{$logfooter := (joinStr "" "\n" "**" "[View Logs](" $logit ")" "**" )}}
         
+    {{$split := (split $msg.Content "\n")}}
+    {{$quoteit := (joinStr "> " $split)}}
+    {{$qfooter := (print "\n\n**Deleted Message:**\n> " $quoteit ) }}	
 
-        {{else if and ($msg.Embeds) (or (eq $ch.ID $vidshare) (eq $ch.ParentID $vidshare) ) }}
-            {{$user2 := $msg.ReferencedMessage.Author}}
-            {{sendMessage $modch (cembed "description" (print $modmsg $logfooter "\n\n**Deleted Message:**\nVPR Warning for " $user2 ". " ) "color" $color )}}
 
-            
-        {{else if and ($msg.Embeds) (ne $ch.ID $vidshare) }}
-            {{sendMessage $modch (cembed "description" (print $modmsg $logfooter ) "color" $color )}}
-            {{sendMessage $modch (complexMessage "content" "\n**Deleted Message:**" "embed" (index $msg.Embeds 0) )}}
-        {{end}}
+    {{if not $msg.Embeds}}
+        {{$msg := (cembed "description" (print $modmsg $logfooter $qfooter ) "color" $color )}}
+        {{sendMessage $modch $msg}}
+    
 
-    {{else if (gt $x $ma) }}
-        {{$nr := (print " Only messages less than " $ma " seconds old can be deleted." )}}
-        {{$y := (sendMessageRetID $ch.ID (print $nope $nr) ) }}
-        {{deleteMessage $ch.ID $y $del}}
+    {{else if and ($msg.Embeds) (or (eq $ch.ID $vidshare) (eq $ch.ParentID $vidshare) ) }}
+        {{$user2 := $msg.ReferencedMessage.Author}}
+        {{sendMessage $modch (cembed "description" (print $modmsg $logfooter "\n\n**Deleted Message:**\nVPR Warning for " $user2 ". " ) "color" $color )}}
 
-    {{else if $msg.Pinned}}
-        {{$nr := " Pinned messages cannot be deleted."}}
-        {{$y := (sendMessageRetID $ch.ID (print $nope $nr) ) }}
-        {{deleteMessage $ch.ID $y $del}}
-
-    {{else if (reFind `(?i)(fruits basket)` $msg.Content)}}
-        {{$nr := " We don't ghost ping Vicky. <:skeptical:759947442082021426>"}}
-        {{$y := (sendMessageRetID $ch.ID (print $nope $nr) ) }}
-        {{deleteMessage $ch.ID $y $del}}
-
+        
+    {{else if and ($msg.Embeds) (ne $ch.ID $vidshare) }}
+        {{sendMessage $modch (cembed "description" (print $modmsg $logfooter ) "color" $color )}}
+        {{sendMessage $modch (complexMessage "content" "\n**Deleted Message:**" "embed" (index $msg.Embeds 0) )}}
     {{end}}
-{{else}}
+
+{{else if (gt $x $ma) }}
+    {{$nr := (print " Only messages less than " $ma " seconds old can be deleted." )}}
+    {{$y := (sendMessageRetID $ch.ID (print $nope $nr) ) }}
+    {{deleteMessage $ch.ID $y $del}}
     {{sleep 2}}
     {{deleteMessageReaction $ch.ID $msg.ID $user.ID $emoji }}
+    {{return}}
+
+{{else if $msg.Pinned}}
+    {{$nr := " Pinned messages cannot be deleted."}}
+    {{$y := (sendMessageRetID $ch.ID (print $nope $nr) ) }}
+    {{deleteMessage $ch.ID $y $del}}
+    {{sleep 2}}
+    {{deleteMessageReaction $ch.ID $msg.ID $user.ID $emoji }}
+    {{return}}
+
+{{else if (reFind `(?i)(fruits basket)` $msg.Content)}}
+    {{$nr := " We don't ghost ping Vicky. <:skeptical:759947442082021426>"}}
+    {{$y := (sendMessageRetID $ch.ID (print $nope $nr) ) }}
+    {{deleteMessage $ch.ID $y $del}}
+    {{sleep 2}}
+    {{deleteMessageReaction $ch.ID $msg.ID $user.ID $emoji }}
+    {{return}}
+
+{{end}}
+
+{{/* error handling */}}
+
+{{catch}}
+
+{{sendMessageNoEscape 1023396572953849917 (print "<@217140800922976257>\n " .CCID " Yag Trash emoji cc \n" .Error ) }}
 {{end}}
