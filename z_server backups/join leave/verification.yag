@@ -11,13 +11,17 @@ Set it to only run in main talk channel
 {{$modlog := 970007312632795167 }} {{/* yag-cmd-log */}}
 {{$intros := 1033952269265272863}}
 
-{{$v := "☑️"}}{{/* emoji to verify */}}
+{{if or (ne .Channel.ID $main) (.Channel.IsThread) (hasRoleID $verified)}}
+    {{return}}
+{{end}}
 
-
-{{if and (eq .Channel.ID $main) (eq .Message.Type 7)}}
-        
+{{if or (not (hasRoleID $verified)) (eq .Message.Type 7)}}
     {{addRoleID $verified}}
-    {{deleteTrigger 1}}
+
+    {{if eq .Message.Type 7}}
+        {{deleteTrigger 1}}
+    {{end}}
+
     {{$announce := (complexMessage "content" (print "<@" $id "> 🥳") "embed" (cslice (cembed "thumbnail" (sdict "url" "https://bentovid.com/user/images/confettiball.png") "color" 43775 "description"  (print "**Welcome to BentoVid, <@" $id ">!**\nFeel free to jump in any time!")) (cembed "color" 16744192 "description" (print "**Optional things to do**\n\n 🔸 Add <#750544674011349053>\n 🔸 Create your <#" $intros ">\n 🔸 `/birthday register` in <#1019933777826426940> / [Public Testing](https://discord.com/channels/750541618389712896/1047909689310052392)\n 🔸 Read <#1049023382680784978>\n\n[More Server Guides](https://bentovid.com/sguides)" )) ))}}
 
     {{sendMessage $main $announce }}
