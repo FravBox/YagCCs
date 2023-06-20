@@ -1,0 +1,48 @@
+{{/* 
+auto thread db deletions
+a scheduled cc that deletes any db entries for archived threads.
+Make sure to ignore some channels (resources, etc) 
+
+ignore: 
+resources
+daisy chain
+chill zone
+events - server history only 
+server - channel list only 
+*/}}
+
+{{/* don't delete db entries from these - nodel */}}
+{{$chill := 782784819863486464}} {{/* chill zone category */}}
+
+{{$daisy := 1020192256851980358}} {{/* daisy chain forum channel */}}
+{{$resources := 1020719952191299704}} {{/* resources forum channel */}}
+
+{{$channellist := 947228770681634926}} {{/* channel list thread */}}
+{{$ehistory := 1048773156002861076}} {{/* event history thread */}}
+
+{{/* list of entries to delete */}}
+{{$x := dbTopEntries "threads" 100 0 }}
+{{$db := cslice}}
+{{$list := cslice}}
+
+{{try}}
+{{range $x}}
+    {{- if or (eq .Value.thread.ID $channellist) (eq .Value.thread.ID $ehistory) -}} {{- /* nodel threads */ -}}
+		{{return}}
+	{{- else if or (eq .Value.parent $daisy) (eq .Value.parent $resources) -}} {{- /* nodel channels */ -}}
+		{{return}}
+    {{- else if and (eq ((getChannel .Value.parent).ParentID) $chill) -}} {{- /* nodel categories */ -}}
+		{{return}}
+	{{- else -}}
+		{{- /* this should be all the db entries it's possible to delete */ -}}
+
+		{{- if not (getThread .UserID) -}} {{- /* IDs for archived threads */ -}}
+
+            {{- dbDel .UserID "threads" -}} {{- /* delete db entries for archived threads */ -}}
+		{{- end -}}
+	{{- end -}}
+{{- end -}}
+
+{{catch}}
+{{sendMessageNoEscape 1023396572953849917 (print "<@217140800922976257> CC: " .CCID " auto thread db deletions\n" .Error )}}
+{{end}}
