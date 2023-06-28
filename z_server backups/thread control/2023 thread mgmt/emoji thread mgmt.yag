@@ -57,13 +57,14 @@ Trigger: added and removed reactions
 }}
 
 
-{{/* db entry format */}}
 {{$tinfo := sdict 
 "thread" .Channel
 "tname" $tname 
 "parent" .Channel.ParentID 
+"pname" (getChannel .Channel.ParentID).Name
 "cat" (title (getChannel (getChannel .Channel.ParentID).ParentID).Name)
-"tauthor" (print "<@" .Channel.OwnerID ">")
+"catid" (getChannel (getChannel .Channel.ParentID).ParentID).ID
+"top" (print "<@" .Channel.OwnerID ">")
 "pinners" (cslice (print "<@" .Channel.OwnerID ">") )
 }}
 
