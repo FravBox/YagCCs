@@ -1,3 +1,9 @@
+This will work as-is but it is currently missing the thread list part.
+To do:
+- thread list cc
+- add images
+- finish writing how to install and such
+
 # THREAD MANAGEMENT - ABOUT 
 **A set of custom commands for all sorts of Thread features!**    
 There are 4 custom commands. You must use at least 2 of them. The other 2 are optional.
