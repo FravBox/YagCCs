@@ -1,4 +1,4 @@
-This will work as-is but it is currently missing the thread list part.
+This will work as-is but it is currently missing the (updated) thread list part.
 To do:
 - thread list cc
 - add images
