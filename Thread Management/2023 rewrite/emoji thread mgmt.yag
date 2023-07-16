@@ -1,0 +1,172 @@
+{{/* Thread OP Management - Emoji commands 
+
+Add/remove pinners;
+un/pin messages;
+resave db info (reset pinners);
+delete db entry
+
+
+Trigger: added and removed reactions 
+https://github.com/FravBox/YagCCs/ 
+*/}}
+
+{{if not .Channel.IsThread}}
+    {{return}}
+{{end}}
+
+{{/* emojis */}}
+{{$pin := "📌"}}
+{{$removepinner := ":removepinner:1120156858993356840"}}
+{{$addpinner := ":addpinner:1120156833991118849"}}
+{{$success:= "✅"}}
+{{$confuse := "❓"}}
+{{$save := "💾"}}
+{{$del := "❌"}}
+
+{{/* mod role */}}
+{{$staff := 11111}}
+{{/* CC ID to update thread list */}}
+{{$tlist := 314}}
+
+{{/* embed colors */}}
+{{$c1 := 0xaa5ffa}} {{/* thread created */}}
+{{$c2 := 5570815}} {{/* renamed */}}
+{{$c3 := 0x6d03ab}} {{/* other */}}
+
+{{/* do not edit below */}}
+{{if not (in (cslice $pin $removepinner $addpinner $save $del) .Reaction.Emoji.APIName )}}
+    {{return}}
+{{end}}
+
+{{/* for log messages */}}
+{{ $tname := print (title ((getThread nil).Name) ) }}
+{{ $tlink := print "[" $tname "](https://discord.com/channels/" .Guild.ID "/" .Channel.ID ")" }}
+
+{{ $suffix := print "\n\n[Jump to post](" .Message.Link ") | <#" .Channel.ID "> | [Link to thread](https://discord.com/channels/" .Guild.ID "/" .Channel.ID ")" }}
+{{ $footer := print "Channel ID " .Channel.ID " | From " .User.String " (ID: " .User.ID ")"}}
+
+{{ $tcreation := cembed 
+"title" (print " \"" $tname "\" Created" )
+"description" (print "**" .User.Mention "** started **" $tlink "** from <#" .Channel.ParentID "> on <t:" currentTime.Unix ":F>." $suffix )
+"footer" (sdict "text" $footer)
+"color" $c1
+}}
+
+
+{{/* db entry format */}}
+{{$tinfo := sdict 
+"thread" .Channel
+"tname" $tname 
+"parent" .Channel.ParentID 
+"pname" (getChannel .Channel.ParentID).Name
+"cat" (title (getChannel (getChannel .Channel.ParentID).ParentID).Name)
+"catid" (getChannel (getChannel .Channel.ParentID).ParentID).ID
+"top" (print "<@" .Channel.OwnerID ">")
+"pinners" (cslice (print "<@" .Channel.OwnerID ">") )
+}}
+
+
+{{/* check db for entry */}} 
+{{$tdb := (dbGet .Channel.ID "threads")}}
+
+{{/* add pinners section if it's not already there - needed for backwards compatibility */}}
+{{if and ($tdb) (not (dbGet .Channel.ID "threads").Value.pinners)}} 
+    {{dbSet .Channel.ID "threads" $tinfo }}
+{{end}}
+
+{{/* Manage Pinners */}}
+{{if and (.ReactionAdded) (in (cslice $addpinner $removepinner) .Reaction.Emoji.APIName ) (or (eq .Channel.OwnerID .User.ID) (hasRoleID $staff) ) }}
+
+    {{/* add pinner */}}
+    {{if eq $addpinner .Reaction.Emoji.APIName}}
+        {{if in $tdb.Value.pinners .Message.Author.Mention}}
+            {{addReactions $confuse}}
+            {{sleep 5}}
+            {{deleteMessageReaction nil .Message.ID .BotUser.ID $confuse}}
+        {{else}}
+            {{$z := $tdb.Value.pinners.Append .Message.Author.Mention}}
+            {{$x := $tinfo.Set "pinners" $z }}
+            {{$y := dbSet .Channel.ID "threads" $tinfo}}
+            {{addReactions $success}}
+            {{sleep 5}}
+            {{deleteMessageReaction nil .Message.ID .BotUser.ID $success}}
+        {{end}}
+
+    {{/* remove pinner */}}
+    {{else if eq $removepinner .Reaction.Emoji.APIName}}
+        {{if in $tdb.Value.pinners .Message.Author.Mention}}
+            {{$x := cslice}}
+            {{range $tdb.Value.pinners}}
+                {{- if ne $.Message.ReferencedMessage.Author.Mention . -}}
+                    {{- $x = $x.Append . -}}
+                {{- end -}}
+            {{- end}}
+
+            {{$tinfo.Set "pinners" $x}}
+            {{dbSet .channel.ID "threads" $tinfo}}
+
+            {{addReactions $success}}
+            {{sleep 5}}
+            {{deleteMessageReaction nil .Message.ID .BotUser.ID $success}}
+
+        {{else}}
+            {{addReactions $confuse}}
+            {{sleep 5}}
+            {{deleteMessageReaction nil .Message.ID .BotUser.ID $confuse}}
+        {{end}}
+    {{end}}
+{{return}}
+{{end}}
+
+{{/* Manage Pins */}}
+{{if and (eq $pin .Reaction.Emoji.APIName ) (or (eq .Channel.OwnerID .User.ID) (hasRoleID $staff) (in $tdb.Value.pinners .User.Mention) ) }}
+
+    {{if .ReactionAdded}} {{/* add pin */}}
+        {{if .Message.Pinned}}
+            {{addReactions $confuse}}
+            {{sleep 5}}
+            {{deleteMessageReaction nil .Message.ID .BotUser.ID $confuse}}
+            {{return}}
+        {{else}}
+            {{pinMessage nil .Message.ID}}
+            {{addReactions $success}}
+            {{sleep 5}}
+            {{deleteMessageReaction nil .Message.ID .BotUser.ID $success}}
+            {{return}}
+        {{end}}
+    {{else}} {{/* remove pin */}}
+        {{if .Message.Pinned}}
+            {{unpinMessage nil .Message.ID}}
+            {{addReactions $success}}
+            {{sleep 5}}
+            {{deleteMessageReaction nil .Message.ID .BotUser.ID $success}}
+        {{else}}
+            {{addReactions $confuse}}
+            {{sleep 5}}
+            {{deleteMessageReaction nil .Message.ID .BotUser.ID $confuse}}
+        {{end}}
+    {{end}}
+{{end}}
+
+{{/* mod db commands */}}
+{{if and (.ReactionAdded) (in (cslice $save $del) .Reaction.Emoji.APIName) (hasRoleID $staff)}}
+
+    {{/* resave - resets pinners */}}
+    {{if (eq $save .Reaction.Emoji.APIName )}}
+        {{dbSet .Channel.ID "threads" $tinfo}}
+        {{addReactions $success}}
+        {{execCC $tlist}} {{/* update thread list */}}
+        {{sleep 5}}
+        {{deleteMessageReaction nil .Message.ID .BotUser.ID $success}}
+        {{return}}
+    
+    {{/* delete db entry */}}
+    {{else if $del .Reaction.Emoji.APIName}}
+        {{dbDel .Channel.ID "threads"}}
+        {{addReactions $success}}
+        {{execCC $tlist nil $tinfo}} {{/* update thread list */}}
+        {{sleep 5}}
+        {{deleteMessageReaction nil .Message.ID .BotUser.ID $success}}
+        {{return}}
+    {{end}}
+{{end}}

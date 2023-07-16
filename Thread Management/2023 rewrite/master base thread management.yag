@@ -1,0 +1,256 @@
+{{/* 
+Base Thread Management
+Trigger: \A
+
+https://github.com/FravBox/YagCCs/ for how to edit/use
+*/}}
+
+{{if not .Channel.IsThread}}
+    {{return}}
+{{end}}
+
+{{define "tlist"}}
+    {{/* updates thread list */}}
+    {{$ccid := 314}} {{/* CC ID for tlist */}}
+            {{execCC $ccid nil 0 (sdict 
+            "cn" (.Get "cat")
+            "cid" (.Get "catid")
+            "p" (.Get "parent")
+            "pn" (.Get "pname")
+            )}}
+{{end}}
+
+
+{{/* channels */}}
+{{$news := 777777}}
+{{$log := 66666}}
+{{/* cats to ignore */}}
+{{$ignore := 11111 22222 3333}}
+{{/* mod role */}}
+{{$staff := 44444444}}
+{{/* emojis */}}
+{{$pin := "📌"}}
+{{$delpinner := ":removepinner:1120156858993356840"}}
+{{$addpinner := ":addpinner:1120156833991118849"}}
+{{$success:= "✅"}}
+{{$confuse := "❓"}}
+{{/* embed colors */}}
+{{$c1 := 0xaa5ffa}} {{/* created */}}
+{{$c2 := 5570815}} {{/* renamed */}}
+{{$c3 := 0x6d03ab}} {{/* etc */}}
+
+{{/* Yag ID */}}
+{{$yid := .BotUser.ID}}
+
+{{/* 4logs */}}
+{{ $tname := print (title ((getThread nil).Name) ) }}
+{{ $tlink := print "[" $tname "](https://discord.com/channels/" .Guild.ID "/" .Channel.ID ")" }}
+
+{{ $sfx := print "\n\n[Jump to post](" .Message.Link ") | <#" .Channel.ID "> | [Link to thread](https://discord.com/channels/" .Guild.ID "/" .Channel.ID ")" }}
+{{ $ftr := (sdict "text" (print "Channel ID " .Channel.ID " | From " .User.String " (ID: " .User.ID ")") )}}
+
+{{ $tcreate := cembed 
+"title" (print " \"" $tname "\" Created" )
+"description" (print "**" .User.Mention "** started **" $tlink "** from <#" .Channel.ParentID "> on <t:" currentTime.Unix ":F>." $sfx )
+"footer" $ftr
+"color" $c1
+}}
+
+{{/* 1st msg */}}
+{{$opinfo := cembed
+"color" $c3
+"title" "Thread Management"
+"description" (print "### <@" .Channel.OwnerID "> is the thread OP.\n **OPs can use <@" $yid "> to:**\n- Ping `@everyone` and `@here`\n- Pin and unpin messages\n- Control who may pin messages in their thread (pinners)\n### Pinner & Pin Management \n**React to Messages**\n<" $addpinner "> to add the person as a pinner\n<" $delpinner "> to remove them \n" $pin " to toggle that message's pin status (react to pin, unreact to unpin) \n\n**Reply to Messages**\n`pinner` to toggle that person's pinner status\n`pin` to pin the message \n`unpin` to unpin the message\n\n**Custom Commands**\n`-pinners` to view the list of who can manage pins in this thread.")}}
+
+
+{{/* 4db */}}
+{{$tinfo := sdict 
+"thread" .Channel
+"tname" $tname 
+"parent" .Channel.ParentID 
+"pname" (getChannel .Channel.ParentID).Name
+"cat" (title (getChannel (getChannel .Channel.ParentID).ParentID).Name)
+"catid" (getChannel (getChannel .Channel.ParentID).ParentID).ID
+"top" (print "<@" .Channel.OwnerID ">")
+"pinners" (cslice (print "<@" .Channel.OwnerID ">") )
+}}
+
+
+{{/* check 4db */}} 
+{{$tdb := (dbGet .Channel.ID "threads")}}
+
+{{/* 4backwards compatibility */}}
+{{if and ($tdb) (not (dbGet .Channel.ID "threads").Value.pinners)}} 
+    {{dbSet .Channel.ID "threads" $tinfo }}
+{{end}}
+
+    
+{{/* save new t */}}
+{{if and (not $tdb) (not (reFind `(^(-|save|unpin|pin))` .Message.Content)) (ne .Message.Type 4) }}
+    {{/* Make db & log */}}
+    {{dbSet .Channel.ID "threads" $tinfo }}
+    
+    {{sendMessage nil $opinfo}} {{/* explain pin mgmt */}}
+
+    {{try}}
+        {{pinMessage nil .Message.ID}} {{/* pin 1st msg if found */}}
+    {{catch}}
+    {{end}}
+
+    {{if not (in $tinfo.catid $ignore)}}
+        {{sendMessage $news $tcreate}} {{/* send to news */}}
+        {{template "tlist" $tinfo}} {{/* update tlist */}}
+    {{end}}
+    {{sendMessage $log $tcreate}} {{/* log it */}}
+    {{return}}
+{{end}}
+    
+{{/* save t renames */}}
+{{if (eq .Message.Type 4)}}
+    {{$newlink := (print "**[" .Message.Content "](https://discord.com/channels/" .Guild.ID "/" .Channel.ID ")**" )}}
+
+    {{/* renamed log msg */}}
+        {{sendMessage $log (cembed
+        "title" (print "Thread Name Change: " $tname "  ➡️  " .Message.Content)
+        "description" (print .Message.Author.Mention " changed **" $tname "** in <#" .Channel.ParentID "> to its new name: **" $newlink "** on <t:" currentTime.Unix ":F>." $sfx) 
+        "footer" $ftr
+        "color" $c2
+        )
+    }}
+    {{$a := $tinfo.Set "pinners" ($tdb.Value.pinners)}}
+    {{$b := $tinfo.Set "tname" (print (title .Message.Content))}}
+    {{$c := dbSet .Channel.ID "threads" $tinfo}}
+    {{template "tlist" $tinfo }}
+    {{return}}
+{{end}}
+
+{{/* pinner mgmt */}} 
+{{if (reFind `^pinner|^-pinners` .Message.Content) }}
+
+{{/* pinner toggle - reply to msg w/ "pinner" */}}
+    {{if and (reFind `^pinner` .Message.Content) (or (eq .Channel.OwnerID .User.ID) (hasRoleID $staff) )}} 
+
+        {{if in $tdb.Value.pinners .Message.ReferencedMessage.Author.Mention}}{{/* remove pinner */}}
+            {{$x := cslice}}
+            {{range $tdb.Value.pinners}}
+                {{- if ne $.Message.ReferencedMessage.Author.Mention . -}}
+                    {{- $x = $x.Append . -}}
+                {{- end -}}
+            {{- end}}
+
+            {{$tinfo.Set "pinners" $x}}
+            {{dbSet .channel.ID "threads" $tinfo}}
+
+            {{addReactions $delpinner $success}}
+            {{sleep 5}}
+            {{deleteMessageReaction nil .Message.ID $yid $delpinner $success}}
+            {{return}}
+
+        {{else}} {{/* add pinner */}}
+            {{$z := $tdb.Value.pinners.Append .Message.ReferencedMessage.Author.Mention}}
+            {{$x := $tinfo.Set "pinners" $z }}
+            {{$y := dbSet .Channel.ID "threads" $tinfo}}
+            {{addReactions $addpinner $success}}
+            {{sleep 5}}
+            {{deleteMessageReaction nil .Message.ID $yid $delpinner $success}}
+            {{return}}
+        {{end}}
+
+    {{end}} 
+
+    {{/* list pinners - anyone can use -pinners */}}
+    {{if (reFind `^-pinners` .Message.Content) }}
+ 
+        {{sendMessage nil (cembed 
+        "color" $c3
+        "description" (print "### The following people can manage pins:\n" (joinStr ", " $tdb.Value.pinners) "\n\n **Thread OPs can manage pinners by reacting to their posts** with:\n<" $addpinner "> to make them a pinner, or \n<" $delpinner "> to remove them. \n\n Alternatively, toggle the pinner status by replying to one of their messages with `pinner`\n\n*Anyone can call this message with `-pinners`*") 
+        )}}
+        {{return}}
+    {{end}}
+{{end}}
+
+{{/* pin mgmt - reply to msg w/ "pin" or "unpin" */}}
+    {{if and (reFind `(?i)^(pin|unpin)` .Message.Content) (or (eq .Channel.OwnerID .User.ID) (hasRoleID $staff) (in $tdb.Value.pinners .User.Mention) )}} 
+
+        {{if reFind `(?i)^pin` .Message.Content}} {{/* pin */}}
+            {{if .Message.ReferencedMessage.Pinned}}
+                {{addReactions $confuse}}
+                {{sleep 5}}
+                {{deleteMessageReaction nil .Message.ID $yid $confuse}}
+                {{return}}
+            {{else}}
+                {{pinMessage nil .Message.ReferencedMessage.ID}}
+                {{addReactions $success}}
+                {{sleep 5}}
+                {{deleteMessageReaction nil .Message.ID $yid $success}}   
+                {{return}}
+            {{end}}
+        
+        {{else}}{{/* unpin */}}
+            {{if .Message.ReferencedMessage.Pinned}}
+                {{unpinMessage nil .Message.ReferencedMessage.ID}}
+                {{addReactions $success}}
+                {{sleep 5}}
+                {{deleteMessageReaction nil .Message.ID $yid $success}}
+                {{return}}
+            {{else}}
+                {{addReactions $confuse}}
+                {{sleep 5}}
+                {{deleteMessageReaction nil .Message.ID $yid $confuse}}
+                {{return}}
+            {{end}}
+        {{end}}
+    {{end}}
+
+{{/* let thread OPs use @everyone & @here */}}
+    {{if and (reFind `@(?:here)` .Message.Content) (eq .Channel.OwnerID .User.ID) }}
+        {{sendMessageNoEscape nil (complexMessage "reply" .Message.ID "content" "@here") }}
+    {{else if and (reFind `@(?:everyone)` .Message.Content) (eq .Channel.OwnerID .User.ID)}}
+        {{sendMessageNoEscape nil (complexMessage "reply" .Message.ID "content" "@everyone") }}
+    {{end}}
+
+{{/* db cmds 4mods */}}
+    {{if and (reFind `^-t` .Message.Content) (hasRoleID $staff)}}
+        
+        {{if (reFind `^-tcheck` .Message.Content)}} {{/* display db info */}}
+            {{sendMessage nil (cembed 
+            "title" "Thread Information"
+            "description" (print "**Thread:** \n" $tdb.Value.cat " > <#" $tdb.Value.parent "> > [" $tdb.Value.tname "](https://discord.com/channels/" .Guild.ID "/" $tdb.Value.thread.ID ") | <#" $tdb.Value.thread.ID "> \n\n**Thread OP:** " $tdb.Value.top "\n\n**Pinners:**\n" (joinStr ", " $tdb.Value.pinners ) )
+            )}}
+            {{return}}
+
+        {{else if (reFind `^-tsave` .Message.Content)}} {{/* resave info (this will reset all the pinners) */}}
+            {{dbSet .Channel.ID "threads" $tinfo}}
+            {{addReactions $success}}
+            {{template "tlist" $tinfo}}
+            {{sleep 5}}
+            {{deleteMessageReaction nil .Message.ID $yid $success}}
+            {{return}}
+
+        {{else if (reFind `^-tdel$` .Message.Content)}} {{/* delete db entry */}}
+            {{dbDel .Channel.ID "threads"}}
+            {{addReactions $success}}
+            {{template "tlist" $tinfo}}
+            {{sleep 5}}
+            {{deleteMessageReaction nil .Message.ID $yid $success}}
+            {{return}}
+
+        {{else if (reFind `^-tlist$` .Message.Content)}} {{/* force update tlist */}}
+            {{template "tlist" $tinfo}}
+                {{addReactions $success}}
+                {{sleep 5}}
+                {{deleteMessageReaction nil .Message.ID $yid $success}}
+                {{return}}
+            {{end}}
+
+        {{else if (reFind `^-tlistdel$` .Message.Content)}} {{/* delete all tlist db entries */}}
+            {{$dbtlist := dbTopEntries "tlist"}}
+            {{range $dbtlist}}
+                {{- dbDel .UserID "tlist" -}}
+            {{- end -}}
+            {{addReactions $success}}
+            {{sleep 5}}
+            {{deleteMessageReaction nil .Message.ID $yid $success}}
+        {{end}}
+
+    {{end}}
