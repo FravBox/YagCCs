@@ -1,34 +1,63 @@
-{{/* sends an anonymous message for staff */}}
+{{/*
+anonymous mod message
+trigger:
+^reply https://discord\.com/channels/750541618389712896/\d*/\d*
+(you must remove trigger from this comment before saving cc on dashboard)
 
-{{$x := .StrippedMsg}}
+how to use:
+reply https://discord.com/channels/750541618389712896/750541618389712900/1130944317687595098 your text here
+
+*/}}
+
+
 {{deleteTrigger 0}}
 
-{{$thumb := "https://cdn.discordapp.com/attachments/1056714618380230800/1059562647743373312/hazard-harmful-icon.webp" }}
+{{try}}
+{{$mid := (index (split .Cmd "/") 6)}}
+{{$ch := (index (split .Cmd "/") 5)}}
+{{$msg := getMessage $ch $mid}}
+{{$yag := 204255221017214977}}
+{{$modmsg := print "**Staff Message:**\n" .StrippedMsg }}
+{{$yaglog := 970007312632795167 }} {{/* yag-cmd-log */}}
+{{$modlog := 750544921940983888 }} {{/* mod-talk */}}
+{{$color := 65280 }} {{/* electric green */}}
 
-{{$anon := sendMessageRetID nil (cembed 
-"description" (print $x ) 
-"color" 16711680 
-"thumbnail" (sdict "url" $thumb ) 
-) }}
+{{$logmsg := " "}}
+{{$file := " " }}
 
-{{/* get message info */}}
-{{$a := getMessage nil $anon}}
+{{$qparent := (joinStr "\n> " (split $msg.Content "\n" ) )}}
+{{$qmod := (joinStr "\n> " (split .StrippedMsg "\n" ) )}}
 
-{{/* create db entry for 5min */}}
-{{dbSetExpire 9 "nodel" (toString $a.ID) 300}}
+{{if $msg.Attachments}}
+{{$file = print "*[The message](" $msg.Link ") has uploaded file(s).*\n"}}
+{{end}}
 
+{{if and (eq $msg.Author.ID $yag) (reFind `Staff Message:` .Message.Content)}}
+	{{editMessage $ch $mid (complexMessageEdit "content" $modmsg ) }}
+	
+	
+	{{$url := print "https://discord.com/channels/" .Guild.ID "/" $ch "/" $msg.ReferencedMessage.ID}}
+	{{$qo := (joinStr "\n> " (split $msg.ReferencedMessage.Content "\n" ) )}}
+	
+	{{$logmsg = cembed "description" (print " **Staff Message** was __edited__ in <#" $ch "> at <t:" currentTime.Unix ">" ) "color" $color "fields" (cslice 
+	(sdict "name" "Parent Message" "value" (print $msg.ReferencedMessage.Author.Mention " [wrote](" $url "):\n> " $qo "\n" $file "<:br:937128105821216898>") ) 
+	(sdict "name" "ORIGINAL" "value" (print "> " (joinStr "\n> " (split ($msg.Content) "\n" ) ) "\n<:br:937128105821216898>\n" ) )
+	(sdict "name" "NEW" "value" (print .User.Mention " [wrote](" ($msg.Link) "):\n> " (joinStr "\n> " (split ($modmsg) "\n") ) ) ) 
+	) }}
+	
+{{else}}
+	{{$modmid := sendMessageNoEscapeRetID $ch (complexMessage "content" $modmsg "reply" $mid)}}
+	
+	{{$logmsg = cembed "description" (print " **Staff Message** was used in <#" $ch "> at <t:" currentTime.Unix ">" ) "color" $color "fields" (cslice 
+	(sdict "name" "Parent Message" "value" (print $msg.Author.Mention " [wrote](" $msg.Link "):\n> " $qparent "\n" $file "<:br:937128105821216898>" ) ) 
+	(sdict "name" "Staff Message" "value" (print .User.Mention " [wrote](" (getMessage $ch $modmid).Link "):\n> " $qmod ) ) 
+	) }}
+	
+{{end}}
 
-{{/* LOG IT */}}
-{{$color := 16711680}} {{/* red */}}
-{{$modlog := 750544945474961448 }}{{/* #modlog */}}
-{{$log := execAdmin "logs 50" }} 
-
-{{$split := (split .StrippedMsg "\n" )}}
-{{$quote := (joinStr "\n> " $split )}}
-
-{{$logmsg := cembed 
-"description" (print .User.Mention " used **`" .Cmd "`** in " .Channel.Mention " at <t:" currentTime.Unix "> \n Link to: [Logs](" $log ") | [Message](" $a.Link ") \n\n **Message:** \n> " $quote ) 
-"color" $color 
-"thumbnail" (sdict "url" $thumb ) }}
-
+{{sendMessage $yaglog $logmsg}}
 {{sendMessage $modlog $logmsg}}
+
+{{catch}}
+{{sendMessageNoEscape $modlog "<@217140800922976257>:\n Staff Message CC - ID " .CCID "\n" .Error "\n from Staff Message cc"}}
+{{end}}

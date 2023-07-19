@@ -17,7 +17,9 @@ CC ID: 249
 {{$sb := 1038951032467755008}} {{/* starboard channel */}}
 {{$intros := 1033952269265272863}} {{/* introductions channel */}}
 
-{{if or (eq $cat $server) (eq $cat $ref)}}
+{{if (reFind `Staff Message:` .Message.Content)}}
+	{{return}}
+{{else if or (eq $cat $server) (eq $cat $ref)}}
     {{return}}
 {{else if or (eq $ch.ID $sb) (eq $ch.ID $intros)}}
     {{return}}
