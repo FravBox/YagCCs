@@ -49,15 +49,17 @@ thread management is separate
     {{if and (eq $emoji $tag) (eq .Message.ID $tmsg)}}
         {{if .ReactionAdded }}{{/* add tag creator role */}}
             {{execCC $rolemgmt nil 0 (sdict "user" $user "msg" $msg.ID "ch" $ch.ID "type" $1 "emoji" $emoji)}}
+            {{return}}
         {{else}}{{/* remove tag creator role */}}
             {{execCC $rolemgmt nil 0 (sdict "user" $user "msg" $msg.ID "ch" $ch.ID "type" $2 "emoji" $emoji)}}
+            {{return}}
         {{end}}
 
 {{/* separator roles handler */}}
     {{else}}
         {{execCC $rolemgmt nil 0 (sdict "user" $user "msg" $msg.ID "ch" $ch.ID "emoji" $emoji "type" "0")}}
-    {{end}}
-{{return}}    
+        {{return}}
+    {{end}} 
 {{end}}
 
 
