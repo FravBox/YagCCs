@@ -64,7 +64,7 @@ Regex:
 
 
 {{/* pinner toggle - reply to msg w/ "pinner" */}}
-    {{if and (reFind `^pinner` .Message.Content) (or (eq .Channel.OwnerID .User.ID) (hasRoleID $staff) )}} 
+    {{if and (.Message.ReferencedMessage) (reFind `^pinner` .Message.Content) (or (eq .Channel.OwnerID .User.ID) (hasRoleID $staff) )}} 
 
         {{if in $tdb.Value.pinners .Message.ReferencedMessage.Author.Mention}}{{/* remove pinner */}}
             {{$x := cslice}}
@@ -106,7 +106,7 @@ Regex:
 {{end}}
 
 {{/* pin mgmt - reply to msg w/ "pin" or "unpin" */}}
-    {{if and (reFind `(?i)^(pin|unpin)` .Message.Content) (or (eq .Channel.OwnerID .User.ID) (hasRoleID $staff) (in $tdb.Value.pinners .User.Mention) )}} 
+    {{if and (.Message.ReferencedMessage) (reFind `(?i)^(pin|unpin)` .Message.Content) (or (eq .Channel.OwnerID .User.ID) (hasRoleID $staff) (in $tdb.Value.pinners .User.Mention) )}} 
 
         {{if reFind `(?i)^pin` .Message.Content}} {{/* pin */}}
             {{if .Message.ReferencedMessage.Pinned}}
