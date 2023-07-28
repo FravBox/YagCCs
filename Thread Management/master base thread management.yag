@@ -9,18 +9,6 @@ https://github.com/FravBox/YagCCs/ for how to edit/use
     {{return}}
 {{end}}
 
-{{define "tlist"}}
-    {{/* updates thread list */}}
-    {{$ccid := 314}} {{/* CC ID for tlist */}}
-            {{execCC $ccid nil 0 (sdict 
-            "cn" (.Get "cat")
-            "cid" (.Get "catid")
-            "p" (.Get "parent")
-            "pn" (.Get "pname")
-            )}}
-{{end}}
-
-
 {{/* channels */}}
 {{$news := 777777}}
 {{$log := 66666}}
@@ -30,8 +18,8 @@ https://github.com/FravBox/YagCCs/ for how to edit/use
 {{$staff := 44444444}}
 {{/* emojis */}}
 {{$pin := "📌"}}
-{{$delpinner := ":removepinner:1120156858993356840"}}
-{{$addpinner := ":addpinner:1120156833991118849"}}
+{{$delpinner := ":removepinner:9999"}}
+{{$addpinner := ":addpinner:9999"}}
 {{$success:= "✅"}}
 {{$confuse := "❓"}}
 {{/* embed colors */}}
@@ -99,7 +87,6 @@ https://github.com/FravBox/YagCCs/ for how to edit/use
 
     {{if not (in $tinfo.catid $ignore)}}
         {{sendMessage $news $tcreate}} {{/* send to news */}}
-        {{template "tlist" $tinfo}} {{/* update tlist */}}
     {{end}}
     {{sendMessage $log $tcreate}} {{/* log it */}}
     {{return}}
@@ -120,7 +107,6 @@ https://github.com/FravBox/YagCCs/ for how to edit/use
     {{$a := $tinfo.Set "pinners" ($tdb.Value.pinners)}}
     {{$b := $tinfo.Set "tname" (print (title .Message.Content))}}
     {{$c := dbSet .Channel.ID "threads" $tinfo}}
-    {{template "tlist" $tinfo }}
     {{return}}
 {{end}}
 
@@ -128,7 +114,7 @@ https://github.com/FravBox/YagCCs/ for how to edit/use
 {{if (reFind `^pinner|^-pinners` .Message.Content) }}
 
 {{/* pinner toggle - reply to msg w/ "pinner" */}}
-    {{if and (reFind `^pinner` .Message.Content) (or (eq .Channel.OwnerID .User.ID) (hasRoleID $staff) )}} 
+    {{if and (.Message.ReferencedMessage) (reFind `^pinner` .Message.Content) (or (eq .Channel.OwnerID .User.ID) (hasRoleID $staff) )}} 
 
         {{if in $tdb.Value.pinners .Message.ReferencedMessage.Author.Mention}}{{/* remove pinner */}}
             {{$x := cslice}}
@@ -170,7 +156,7 @@ https://github.com/FravBox/YagCCs/ for how to edit/use
 {{end}}
 
 {{/* pin mgmt - reply to msg w/ "pin" or "unpin" */}}
-    {{if and (reFind `(?i)^(pin|unpin)` .Message.Content) (or (eq .Channel.OwnerID .User.ID) (hasRoleID $staff) (in $tdb.Value.pinners .User.Mention) )}} 
+    {{if and (.Message.ReferencedMessage) (reFind `(?i)^(pin|unpin)` .Message.Content) (or (eq .Channel.OwnerID .User.ID) (hasRoleID $staff) (in $tdb.Value.pinners .User.Mention) )}} 
 
         {{if reFind `(?i)^pin` .Message.Content}} {{/* pin */}}
             {{if .Message.ReferencedMessage.Pinned}}
@@ -222,7 +208,6 @@ https://github.com/FravBox/YagCCs/ for how to edit/use
         {{else if (reFind `^-tsave` .Message.Content)}} {{/* resave info (this will reset all the pinners) */}}
             {{dbSet .Channel.ID "threads" $tinfo}}
             {{addReactions $success}}
-            {{template "tlist" $tinfo}}
             {{sleep 5}}
             {{deleteMessageReaction nil .Message.ID $yid $success}}
             {{return}}
@@ -230,27 +215,9 @@ https://github.com/FravBox/YagCCs/ for how to edit/use
         {{else if (reFind `^-tdel$` .Message.Content)}} {{/* delete db entry */}}
             {{dbDel .Channel.ID "threads"}}
             {{addReactions $success}}
-            {{template "tlist" $tinfo}}
             {{sleep 5}}
             {{deleteMessageReaction nil .Message.ID $yid $success}}
             {{return}}
-
-        {{else if (reFind `^-tlist$` .Message.Content)}} {{/* force update tlist */}}
-            {{template "tlist" $tinfo}}
-                {{addReactions $success}}
-                {{sleep 5}}
-                {{deleteMessageReaction nil .Message.ID $yid $success}}
-                {{return}}
-            {{end}}
-
-        {{else if (reFind `^-tlistdel$` .Message.Content)}} {{/* delete all tlist db entries */}}
-            {{$dbtlist := dbTopEntries "tlist"}}
-            {{range $dbtlist}}
-                {{- dbDel .UserID "tlist" -}}
-            {{- end -}}
-            {{addReactions $success}}
-            {{sleep 5}}
-            {{deleteMessageReaction nil .Message.ID $yid $success}}
         {{end}}
 
     {{end}}

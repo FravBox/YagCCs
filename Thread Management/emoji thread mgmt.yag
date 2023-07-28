@@ -16,8 +16,8 @@ https://github.com/FravBox/YagCCs/
 
 {{/* emojis */}}
 {{$pin := "📌"}}
-{{$removepinner := ":removepinner:1120156858993356840"}}
-{{$addpinner := ":addpinner:1120156833991118849"}}
+{{$removepinner := ":removepinner:9999"}}
+{{$addpinner := ":addpinner:9999"}}
 {{$success:= "✅"}}
 {{$confuse := "❓"}}
 {{$save := "💾"}}
@@ -25,8 +25,6 @@ https://github.com/FravBox/YagCCs/
 
 {{/* mod role */}}
 {{$staff := 11111}}
-{{/* CC ID to update thread list */}}
-{{$tlist := 314}}
 
 {{/* embed colors */}}
 {{$c1 := 0xaa5ffa}} {{/* thread created */}}
@@ -155,7 +153,6 @@ https://github.com/FravBox/YagCCs/
     {{if (eq $save .Reaction.Emoji.APIName )}}
         {{dbSet .Channel.ID "threads" $tinfo}}
         {{addReactions $success}}
-        {{execCC $tlist}} {{/* update thread list */}}
         {{sleep 5}}
         {{deleteMessageReaction nil .Message.ID .BotUser.ID $success}}
         {{return}}
@@ -164,7 +161,6 @@ https://github.com/FravBox/YagCCs/
     {{else if $del .Reaction.Emoji.APIName}}
         {{dbDel .Channel.ID "threads"}}
         {{addReactions $success}}
-        {{execCC $tlist nil $tinfo}} {{/* update thread list */}}
         {{sleep 5}}
         {{deleteMessageReaction nil .Message.ID .BotUser.ID $success}}
         {{return}}

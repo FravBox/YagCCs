@@ -1,7 +1,6 @@
-This will work as-is but it is currently missing the (updated) thread list part.
+This will work as-is, but I rewrote the code so it does not include the thread list at all. 
 To do:
-- thread list cc
-- add images
+
 - finish writing how to install and such
 
 # THREAD MANAGEMENT - ABOUT 
