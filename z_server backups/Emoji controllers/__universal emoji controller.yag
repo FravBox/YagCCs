@@ -18,6 +18,8 @@ thread management is separate
 {{$tag := "🪧"}}
 {{$ticket := "📩"}}
 {{$tutboard := "tutorialboard:1091487556564156426"}}
+{{$pingadd := "🔔"}}
+{{$pingremove := "🔕"}}
 
 {{/* misc */}}
 {{$verified := 1048764993925034065}} {{/* verified role ID */}}
@@ -31,6 +33,7 @@ thread management is separate
 {{$noyag := 255}}
 {{$starboard := 256}}
 {{$tutboardcc := 311}}
+{{$pinglist := 324}}
 
 {{/* variables to help Exec CCs */}}
 {{$user := .User}}
@@ -64,6 +67,13 @@ thread management is separate
 
 
 {{if .ReactionAdded}}
+
+{{/* Manage Ping Lists */}}
+{{if and (eq .Message.Author.ID 204255221017214977) (in (cslice $pingadd $pingremove) .Reaction.Emoji.APIName)}}
+    {{execCC $pinglist nil 0 (sdict "emoji" $emoji "msg" $msg "user" .User "nick" (or .Member.Nick .User.String) )}}
+    {{return}}
+{{end}}
+
 
 {{/* create a ticket from #contact-staff post */}}
     {{if (and (eq .Reaction.Emoji.Name $ticket) (eq $msg.ID $tikmsg) (hasRoleID $verified) ) }}

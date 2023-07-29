@@ -1,0 +1,52 @@
+{{/*
+reaction listener for the ping list cc
+controlled by "Universal Emoji Controller" 
+CC ID: 249
+*/}}
+
+
+{{$exp := 2630000}} {{/* time ping lists expire in seconds. Default 1 month. */}}
+{{$add := "🔔"}} {{/* reaction for people to add themselves to the pinglist */}}
+{{$remove := "🔕"}} {{/* reaction for people to remove themselves from the pinglist */}}
+
+{{/* info grabbed from the triggering CC */}}
+{{$emoji := .ExecData.emoji}}
+{{$msg := .ExecData.msg}}
+{{$user := .ExecData.user}}
+{{$nick := .ExecData.nick}}
+
+{{/* check database */}}
+{{$pdb := (dbGet $user.ID "pinglist")}}
+
+{{/* for database */}}
+{{$plist := sdict 
+"origin" $pdb.Value.origin
+"edit" $pdb.Value.edit
+"pinged" $pdb.Value.pinged
+}}
+
+{{if eq $remove $emoji}} {{/* remove pinged */}}
+    {{$embed := (index (getMessage $msg.ChannelID $msg.ID).Embeds 0)}}
+    {{$mentions := reFindAll `<@\d*>` $embed.Description}}
+        {{$x := cslice}}
+        {{range $mentions}}
+            {{- if ne (print "<@" $user.ID ">" ) . -}}
+                {{- $x = $x.Append . -}}
+            {{- end -}}
+        {{- end}}
+
+        {{$plist.Set "pinged" (joinStr "\n" $x)}}
+
+{{else}} {{/* add pinged */}}
+    {{$plist.Set "pinged" (joinStr "\n" $pdb.Value.pinged (print "<@" $user.ID ">") )}}
+{{end}}  
+
+{{editMessage $msg.ChannelID $msg.ID (complexMessageEdit "embed" (cembed
+"title" (print "Ping List for " (title $nick) )
+"description" (print "React to this message using " $add " or " $remove " to add or remove yourself from this ping list!\n\n" ($plist.Get "pinged")) ))}}
+
+{{sleep 1}}
+{{deleteMessageReaction $msg.ChannelID $msg.ID $user.ID $emoji}}
+
+
+{{dbSetExpire $user.ID "pinglist" $plist $exp}}

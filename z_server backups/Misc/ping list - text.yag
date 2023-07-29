@@ -1,0 +1,109 @@
+{{/* 
+Create, edit, and ping custom ping lists with yag
+
+trigger: regex
+^(create |edit |@)(ping(list| list))
+
+*/}}
+
+{{/* edit these */}}
+{{$exp := 2630000}} {{/* time ping lists expire in seconds. Default 1 month. */}}
+{{$add := "🔔"}} {{/* reaction for people to add themselves to the pinglist */}}
+{{$remove := "🔕"}} {{/* reaction for people to remove themselves from the pinglist */}}
+
+{{/* don't edit below */}}
+
+{{/* for database */}}
+{{$plist := sdict 
+"origin" .Message
+"edit" ""
+"pinged" ""
+}}
+{{$title := (print "Ping List for " (title (or .Member.Nick .User.String)) )}}
+
+{{/* check database */}}
+{{$pdb := (dbGet .User.ID "pinglist")}}
+
+{{/* create new pinglist */}}
+{{if or (reFind `create` .Cmd) (and (not $pdb) (reFind `edit` .Cmd) )}}
+    {{if $pdb}}
+        {{deleteMessage (($pdb.Value.edit).ChannelID) (($pdb.Value.edit).ID) 1}}
+    {{end}}
+
+    {{if .Message.Mentions}} 
+        {{$x := cslice }}
+        {{$y := ""}}
+        {{range .Message.Mentions}}
+            {{- $y = print "<@" .ID ">" -}}
+            {{- $x = $x.Append $y -}}
+        {{- end -}}
+        {{$plist.Set "pinged" (joinStr "\n" $x)}}
+    {{end}}
+
+    {{$edit := sendMessageRetID nil (complexMessage "reply" .Message.ID "embed" (cembed 
+    "title" $title 
+    "description" (print "React to this message using " $add " or " $remove " to add or remove yourself from this ping list!\n\n" ($plist.Get "pinged") )
+    ) )}}
+
+    {{$plist.Set "edit" (getMessage nil $edit) }}
+    {{addMessageReactions nil $edit $add $remove}}
+
+    {{dbSetExpire .User.ID "pinglist" $plist $exp}}
+    {{return}}
+
+{{/* edit existing ping list */}}
+{{else if (and ($pdb) (reFind `edit` .Cmd) )}}
+    {{/* delete pre-existing open message */}}
+        {{deleteMessage (($pdb.Value.edit).ChannelID) (($pdb.Value.edit).ID) 1}}
+
+        {{if .Message.Mentions}} 
+            {{$x := cslice $pdb.Value.pinged }}
+            {{$y := ""}}
+            {{range .Message.Mentions}}
+                {{- $y = print "<@" .ID ">" -}}
+                {{- $x = $x.Append $y -}}
+            {{- end -}}
+            {{$plist.Set "pinged" (joinStr "\n" $x)}}
+        {{else}}
+            {{$plist.Set "pinged" ($pdb.Value.pinged)}}
+        {{end}}
+
+    {{$edit := sendMessageRetID nil (complexMessage "reply" .Message.ID "embed" (cembed 
+    "title" $title
+    "description" (print "React to this message using " $add " or " $remove " to add or remove yourself from this ping list!\n\n" ($plist.Get "pinged" )) 
+    ))}}
+
+    {{addMessageReactions nil $edit $add $remove}}
+    {{$plist.Set "edit" (getMessage nil $edit) }}
+
+    {{dbSetExpire .User.ID "pinglist" $plist $exp}}
+    {{return}}
+
+{{/* ping the list */}}
+{{else if (reFind `@ping` .Cmd)}}
+    {{if $pdb}}
+        {{/* delete pre-existing open message */}}
+        {{deleteMessage (($pdb.Value.edit).ChannelID) (($pdb.Value.edit).ID) 1}}
+
+        {{$edit := sendMessageRetID nil (complexMessage "reply" .Message.ID 
+        "content" (print $pdb.Value.pinged)
+        "embed" (cembed 
+        "title" $title
+        "description" (print "React to this message using " $add " or " $remove " to add or remove yourself from this ping list!\n\n" ($pdb.Value.pinged )) 
+        ))}}
+
+    {{$plist := sdict 
+    "origin" $pdb.Value.origin
+    "edit" (getMessage nil $edit)
+    "pinged" $pdb.Value.pinged
+    }}
+
+    {{addMessageReactions nil $edit $add $remove}}
+    {{dbSetExpire .User.ID "pinglist" $plist $exp}}
+    {{return}}
+
+    {{else}}
+        {{$z := sendMessage nil (complexMessage "reply" .Message.ID "content" (print "You don't have a pinglist saved! Use `create pinglist` to make a new one.") )}}
+        {{deleteMessage nil $z 10}}
+    {{end}}
+{{end}}
