@@ -1,0 +1,54 @@
+{{/*
+reaction listener for the ping list cc
+trigger: added reactions only
+https://github.com/FravBox/YagCCs
+*/}}
+
+
+{{/* edit these */}}
+{{$exp := 2630000}} {{/* time ping lists expire in seconds. Default 1 month. */}}
+{{$add := "🔔"}} {{/* reaction for people to add themselves to the pinglist */}}
+{{$remove := "🔕"}} {{/* reaction for people to remove themselves from the pinglist */}}
+
+{{/* don't edit below */}}
+{{if ne .Message.Author.ID 204255221017214977}}
+    {{return}}
+{{else if not (in (cslice $add $remove) .Reaction.Emoji.APIName )}}
+    {{return}}
+{{end}}
+
+{{/* check database */}}
+{{$pdb := (dbGet .User.ID "pinglist")}}
+
+{{/* for database */}}
+{{$plist := sdict 
+"origin" $pdb.Value.origin
+"edit" $pdb.Value.edit
+"pinged" $pdb.Value.pinged
+}}
+
+{{if eq $remove .Reaction.Emoji.APIName}} {{/* remove pinged */}}
+    {{$embed := (index (getMessage nil .Message.ID).Embeds 0)}}
+    {{$mentions := reFindAll `<@\d*>` $embed.Description}}
+        {{$x := cslice}}
+        {{range $mentions}}
+            {{- if ne (print "<@" $.User.ID ">" ) . -}}
+                {{- $x = $x.Append . -}}
+            {{- end -}}
+        {{- end}}
+
+        {{$plist.Set "pinged" (joinStr "\n" $x)}}
+
+{{else}} {{/* add pinged */}}
+    {{$plist.Set "pinged" (joinStr "\n" $pdb.Value.pinged (print "<@" .User.ID ">") )}}
+{{end}}  
+
+{{editMessage nil .Message.ID (complexMessageEdit "embed" (cembed
+"title" (print "Ping List for " (title (or .Member.Nick .User.String)) )
+"description" (print "React to this message using " $add " or " $remove " to add or remove yourself from this ping list!\n\n" ($plist.Get "pinged")) ))}}
+
+{{sleep 1}}
+{{deleteMessageReaction nil .Message.ID .User.ID .Reaction.Emoji.APIName}}
+
+
+{{dbSetExpire .User.ID "pinglist" $plist $exp}}
