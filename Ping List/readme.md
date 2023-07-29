@@ -21,4 +21,4 @@ Using `create pinglist` will replace a current ping list with a new one.
 Any time you do any function with the ping list, it will delete the last ping list message and repost it. 
 This is so you do not have multiple signup messages for your ping list.
 
-[!](https://bentovid.com/user/pages/03.sguides/04.bot-commands/pinglist.png)
+![](https://bentovid.com/user/pages/03.sguides/04.bot-commands/pinglist.png)
