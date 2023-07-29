@@ -49,6 +49,11 @@ If someone is muted or timed out and then leaves while they're still muted/timed
 </details>
 
 <details>
+ <summary>Ping List</summary>
+ Allow users to create and manage a user ping list through Yag.
+</details>
+
+<details>
 <summary>Prompts</summary>
 
 A very basic system that allows users to submit prompts for writing, art, etc. Yag collects them, randomizes them, and then posts them periodically.
