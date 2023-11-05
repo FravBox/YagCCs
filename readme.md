@@ -49,6 +49,11 @@ If someone is muted or timed out and then leaves while they're still muted/timed
 </details>
 
 <details>
+ <summary>Ping List</summary>
+ Allow users to create and manage a user ping list through Yag.
+</details>
+
+<details>
 <summary>Prompts</summary>
 
 A very basic system that allows users to submit prompts for writing, art, etc. Yag collects them, randomizes them, and then posts them periodically.
@@ -116,6 +121,6 @@ Other Yag CC Gits:
 [BlackWolf](https://github.com/BlackWolfWoof/yagpdb-cc) | [Crenshaw](https://github.com/Crenshaw1312/Yagpdb-ccs) | [Altair](https://github.com/magratheaguide/altair)
 
 # Contact me
-Open an issue or start a discussion on Github. I don't accept random friend requests, but my DMs are open. I'm in the official Yag support server if you want to DM or ping me from there. `Vars#3616`
+Open an issue or start a discussion on Github. I don't accept random friend requests, but my DMs are open. I'm in the official Yag support server if you want to DM or ping me from there. My username is `standardquip`
 
 **I won't code for you,** I don't know enough to do that. But I can explain my CCs or help you understand any errors you encounter with them.
