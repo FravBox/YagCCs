@@ -1,52 +1,37 @@
-{{/* VERIFICATION LOGGING 
-Regex trigger: \A
-Set it to only run in main talk channel
+{{/* verification 
+exec'd by welcome message cc (286)
 */}}
 
-
+{{/* variables */}}
+{{$joins := 954832185200898128}}{{/* joins-leaves channel */}}
+{{$id := .ExecData.user }}
+{{$db := .ExecData.db}}
 {{$verified := 1048764993925034065}} {{/* verified role ID */}}
-{{$main := 750541618389712900}}{{/* main talk channel */}}
-{{$id := .Message.Author.ID}} {{/* User ID of person who entered server */}}
-{{$joins := 954832185200898128}} {{/* joins-leaves modlog channel - for successful verifications */}}
-{{$modlog := 970007312632795167 }} {{/* yag-cmd-log */}}
-{{$intros := 1033952269265272863}}
 
-{{if or (ne .Channel.ID $main) (.Channel.IsThread) (hasRoleID $verified)}}
-    {{return}}
+{{/* give verification role */}}
+{{giveRoleID $id $verified}}
+
+{{/* update verification / joindate db */}}
+
+{{$vcdb := (dbGet 0 "vcount").Value}}
+{{dbSet 0 "vcount" (add $vcdb 1)}}
+
+{{if eq $db 1}}
+    {{$jdb := (dbGet $id "joindate")}}
+
+    {{$jinfo := sdict
+    "joined" $jdb.Value.joined
+    "vdate" (print "<t:" currentTime.Unix ">")
+    "left" $jdb.Value.left
+    }}
+
+    {{dbSet $id "joindate" $jinfo}}
+    
+{{else}}
+    {{dbSet $id "joindate" (sdict "joined" (print (humanizeDurationHours (currentTime.Sub (getMember $id).JoinedAt.Parse)) " ago" ) "vdate" (print "<t:" currentTime.Unix ">") "left" "Never" ) }}
 {{end}}
 
-{{if or (not (hasRoleID $verified)) (eq .Message.Type 7)}}
-    {{addRoleID $verified}}
+{{/* send message to logs */}}
+{{ $VerifyMsg := (print "🎗️ \n🟨 **<@" $id "> ("  (getMember $id).User ") Verified.** \n🟨 (ID: " $id ") \n🟨 <t:" currentTime.Unix ">\n🟨 **Time Taken: " (humanizeDurationHours (currentTime.Sub (getMember $id).JoinedAt.Parse)) "** \n<:br:937128105821216898> *Membercount: " .Guild.MemberCount "*" ) }}
 
-    {{if eq .Message.Type 7}}
-        {{deleteTrigger 1}}
-    {{end}}
-
-    {{$announce := (complexMessage "content" (print "<@" $id "> 🥳") "embed" (cslice (cembed "thumbnail" (sdict "url" "https://bentovid.com/user/images/confettiball.png") "color" 43775 "description"  (print "**Welcome to BentoVid, <@" $id ">!**\nFeel free to jump in any time!")) (cembed "color" 16744192 "description" (print "**Optional things to do**\n\n 🔸 Add <#750544674011349053>\n 🔸 Create your <#" $intros ">\n 🔸 `/birthday register` in <#1019933777826426940> / [Public Testing](https://discord.com/channels/750541618389712896/1047909689310052392)\n 🔸 Read <#1049023382680784978>\n\n[More Server Guides](https://bentovid.com/sguides)" )) ))}}
-
-    {{sendMessage $main $announce }}
-
-
-    {{/* SENDS VERIFICATION TO Joins-Leaves */}}
-            
-    {{ $VerifyMsg := (print "🎗️ \n🟨 **<@" $id "> ("  .Message.Author ") Verified.** \n🟨 (ID: " $id ") \n🟨 <t:" currentTime.Unix ">\n🟨 **Time Taken: " (humanizeDurationHours (currentTime.Sub .Member.JoinedAt.Parse)) "** \n<:br:937128105821216898> *Membercount: " .Guild.MemberCount "*" ) }}
-
-    {{ sendMessage $joins $VerifyMsg }}
-
-    {{/* update verification / joindate db */}}
-
-    {{$vcdb := (dbGet 0 "vcount").Value}}
-    {{dbSet 0 "vcount" (add 1 $vcdb)}}
-
-    {{$jdb := (dbGet .User.ID "joindate")}}
-    {{if $jdb}}
-        {{$jinfo := sdict
-        "joined" $jdb.Value.joined
-        "vdate" (print "<t:" currentTime.Unix ">")
-        "left" $jdb.Value.left
-        }}
-        {{dbSet .User.ID "joindate" $jinfo}}
-    {{else}}
-        {{dbSet .User.ID "joindate" (sdict "joined" (print (humanizeDurationHours (currentTime.Sub .Member.JoinedAt.Parse)) " ago" ) "vdate" (print "<t:" currentTime.Unix ">") "left" "Never" ) }}
-    {{end}}
-{{end}}
+{{ sendMessage $joins $VerifyMsg }}

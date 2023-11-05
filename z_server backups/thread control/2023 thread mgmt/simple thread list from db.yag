@@ -1,0 +1,28 @@
+{{/* thread list - executed by other CCs */}}
+
+{{$tlist := 1007040938880815225}} {{/* tlist channel */}}
+{{$mid := 1120150213777162371}} {{/* message ID */}}
+
+
+{{$x := dbTopEntries "threads" 100 0}}
+
+{{/* Get non-archived threads */}}
+{{$open := cslice}}
+{{range .Guild.Threads}}
+    {{- $open = $open.Append .ID -}}
+{{- end}}
+
+
+{{/* Get db info from non-archived threads, exclude personal testing and moderation categories */}}
+{{$list := ""}}
+{{range $x}}
+    {{- if and (in $open .Value.thread.ID ) (ne (toString .Value.catid) "782784819863486464" ) (ne (toString .Value.catid) "750544551046807602" ) -}}
+        {{- $list = print $list "<#" .Value.parent "> **⮞ [" .Value.tname "](https://discord.com/channels/750541618389712896/" .Value.thread.ID ")** \n" -}}
+    {{- end -}}
+{{- end}}
+
+{{/* create embed */}}
+
+{{$prefix := print "<#1019933777826426940> **⮞ [Public Testing](https://discord.com/channels/750541618389712896/1047909689310052392)**\n<#752317819873394780> **⮞ [Server Event History](https://discord.com/channels/750541618389712896/1048773156002861076)**\n\n"}}
+
+{{editMessage $tlist $mid (complexMessageEdit "embed" (cembed "title" "Active Threads" "description" (print $prefix "*Most recently created or revived:*\n" $list "\n\nLast Updated: <t:" currentTime.Unix ":F>" ) ) ) }}

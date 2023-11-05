@@ -1,0 +1,53 @@
+{{/* WELCOME MESSAGE
+Regex trigger: \A
+Set it to only run in main talk channel
+*/}}
+
+
+{{$verified := 1048764993925034065}} {{/* verified role ID */}}
+{{$main := 750541618389712900}}{{/* main talk channel */}}
+{{$id := .Message.Author.ID}} {{/* User ID of person who entered server */}}
+{{$joins := 954832185200898128}} {{/* joins-leaves modlog channel - for successful verifications */}}
+{{$modlog := 970007312632795167 }} {{/* yag-cmd-log */}}
+{{$intros := 1033952269265272863}}
+{{$db := 0}}
+
+{{/* exec'd CCs */}}
+{{$verify := 331 }}
+{{$roles := 332}}
+
+{{/* Manage divider roles */}}
+{{if hasRoleID $verified}}
+  {{execCC $roles nil 0 (sdict "user" $id )}}
+{{return}}
+{{end}}
+
+{{/* legacy verify */}}
+{{if and (ne .Message.Type 7) (not (hasRoleID $verified) )}}
+  {{execCC $verify nil 0 (sdict "user" $id "db" $db) }}
+  {{return}}
+{{end}}
+
+
+{{/* announcement post */}}
+{{$announce := (complexMessage "content" (print "<@" $id "> 🥳") "embed" (cslice (cembed "thumbnail" (sdict "url" "https://bentovid.com/user/images/confettiball.png") "color" 43775 "description"  (print "**Welcome to BentoVid, <@" $id ">!**\nFeel free to jump in any time!")) (cembed "color" 16744192 "description" (print "**Optional things to do**\n\n 🔸 Manage your <id:customize> \n 🔸 Create your <#" $intros ">\n 🔸 `/birthday register` in <#1019933777826426940> / [Public Testing](https://discord.com/channels/750541618389712896/1047909689310052392)\n 🔸 Read <#1049023382680784978>\n\n[More Server Guides](https://bentovid.com/sguides)" )) ))}}
+
+
+
+{{if eq .Message.Type 7}}
+    {{deleteTrigger 1}} 
+    
+    {{$jdb := (dbGet .User.ID "joindate")}}
+    
+
+    {{if $jdb}}
+      {{$db = 1}}
+    {{end}}
+
+  {{if (eq $jdb.Value.vdate "N/A" ) }}{{/* if this is their first time joining */}}
+      {{sendMessage $main $announce }}
+  {{end}}
+
+{{execCC $verify nil 0 (sdict "user" $id "db" $db) }}
+{{end}}
+    
