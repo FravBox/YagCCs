@@ -10,7 +10,7 @@ this is when they click the buttons. */}}
 
 {{$intro := dbGet .User.ID "intro" }}
 {{$intro_modal := sdict
-    "title" "Your BentoVid Introduction"
+    "title" "Your Introduction"
     "custom_id" "intro-text"
     "fields" (cslice
     (sdict "label" "Name" "placeholder" "What you would like to be called." "required" true)
@@ -25,7 +25,7 @@ this is when they click the buttons. */}}
     {{if $intro}}
         {{/* prefill modal for edits */}}
         {{ $intro_modal = sdict
-        "title" "Your BentoVid Introduction"
+        "title" "Your Introduction"
         "custom_id" "intro-text"
          "fields" (cslice
         (sdict "label" "Name" "value" ($intro.Value.name) "required" true)
