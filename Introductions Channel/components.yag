@@ -2,8 +2,8 @@
 component ID: intro
 this is when they click the buttons. */}}
 
-{{$log := 123 }} {{/* log channel - yag cmd log */}}
-{{$ch := 456 }} {{/* intros channel */}}
+{{$log := 123 }} {{/* log channel ID */}}
+{{$ch := 456 }} {{/* intros channel ID */}}
 {{$sticky := 789}} {{/* CC ID for sticky msg */}}
 
 {{/* DO NOT EDIT BELOW */}}
