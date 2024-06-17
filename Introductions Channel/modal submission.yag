@@ -1,0 +1,105 @@
+{{/* Trigger type: modal submission
+component ID: intro
+posts the intro and logs it.
+ */}}
+
+{{/* when they submit the intro modal, edit/create intro messages, save new db stuff, repost sticky msg with buttons */}}
+
+{{$sticky := 346}} {{/* sticky msg CCID */}}
+{{/* Intros channel */}}
+{{$ch := 1234}}
+
+{{/* logging channels */}}
+{{$jl := 567}} 
+
+{{/* DO NOT EDIT BELOW */}}
+
+{{$name := print (index .Values 0) }}
+{{$pronouns := print (index .Values 1) }}
+{{$body := print (index .Values 2) }}
+
+{{/* PREFIX - name, pronouns, & avatar */}}
+{{ $prefix := cembed
+"description" (print "# " $name " (" .User.Mention ")'s Intro\n** " $pronouns "**" )
+"thumbnail" (sdict "url" (.Member.AvatarURL "256") )
+"color" 16744192
+}}
+
+{{$intro_count := (dbCount "intro")}}
+{{$intro := (dbGet .User.ID "intro")}}
+
+
+{{/* check if this is an edit or a new intro */}}
+{{if $intro }}
+    {{/* if this is an edit */}}
+    {{editMessage $intro.Value.ch $intro.Value.msg1 (complexMessageEdit "embed" $prefix)}}
+    {{editMessage $intro.Value.ch $intro.Value.msg2 (print $body)}}
+    
+    {{/* save to db */}}
+    {{$infos := sdict
+    "ch" $ch 
+    "msg1" $intro.Value.msg1
+    "msg2" $intro.Value.msg2
+    "msg3" $intro.Value.msg3
+    "link" $intro.Value.link
+    "name" $name
+    "pronouns" $pronouns
+    "text" $body 
+    "otime" $intro.Value.otime
+    "etime" (print "Last updated at: <t:" currentTime.Unix ":F>")
+    "user" .User.Mention
+    "place" $intro.Value.place
+    }}
+    {{$prevbody := print "Name:\n" $intro.Value.text "\nPronouns:\n" $intro.Value.pronouns "\nIntro:\n" $intro.Value.text}} {{/* save previous intro text */}}
+
+    {{/* overwrite db with new stuff */}}
+    {{dbSet .User.ID "intro" $infos}} 
+
+    {{ephemeralResponse}}
+    Your introduction has been edited. [View it here.]({{$intro.Value.link}})
+
+    {{/* Log edit */}}
+    {{sendMessage $jl (complexMessage "embed" (cembed "description" (print .User.Mention " **(" .User.Globalname ") just posted an [intro](https://discord.com/channels/" .Guild.ID "/" $ch ")** at <t:" currentTime.Unix "> \nFind it [here](" ($infos.Get "link" ) "). \nUser ID: " .User.ID ) "color" 16760265 ) )}}
+
+    {{sendMessage $jl (complexMessage "embed" (cembed "description" (print "**Previous intro content:**\n(original posted " ($intro.Value.otime) ")\n>>> " $prevbody ) ) ) }}
+
+    {{return}}
+{{else}} 
+    {{/* make new intro */}}
+    {{$1 := sendMessageRetID $ch (complexMessage "embed" $prefix)}}
+    {{$2 := sendMessageRetID $ch (print $body) }}
+    {{$3 := sendMessageRetID $ch (print "# ------------") }}
+
+    {{/* save to db */}}
+    {{$infos := sdict 
+        "ch" $ch 
+        "msg1" $1
+        "msg2" $2
+        "msg3" $3
+        "name" $name
+        "pronouns" $pronouns
+        "link" (print ((getMessage $ch $2).Link))
+        "text" $body 
+        "otime" (print "<t:" currentTime.Unix ":R>") 
+        "etime" "Intro is unedited"
+        "user" .User.Mention
+        "place" (add 1 ($intro_count))
+        }}
+    {{dbSet .User.ID "intro" $infos}}
+
+
+    {{execCC $sticky $ch 1 1}}
+
+
+    {{/* Log new */}}
+    {{$new := cembed "description" (print .User.Mention " **(" .User.Globalname ") just posted an [intro](https://discord.com/channels/" .Guild.ID "/" $ch ")** at <t:" currentTime.Unix "> \nFind it [here](" ((getMessage nil $2).Link) "). \nUser ID: " .User.ID ) "color" 16760265}}
+
+    {{sendMessage $jl (complexMessage "embed" $new )}}
+{{ephemeralResponse}}
+Your intro has been posted!
+{{end}}
+
+
+
+
+
