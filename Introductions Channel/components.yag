@@ -1,0 +1,68 @@
+{{/* trigger type: message component
+component ID: intro
+this is when they click the buttons. */}}
+
+{{$log := 123 }} {{/* log channel - yag cmd log */}}
+{{$ch := 456 }} {{/* intros channel */}}
+{{$sticky := 789}} {{/* CC ID for sticky msg */}}
+
+{{/* DO NOT EDIT BELOW */}}
+
+{{$intro := dbGet .User.ID "intro" }}
+{{$intro_modal := sdict
+    "title" "Your BentoVid Introduction"
+    "custom_id" "intro-text"
+    "fields" (cslice
+    (sdict "label" "Name" "placeholder" "What you would like to be called." "required" true)
+    (sdict "label" "Pronouns" )
+    (sdict "label" "About yourself" "placeholder" "Tell us about yourself! What types of vids do you like? What are your social media links?" "style" 2)
+    )
+    }}
+
+{{/* if they click the create/edit button, open this modal */}}
+{{if eq .StrippedID "-create"}}
+    
+    {{if $intro}}
+        {{/* prefill modal for edits */}}
+        {{ $intro_modal = sdict
+        "title" "Your BentoVid Introduction"
+        "custom_id" "intro-text"
+         "fields" (cslice
+        (sdict "label" "Name" "value" ($intro.Value.name) "required" true)
+        (sdict "label" "Pronouns" "value" ($intro.Value.pronouns) )
+        (sdict "label" "About yourself" "value" ($intro.Value.text) "style" 2)
+        )
+        }}
+    {{end}}
+
+    {{sendModal $intro_modal }}
+    {{return}}
+
+{{/* if they click the delete button */}}
+{{else if eq .StrippedID "-del"}}
+    {{if not $intro}}
+        {{ephemeralResponse}}
+        You do not have an intro to delete.
+        {{return}}
+    {{else}}
+
+    {{deleteMessage $intro.Value.ch $intro.Value.msg1 0}}
+    {{deleteMessage $intro.Value.ch $intro.Value.msg2 0}}
+    {{deleteMessage $intro.Value.ch $intro.Value.msg3 0}}
+
+    {{sendResponse .Interaction.Token (complexMessage "content" "Your introduction has been deleted." "ephemeral" true) }}
+
+    {{/* log deletion */}}
+    {{sendMessage $log (complexMessage "embed" (cembed "description" (print .User.Mention " **(" .User.Globalname ") deleted their [intro](https://discord.com/channels/" .Guild.ID "/" $ch ")** at <t:" currentTime.Unix "> \n**Previous intro content:**\n>>> " $intro.Value.name "\n" $intro.Value.text ) 
+    "fields" (cslice
+    (sdict "name" "Details" "value" (print "Originally Posted: " $intro.Value.otime "\n" $intro.Value.etime "\nPlace: " $intro.Value.place ) "inline" false )
+    ))
+    )}}
+
+    {{/* delete db entry */}}
+    {{dbDel .User.ID "intro" }}
+
+    {{/* update sticky msg */}}
+    {{execCC $sticky $ch 1 1}}
+    {{end}}
+{{end}}
