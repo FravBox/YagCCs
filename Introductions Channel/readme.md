@@ -34,6 +34,7 @@ This is a set of 3 commands that makes an introduction channel using buttons and
 - Put the Channel ID of where you want intros logged in the following places:
  - `$log` in `components.yag`
  - `$jl` in `modal submission.yag`
+- Read the notes at the beginning of each command and make sure you set the trigger types and regex properly 
 
 - **To delete intros when a user leaves**, add `del intro on leave.yag` command to your leave message. Change `$modl` to the channel ID of your modlog.
 - On the off-chance you used a previous version of this cc (before buttons were used), you will need to delete all the previous intro db entries or this won't work properly.
