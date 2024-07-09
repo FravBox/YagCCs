@@ -1,7 +1,8 @@
 {{/* thread list - executed by other CCs */}}
 
 {{$tlist := 1007040938880815225}} {{/* tlist channel */}}
-{{$mid := 1120150213777162371}} {{/* message ID */}}
+{{$m1 := 1120150213777162371}} {{/* message ID 1 */}}
+{{$m2 := 1170809421367103538}} {{/* message ID 2 */}}
 
 
 {{$x := dbTopEntries "threads" 100 0}}
@@ -25,4 +26,19 @@
 
 {{$prefix := print "<#1019933777826426940> **⮞ [Public Testing](https://discord.com/channels/750541618389712896/1047909689310052392)**\n<#752317819873394780> **⮞ [Server Event History](https://discord.com/channels/750541618389712896/1048773156002861076)**\n\n"}}
 
-{{editMessage $tlist $mid (complexMessageEdit "embed" (cembed "title" "Active Threads" "description" (print $prefix "*Most recently created or revived:*\n" $list "\n\nLast Updated: <t:" currentTime.Unix ":F>" ) ) ) }}
+{{$time := print "\n\nLast Updated: <t:" currentTime.Unix ":F>" }}
+
+{{/* splits messages for character max */}}
+{{ $xy := slice $list 0 3000 }}
+{{ $yz := split $xy "\n" }}
+{{ $za := slice $yz 0 (len $yz|add -1) }}
+{{ $msg1 := joinStr "\n" $za }} {{/* first message */}}
+{{ $msg2 := slice $list (len $msg1) }} {{/* second message */}}
+
+{{/* m1 */}}
+{{editMessage $tlist $m1 (complexMessageEdit "embed" (cembed "title" "Active Threads I" "description" (print $prefix "*Most recently created or revived:*\n" $msg1 $time ) ) ) }}
+
+{{/* m2 */}}
+{{editMessage $tlist $m2 (complexMessageEdit "embed" (cembed "title" "Active Threads II" "description" (print $msg2 $time ) ) ) }}
+
+
