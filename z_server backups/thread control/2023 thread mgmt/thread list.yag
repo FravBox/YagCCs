@@ -1,204 +1,58 @@
-{{/* Thread List Updater
+{{/* thread list - executed by other CCs */}}
 
-Trigger: none
-exec'd only when saving a db entry or using -tlist
-*/}}
+{{$tlist := 1007040938880815225}} {{/* tlist channel */}}
+{{$m1 := 1120150213777162371}} {{/* message ID 1 */}}
+{{$m2 := 1170809421367103538}} {{/* message ID 2 */}}
 
-{{/* channel messages are in */}}
-{{$tlistch := 1007040938880815225}}
-
-{{/* message IDs for each category */}}
-{{$m1 := 1049137988908630026}} {{/* server - always display Channel List */}}
-{{$m2 := 1049137989772652625}} {{/* events */}}
-{{$m3 := 1049137990607327303}} {{/* general */}}
-{{$m4 := 1049137991685247076}} {{/* editing  - always display daisy chains */}}
-{{$m5 := 1049137992545087578}} {{/* hobbies - art */}}
-{{$m6 := 1049138010802888724}} {{/* hobbies - gaming */}}
-{{$m7 := 1049138011935363073}} {{/* hobbies - R&W */}}
-{{$m8 := 1049138012962963486}} {{/* hobbies - music */}}
-{{$m9 := 1049138014896525372}} {{/* Feeds */}}
-{{$m10 := 1049138032688762950}} {{/* reference - reads from db */}}
-{{$m11 := 1049172518554046465}} {{/* chill zone - custom */}}
-{{$1cat := cslice $m3 $m9 }}
-{{$1ch := cslice $m5 $m6 $m7 $m8}}
-{{$usedb := cslice $m1 $m2 $m4 $m10}}
-
-{{/* categories */}}
-{{$c1 := 751674884765253754}} {{/* server */}}
-{{$c2 := 1048735282528276490}} {{/* events */}}
-{{$c3 := 750541618389712898}} {{/* general */}}
-{{$c4 := 750544584928526487}} {{/* editing */}}
-{{$c5 := 941079048954724462}} {{/* hobbies */}}
-{{$c9 := 894415187807993856}} {{/* feeds */}}
-{{$c10 := 1103417972699177081}}{{/* reference */}}
-
-{{/* special channels */}}
-{{$f4 := 1020192256851980358}} {{/* daisy chain meps */}}
-{{$daisy := $f4}}
-{{$f5 := 941079159684350003}} {{/* hobbies - art */}}
-{{$f6 := 1020367288202969169}} {{/* hobbies - gaming */}}
-{{$f7 := 1020383017866367037}} {{/* hobbies - R&W */}}
-{{$f8 := 750730946915074099}} {{/* hobbies - music */}}
-{{$f10 := 1020719952191299704}} {{/* resources forum channel */}}
-{{$resources := $f10}}
+{{/* cats to ignore */}}
+{{$rice := "1044363817007710309" }}
+{{$modcat := "750544551046807602" }}
+{{$automod := "954856123628912690" }}
+{{$fun := "782784819863486464" }}
 
 
-{{/* info grabbed from triggering CC */}}
-{{$tinfo := .ExecData }}
-{{$category := $tinfo.cid }}
-{{$catname :=  $tinfo.cn }} 
-{{$parent := $tinfo.p }}
-{{$pname := $tinfo.pn }}
+{{$x := dbTopEntries "threads" 100 0}}
 
-{{/* based on category given, update correct message id */}}
-{{$msg := ""}}
-
-{{if eq $category $c1}}
-    {{$msg = $m1}}
-{{else if eq $category $c2}}
-    {{$msg = $m2}}
-{{else if eq $category $c3}}
-    {{$msg = $m3}}
-{{else if eq $category $c4}}
-    {{$msg = $m4}}
-{{else if eq $category $c9}}
-    {{$msg = $m9}}
-{{else if eq $category $c10}}
-    {{$msg = $m10}}
-{{else if eq $category $c5}}{{/* hobbies */}}
-    {{if eq $parent $f5}}{{/* art */}}
-        {{$msg = $m5}}
-    {{else if eq $parent $f6}}{{/* gaming */}}
-        {{$msg = $m6}}
-    {{else if eq $parent $f7}} {{/* R&W */}}
-        {{$msg = $m7}}
-    {{else if eq $parent $f8}} {{/* music */}}
-        {{$msg = $m8}}
-    {{end}}
-{{end}}
-
-
-{{$sdict:= sdict}}
+{{/* Get non-archived threads */}}
+{{$open := cslice}}
 {{range .Guild.Threads}}
-  {{- if $sdict.HasKey (str .ParentID)}}
-    {{- $sdict.Set (str .ParentID) (($sdict.Get (str .ParentID)).Append .ID)}}
-  {{- else}}
-      {{- $sdict.Set (str .ParentID) (cslice .ID)}}
-  {{- end -}}
+    {{- $open = $open.Append .ID -}}
 {{- end}}
 
-{{$cid := ""}}
-{{ $list := "" }}
-{{$tab := joinStr " " " " " "}}
 
-{{if in $1cat $msg}}
-    {{ range $channelID, $threads := $sdict }}
-        {{- $cid = (getChannel $channelID).ParentID -}}
-        {{- if eq $category $cid -}}
-            {{- $list = print $list "\n <#" $channelID "> \n" -}}
-            {{- range $threads -}}
-                {{- $list = print $list $tab "- [" (getChannelOrThread .).Name "](https://discord.com/channels/" $.Guild.ID "/" . ")\n" -}}   
-            {{- end -}}
-        {{- end -}}
-    {{- end }}
-
-    {{editMessage $tlistch $msg (complexMessageEdit "embed" (cembed "title" (title (print $catname )) "description" (print $list "\n Last Updated: <t:" currentTime.Unix ":F>") ) ) }}
-    {{return}}
-
-{{else if in $1ch $msg}}
-    {{ range $channelID, $threads := $sdict }}
-        {{- $cid = (getChannel $channelID).ID -}}
-        {{- if eq $parent $cid -}}
-            {{- range $threads -}}
-                    {{- $list = print $list $tab "- [" (getThread .).Name "](https://discord.com/channels/" $.Guild.ID "/" . ")\n" -}}  
-            {{- end -}} 
-        {{- end -}}
+{{/* Get db info from non-archived threads, exclude personal testing and moderation categories */}}
+{{$list := ""}}
+{{range $x}}
+    {{- if and (in $open .Value.thread.ID ) (ne (toString .Value.catid) $rice ) (ne (toString .Value.catid) $fun ) (ne (toString .Value.catid) $modcat ) (ne (toString .Value.catid) $automod ) -}}
+        {{- $list = print $list "<#" .Value.parent "> **⮞ [" .Value.tname "](https://discord.com/channels/750541618389712896/" .Value.thread.ID ")** \n" -}}
     {{- end -}}
-    
-    {{editMessage $tlistch $msg (complexMessageEdit "embed" (cembed "title" (title (print $catname " - " $pname) ) "description" (print "<#" $parent "> \n" $list "\n Last Updated: <t:" currentTime.Unix ":F>") ) )}}
-    {{return}}
+{{- end}}
 
-{{else if in $usedb $msg}}
-    {{$list2 := ""}}
+{{/* create embed */}}
 
-    {{/* events cat */}}
-    {{if eq $msg $m2}}
-        {{ range $channelID, $threads := $sdict }}
-            {{- $cid = (getChannel $channelID).ParentID -}}
-            {{- if eq $category $cid -}}
-                {{- $list = print $list "\n <#" $channelID "> \n" -}}
-                {{- range $threads -}}
-                    {{- $list = print $list $tab "- [" (getChannelOrThread .).Name "](https://discord.com/channels/" $.Guild.ID "/" . ")\n" -}}   
-                {{- end -}}
-            {{- end -}}
-        {{- end }}
-    
-        {{editMessage $tlistch $msg (complexMessageEdit "embed" (cembed "title" (title (print $catname )) "description" (print "<#752317819873394780> \n" $tab "- [Server Event History](https://discord.com/channels/750541618389712896/1048773156002861076) \n" $list "\n Last Updated: <t:" currentTime.Unix ":F>") ) ) }}
-        {{return}}
-    {{end}}
+{{$prefix := print "<#1019933777826426940> **⮞ [Public Testing](https://discord.com/channels/750541618389712896/1047909689310052392)**\n<#1019933777826426940> **⮞ [Hourly Trivia](https://discord.com/channels/750541618389712896/1194700980890112090)**\n\n"}}
 
+{{$time := print "\n\nLast Updated: <t:" currentTime.Unix ":F>" }}
 
-    {{/* server cat */}}
-    {{if eq $msg $m1}}
-        {{/* suggestion threads */}}
-        {{ range $channelID, $threads := $sdict }}
-            {{- $cid = (getChannel $channelID).ID -}}
-            {{- if eq $parent $cid -}}
-                {{- range $threads -}}
-                        {{- $list = print $list $tab "- [" (getThread .).Name "](https://discord.com/channels/" $.Guild.ID "/" . ")\n" -}}  
-                {{- end -}} 
-            {{- end -}}
-        {{- end -}}
+{{/* if it's over 1 message, split it */}}
+{{if (gt (len $list) 3000)}}
 
-        {{editMessage $tlistch $msg (complexMessageEdit "embed" (cembed "title" (title (print $catname )) "description" (print "<#750544650523246623> \n" $tab "- [Channel List](https://discord.com/channels/750541618389712896/947228770681634926) \n\n <#751086832959094894> \n" $list "\n Last Updated: <t:" currentTime.Unix ":F>") ) ) }}
-        {{return}}
-    {{end}}
+	{{ $xy := slice $list 0 3000 }}
+	{{ $yz := split $xy "\n" }}
+	{{ $za := slice $yz 0 (len $yz|add -1) }}
+	{{ $msg1 := joinStr "\n" $za }} {{/* first message */}}
+	{{ $msg2 := slice $list (len $msg1) }} {{/* second message */}}
 
+	{{/* m1 */}}
+	{{editMessage $tlist $m1 (complexMessageEdit "embed" (cembed "title" "Active Threads I" "description" (print $prefix "*Most recently created or revived:*\n" $msg1 $time ) ) ) }}
 
-    {{/* Reference cat */}}
-    {{if eq $msg $m10}}
-        {{ range $channelID, $threads := $sdict }}
-            {{- $cid = (getChannel $channelID).ParentID -}}
-            {{- if and (eq $category $cid) (ne ((getChannelOrThread $channelID).ID) $resources) -}}
-                {{- $list = print $list "\n <#" $channelID "> \n" -}}
-                {{- range $threads -}}
-                    {{- $list = print $list $tab "- [" (getChannelOrThread .).Name "](https://discord.com/channels/" $.Guild.ID "/" . ")\n" -}}   
-                {{- end -}}
-            {{- end -}}
-        {{- end }}
-        {{ range (dbTopEntries "threads" 100 0 ) -}}
-            {{- if eq $catname .Value.cat}}
-                {{- $list2 = print $list2 $tab "- [" .Value.tname "](https://discord.com/channels/" $.Guild.ID "/" .Value.thread.ID ")\n" -}}
-            {{- end -}}
-        {{- end -}}
-        
-        {{editMessage $tlistch $msg (complexMessageEdit "embed" (cembed "title" (title (print $catname )) "description" (print "<#" $resources ">\n" $list2 "\n" $list "\nLast Updated: <t:" currentTime.Unix ":F>") ) ) }}
-        {{return}}
-    {{end}}
+	{{/* m2 */}}
+	{{editMessage $tlist $m2 (complexMessageEdit "embed" (cembed "title" "Active Threads II" "description" (print $msg2 $time ) ) ) }}
+{{else}}
 
+{{/* m1 */}}
+	{{editMessage $tlist $m1 (complexMessageEdit "embed" (cembed "title" "Active Threads I" "description" (print $prefix "*Most recently created or revived:*\n" $list $time ) ) ) }}
 
-    {{/* editing cat */}}
-    {{if eq $msg $m4}}
-        {{ range $channelID, $threads := $sdict }}
-            {{- $cid = (getChannel $channelID).ParentID -}}
-            {{- if eq $category $cid -}}
-                {{- if ne $daisy ((getChannel $channelID).ID) -}}
-                    {{- $list = print $list "\n <#" $channelID "> \n" -}}
-                    {{- range $threads -}}
-                        {{- $list = print $list $tab "- [" (getChannelOrThread .).Name "](https://discord.com/channels/" $.Guild.ID "/" . ")\n" -}}   
-                    {{- end -}}
-                {{- else -}}
-                    {{- range (dbTopEntries "threads" 100 0 ) -}}
-                        {{- if and (reFind `(?i)open` .Value.tname) (eq $daisy .Value.parent)}}
-                            {{- $list2 = print $list2 $tab "- [" .Value.tname "](https://discord.com/channels/" $.Guild.ID "/" .Value.thread.ID ")\n" -}}
-                        {{- end -}}
-                    {{- end -}}
-                {{- end -}}
-            {{- end -}}
-        {{- end }}
-
-        {{editMessage $tlistch $msg (complexMessageEdit "embed" (cembed "title" (title (print $catname )) "description" (print $list "\n <#" $daisy ">\n" $tab "- [General Chat](https://discord.com/channels/750541618389712896/1020207724983750676) \n" $list2 "\n Last Updated: <t:" currentTime.Unix ":F>") ) ) }}
-        {{return}}
-    {{end}}
-
+	{{/* m2 */}}
+	{{editMessage $tlist $m2 (complexMessageEdit "embed" (cembed "title" "Active Threads II" "description" (print " " $time ) ) ) }}
 {{end}}

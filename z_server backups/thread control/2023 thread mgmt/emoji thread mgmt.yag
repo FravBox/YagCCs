@@ -19,8 +19,8 @@ Trigger: added and removed reactions
 
 {{/* emojis */}}
 {{$pin := "📌"}}
-{{$removepinner := ":removepinner:1120156858993356840"}}
-{{$addpinner := ":addpinner:1120156833991118849"}}
+{{$removepinner := "removepinner:1120156858993356840"}}
+{{$addpinner := "addpinner:1120156833991118849"}}
 {{$success:= "✅"}}
 {{$confuse := "❓"}}
 {{$save := "💾"}}
@@ -158,16 +158,16 @@ Trigger: added and removed reactions
     {{if (eq $save .Reaction.Emoji.APIName )}}
         {{dbSet .Channel.ID "threads" $tinfo}}
         {{addReactions $success}}
-        {{ execCC $tlist}} {{/* update thread list */}}
+        {{ execCC $tlist nil 0 $tinfo}} {{/* update thread list */}}
         {{sleep 5}}
         {{deleteMessageReaction nil .Message.ID 204255221017214977 $success}}
         {{return}}
     
     {{/* delete db entry */}}
-    {{else if $del .Reaction.Emoji.APIName}}
+    {{else if (eq $del .Reaction.Emoji.APIName) }}
         {{dbDel .Channel.ID "threads"}}
         {{addReactions $success}}
-        {{ execCC $tlist nil $tinfo}} {{/* update thread list */}}
+        {{execCC $tlist nil 0 $tinfo}} {{/* update thread list */}}
         {{sleep 5}}
         {{deleteMessageReaction nil .Message.ID 204255221017214977 $success}}
         {{return}}

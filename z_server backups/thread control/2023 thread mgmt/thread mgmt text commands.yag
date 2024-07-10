@@ -11,6 +11,17 @@ Regex:
     {{return}}
 {{end}}
 
+{{define "tlist"}}
+    {{/* updates thread list */}}
+    {{$ccid := 314}} {{/* CC ID for tlist */}}
+            {{execCC $ccid nil 0 (sdict 
+            "cn" (.Get "cat")
+            "cid" (.Get "catid")
+            "p" (.Get "parent")
+            "pn" (.Get "pname")
+            )}}
+{{end}}
+
 {{/* channels */}}
 {{$side := 750544732450717728}}
 {{$log := 1007036301717016706}}
@@ -139,11 +150,13 @@ Regex:
     {{end}}
 
 {{/* let thread OPs use @everyone & @here */}}
+{{if not (reFind `\x60@` .Message.Content)}} {{/* only continue if no code tick */}}
     {{if and (reFind `@(?:here)` .Message.Content) (eq .Channel.OwnerID .User.ID) }}
         {{sendMessageNoEscape nil (complexMessage "reply" .Message.ID "content" "@here") }}
     {{else if and (reFind `@(?:everyone)` .Message.Content) (eq .Channel.OwnerID .User.ID)}}
         {{sendMessageNoEscape nil (complexMessage "reply" .Message.ID "content" "@everyone") }}
     {{end}}
+{{end}}
 
 {{/* db cmds 4mods */}}
     {{if and (reFind `^-t` .Message.Content) (hasRoleID $staff)}}

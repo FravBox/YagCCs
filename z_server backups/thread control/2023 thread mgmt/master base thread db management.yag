@@ -3,7 +3,7 @@ Base Thread Management (db management)
 Trigger: \A
 */}}
 
-{{if or (not .Channel.IsThread) (eq .Channel.ID 1048773156002861076)}}
+{{if and (not .Channel.IsThread) (ne .Message.Type 21)}}
     {{return}}
 {{end}}
 
@@ -22,16 +22,19 @@ Trigger: \A
 {{/* channels */}}
 {{$side := 750544732450717728}}
 {{$log := 1007036301717016706}}
+
 {{$here := .Channel.ID}} {{/* current channel */}}
 {{/* cats to ignore */}}
 {{$modcat := 750544551046807602}}
-{{$chillcat := 782784819863486464}}
+{{$automod := 954856123628912690 }}
+{{$chillcat := 782784819863486464}} {{/* fun */}}
+{{$rice := 1044363817007710309 }}
 {{/* mod role */}}
 {{$staff := 750543521227866215}}
 {{/* emojis */}}
 {{$pin := "📌"}}
-{{$delpinner := ":removepinner:1120156858993356840"}}
-{{$addpinner := ":addpinner:1120156833991118849"}}
+{{$delpinner := "removepinner:1120156858993356840"}}
+{{$addpinner := "addpinner:1120156833991118849"}}
 {{$success:= "✅"}}
 {{$confuse := "❓"}}
 {{/* Yag ID */}}
@@ -49,9 +52,14 @@ Trigger: \A
 {{ $sfx := print "\n\n[Jump to post](" .Message.Link ") | <#" .Channel.ID "> | [Link to thread](https://discord.com/channels/" .Guild.ID "/" .Channel.ID ")" }}
 {{ $ftr := (sdict "text" (print "Channel ID " .Channel.ID " | From " .User.String " (ID: " .User.ID ")") )}}
 
+{{$msg := .Message.Content }}
+{{if eq 21 .Message.Type}}
+    {{$msg = (getMessage .Channel.ParentID ((getMessage nil .Message.ID).MessageReference).MessageID).Content }}
+{{end}}
+
 {{ $tcreate := cembed 
 "title" (print " 🆕 " $tname  )
-"description" (print "**" .User.Mention "** posted **" $tlink "** from <#" .Channel.ParentID "> on <t:" currentTime.Unix ":F>." $sfx "\n**The Message:** \n >>> " .Message.Content )
+"description" (print "**" .User.Mention "** posted **" $tlink "** from <#" .Channel.ParentID "> on <t:" currentTime.Unix ":F>." $sfx "\n**The Message:** \n >>> " $msg )
 "footer" $ftr
 "color" $c1
 }}
@@ -91,13 +99,17 @@ Trigger: \A
     {{dbSet .Channel.ID "threads" $tinfo }}
     
     {{if and (eq .Message.Author.ID .Channel.OwnerID) (eq (weekNumber currentTime) ((weekNumber (snowflakeToTime $here))) ) }} 
+	{{try}}
         {{pinMessage nil .Message.ID}} {{/* pin 1st msg if found */}}
+        {{catch}} {{end}}
+        {{if and (ne $tinfo.catid $modcat ) (ne $tinfo.catid $automod )}}
+            {{sendMessage nil $opinfo}} {{/* explain pin mgmt */}}
+        {{end}}
 
-        {{sendMessage nil $opinfo}} {{/* explain pin mgmt */}}
     {{end}}
 
 
-    {{if and (ne $tinfo.catid $modcat) (ne $tinfo.catid $chillcat)}}
+    {{if and (ne $tinfo.catid $modcat) (ne $tinfo.catid $automod ) (ne $tinfo.catid $chillcat) (ne $tinfo.catid $rice) }}
         {{sendMessage $side $tcreate}} {{/* send to side chat */}}
         {{ template "tlist" $tinfo }} {{/* update tlist */}}
     {{end}}
