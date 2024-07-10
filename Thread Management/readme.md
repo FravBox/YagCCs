@@ -26,6 +26,9 @@ Tell people the thread was created in a news channel to boost engagement. (I thr
 
 ## Manage Pinners (people who can pin messages)
 
+![image](https://github.com/FravBox/YagCCs/assets/20410737/0ad77478-6697-43b6-ab76-f7c4704e8b26)
+
+
 Thread OPs and people with a mod role can add additional people as "pinners" who can manage pinned messages on their behalf.     
 To toggle a person's pinner status, reply to any of their messages with `pinner`.     
 There's an emoji add-on that can use reactions to do this.      
