@@ -19,7 +19,8 @@ See when threads are created and renamed.
 
 ## Announces thread creation
 
-[screenshot here]
+![image](https://github.com/FravBox/YagCCs/assets/20410737/d0b6f820-5e50-4ee4-95ae-5bc4ae5fa348)
+
 
 Tell people the thread was created in a news channel to boost engagement. (I throw it in one of the general chat channels.)
 
