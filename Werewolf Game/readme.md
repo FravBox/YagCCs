@@ -5,6 +5,7 @@ Installing it and playing requires no coding knowledge. It will work as-is. Howe
 
 ## How to play
 The game is so simple, that in order to make it fun, you should NOT actually tell the players how it works. They should only know the following rules:
+
 ---
 **To interact with the werewolf:**    
 You have to use simple commands.    
