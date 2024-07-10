@@ -1,8 +1,8 @@
 # THREAD MANAGEMENT - ABOUT 
 **A set of custom commands for all sorts of Thread features!**    
-There are 2 custom commands. You should use both, but it will work with only 1 (`master base thread management.yag`). If you plan to only use 1, you will probably have to edit the code more than what the initial install requires.
+There are 2 custom commands. You should use both.
 
-The example images below may look slightly different from what you will experience. I've redone this CC quite a few times and reused the screenshots because I'm lazy.
+*The example images below may look slightly different from what you will experience. I've redone this CC quite a few times and reused the screenshots because I'm lazy.*
 
 --------
 
@@ -17,33 +17,33 @@ Also sends a message about how to use the thread management tools.
 
 ## Logging
 
-![image](https://user-images.githubusercontent.com/20410737/181127576-629fedd2-bbbd-4cea-9557-281c96e0f3c0.png)      
 See when threads are created and renamed.
+
+![image](https://user-images.githubusercontent.com/20410737/181127576-629fedd2-bbbd-4cea-9557-281c96e0f3c0.png)      
+
 
 ## Announces thread creation
 
-![image](https://github.com/FravBox/YagCCs/assets/20410737/d0b6f820-5e50-4ee4-95ae-5bc4ae5fa348)
-
-
 Tell people the thread was created in a news channel to boost engagement. (I throw it in one of the general chat channels.)
 
+![image](https://github.com/FravBox/YagCCs/assets/20410737/d0b6f820-5e50-4ee4-95ae-5bc4ae5fa348)
+
 ## Manage Pinners (people who can pin messages)
-
-![image](https://github.com/FravBox/YagCCs/assets/20410737/0ad77478-6697-43b6-ab76-f7c4704e8b26)
-
 
 Thread OPs and people with a mod role can add additional people as "pinners" who can manage pinned messages on their behalf.     
 To toggle a person's pinner status, reply to any of their messages with `pinner`.     
 There's an emoji add-on that can use reactions to do this.      
 Anyone can use the text command `-pinners` to list who the pinners for that thread are.
 
+![image](https://github.com/FravBox/YagCCs/assets/20410737/0ad77478-6697-43b6-ab76-f7c4704e8b26)
 
 ## Manage Pinned Messages
 
-![image](https://user-images.githubusercontent.com/20410737/181127916-5cd2e538-8a4b-467e-8c85-c9368a2e7b62.png)      
 The Thread OP, a mod role, and any Pinners can pin and unpin messages in their thread.      
 Included in the main command, these people can reply to any post with "pin" or "unpin" to pin/unpin the message they replied to.      
 Optionally, an additional command can perform these actions with reactions.
+
+![image](https://user-images.githubusercontent.com/20410737/181127916-5cd2e538-8a4b-467e-8c85-c9368a2e7b62.png)      
 
 ## Mention `@Everyone` and `@Here`
 
@@ -67,13 +67,12 @@ Delete the db info (in most cases you'd want to use `-tsave` instead). Also has 
 There are 2 commands. You should use both. Add `master base thread management.yag` first. This handles the thread database and all the text commands.      
 The second command is `emoji thread mgmt.yag` which lets you use emoji reactions so you don't have to type commands.
 
-**If you used an older version of this command**      
-This is backwards compatible!    
+**If you used an older version of this command**, this is backwards compatible!    
 <details><summary>But here are the changes you might care about</summary>
-- This works for all free users; you shouldn't have to worry about hitting db limits anymore.
-- Old CC guessed who the thread OP was. This version *actually knows* who the Thread OP is.
-- I took out the "thread list" part completely. There's just no way to make this universally work for everyone. Please code your own custom solution; sorry.
-- Otherwise, this is functionally the same CC but with the added "pinners" and "@everyone/here" features.
+* This works for all free users; you shouldn't have to worry about hitting db limits anymore.
+* Old CC guessed who the thread OP was. This version *actually knows* who the Thread OP is.
+* I took out the "thread list" part completely. There's just no way to make this universally work for everyone. Please code your own custom solution; sorry.
+* Otherwise, this is functionally the same CC but with the added "pinners" and "@everyone/here" features.
 </details>
 
 
@@ -119,7 +118,7 @@ Don't edit anything below the `do not edit below` line.
 # Final Note
 
 If you have trouble with this CC, feel free to try to contact me (@standardquip) in the YAGPDB support server.      
-However, I would highly recommend you instead try to figure out how this CC works and modify it to your own custom needs, instead. It is very difficult to have a "universal" CC that covers something complex like this. It's much easier to hardcode in your own channel and category IDs and such (in my opinion). 
+However, I would highly recommend you instead try to figure out how this CC works and modify it to your own custom needs. It is very difficult to have a "universal" CC that covers something complex like this. It's much easier to hardcode in your own channel and category IDs and such (in my opinion). 
 
 If you know how to code, you can look at what I currently use for the thread management in my server, [here](https://github.com/FravBox/YagCCs/tree/main/z_server%20backups/thread%20control/2023%20thread%20mgmt). (Note that copy/pasting that into your CCs WILL NOT WORK.). I comment my code pretty heavily, so hopefully it's easy enough to read.
 
