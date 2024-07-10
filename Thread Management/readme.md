@@ -12,6 +12,9 @@ The example images below may look slightly different from what you will experien
 
 Also sends a message about how to use the thread management tools.
 
+![image](https://github.com/FravBox/YagCCs/assets/20410737/7e060596-8197-4808-81d2-6ea2961ca863)
+
+
 ## Logging
 
 ![image](https://user-images.githubusercontent.com/20410737/181127576-629fedd2-bbbd-4cea-9557-281c96e0f3c0.png)      
