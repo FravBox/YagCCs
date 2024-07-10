@@ -69,10 +69,10 @@ The second command is `emoji thread mgmt.yag` which lets you use emoji reactions
 
 **If you used an older version of this command**, this is backwards compatible!    
 <details><summary>But here are the changes you might care about</summary>
-* This works for all free users; you shouldn't have to worry about hitting db limits anymore.
-* Old CC guessed who the thread OP was. This version *actually knows* who the Thread OP is.
-* I took out the "thread list" part completely. There's just no way to make this universally work for everyone. Please code your own custom solution; sorry.
-* Otherwise, this is functionally the same CC but with the added "pinners" and "@everyone/here" features.
+<ul><li>This works for all free users; you shouldn't have to worry about hitting db limits anymore.</li>
+<li>Old CC guessed who the thread OP was. This version *actually knows* who the Thread OP is.</li>
+<li>I took out the "thread list" part completely. There's just no way to make this universally work for everyone. Please code your own custom solution; sorry.</li>
+<li>Otherwise, this is functionally the same CC but with the added "pinners" and "@everyone/here" features.</li></ul>
 </details>
 
 
