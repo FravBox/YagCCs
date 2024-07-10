@@ -1,4 +1,6 @@
 # Ping Lists
+
+## This might not actually work, sorry. 
 You can create a personalized ping list for informal events! You must install both commands for it to work.
 
 **Create a ping list**
