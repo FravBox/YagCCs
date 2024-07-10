@@ -1,5 +1,5 @@
 # License
-You can use my (Vars#3616 / Fravbox) code & edit it however you want **except the stuff in server backups & things by people other than me.**     
+You can use my (@standardquip / Fravbox) code & edit it however you want **except the stuff in server backups & things by people other than me.**     
 If another user is credited, you must keep the credit in the code. If the code is in my server backups folder, please ask before using it.
 
 # How To Use
@@ -31,7 +31,7 @@ Delete posts from YAGPDB with an emoji. Has several custom options.
 <details>
 <summary>Introductions Channel</summary>
 
-Allows users to post once in a channel and then never again. Deletes new posts and keeps the original one. Logs when people make the first post and logs again when they make another attempt. Deletes the original post when the user leaves the server. Also good for advertising channels.
+Uses buttons and modals (form submission) to post introductions to a channel. Easily allow people to edit their own intros. Deletes intros when people leave the server.
 </details>
 
 <details>
@@ -41,29 +41,14 @@ If someone is muted or timed out and then leaves while they're still muted/timed
 </details>
 
 <details>
-<summary>Misc</summary>
-
-- Basic server stats     
-- Improved bookmark commands      
-- MessagePreview    
-</details>
-
-<details>
- <summary>Ping List</summary>
- Allow users to create and manage a user ping list through Yag.
+<summary>Ping List</summary>
+Allow people to create their own ping lists. Might not work. Untested.
 </details>
 
 <details>
 <summary>Prompts</summary>
 
 A very basic system that allows users to submit prompts for writing, art, etc. Yag collects them, randomizes them, and then posts them periodically.
-
-</details>
-
-<details>
-<summary>Reaction tickets</summary>
-
-VERY Basic "make a ticket when clicking a reaction" command.
 
 </details>
 
@@ -90,13 +75,19 @@ Random quick reference for snippets & templates.
 </details>
 
 <details>
-<summary>Thread Management</summary>
+<summary>Thread Management (most useful of all my CCs!!)</summary>
  
  * Thread Pins    
 Allows the author of the first message in a thread to manage pins in the thread via post replies.
 
  * Thread Creation Log     
  Sends a log message to a specific channel when a thread is created
+
+ * Manage pinners
+ Allows Thread OPs to assign other people to be able to pin messages in that thread too
+
+ * Mention everyone & here
+ Thread OPs can do this through yag
 
 </details>
 
@@ -107,6 +98,25 @@ An entire verification system based on reacting with a specific emoji to a speci
 This is probably my most user-friendly code in the repo.
 
 Also has a nice join and leave message template.
+</details>
+
+<details>
+<summary>Werewolf Game</summary>
+Simple text-based word game where people in a channel try to take care of a werewolf problem. NOT a social deduction game. The bot is the werewolf.
+</details>
+
+<details>
+<summary>Misc</summary>
+
+- Basic server stats     
+- Improved bookmark commands      
+- MessagePreview    
+</details>
+
+<details>
+<summary>Reaction tickets</summary>
+
+VERY Basic "make a ticket when clicking a reaction" command.
 
 </details>
 
