@@ -2,6 +2,8 @@
 trigger type: command
 trigger: wwcreate
 
+you need to run this in the werewolf game channel and you should probably limit it so only a mod role can use it.
+
 More info: https://github.com/FravBox/YagCCs
 */}}
 
