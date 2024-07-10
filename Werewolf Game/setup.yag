@@ -1,6 +1,6 @@
 {{/* start a new werewolf game
 trigger type: command
-trigger: createww
+trigger: wwcreate
 
 More info: https://github.com/FravBox/YagCCs
 */}}
