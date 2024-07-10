@@ -32,7 +32,7 @@ Tell people the thread was created in a news channel to boost engagement. (I thr
 
 Thread OPs and people with a mod role can add additional people as "pinners" who can manage pinned messages on their behalf.     
 To toggle a person's pinner status, reply to any of their messages with `pinner`.     
-There's an emoji add-on that can use reactions to do this.      
+You can also use reactions to do this.      
 Anyone can use the text command `-pinners` to list who the pinners for that thread are.
 
 ![image](https://github.com/FravBox/YagCCs/assets/20410737/0ad77478-6697-43b6-ab76-f7c4704e8b26)
@@ -41,14 +41,14 @@ Anyone can use the text command `-pinners` to list who the pinners for that thre
 
 The Thread OP, a mod role, and any Pinners can pin and unpin messages in their thread.      
 Included in the main command, these people can reply to any post with "pin" or "unpin" to pin/unpin the message they replied to.      
-Optionally, an additional command can perform these actions with reactions.
+The 2nd command allows for these actions to be done with reactions.
 
 ![image](https://user-images.githubusercontent.com/20410737/181127916-5cd2e538-8a4b-467e-8c85-c9368a2e7b62.png)      
 
 ## Mention `@Everyone` and `@Here`
 
 If Thread OPs mention `@everyone` or `@here`, Yag will make sure those people are pinged inside the thread.    
-(note these only ping current members of the thread, not all user of a server)
+(note these only ping current members of the thread, not all users of a server)
 
 ## Text commands for Mods
 
