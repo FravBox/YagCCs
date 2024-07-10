@@ -16,8 +16,8 @@ https://github.com/FravBox/YagCCs/
 
 {{/* emojis */}}
 {{$pin := "📌"}}
-{{$removepinner := ":removepinner:9999"}}
-{{$addpinner := ":addpinner:9999"}}
+{{$removepinner := "removepinner:9999"}}
+{{$addpinner := "addpinner:9999"}}
 {{$success:= "✅"}}
 {{$confuse := "❓"}}
 {{$save := "💾"}}

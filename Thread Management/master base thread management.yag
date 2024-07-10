@@ -5,7 +5,7 @@ Trigger: \A
 https://github.com/FravBox/YagCCs/ for how to edit/use
 */}}
 
-{{if not .Channel.IsThread}}
+{{if and (not .Channel.IsThread) (ne .Message.Type 21)}}
     {{return}}
 {{end}}
 
@@ -18,8 +18,8 @@ https://github.com/FravBox/YagCCs/ for how to edit/use
 {{$staff := 44444444}}
 {{/* emojis */}}
 {{$pin := "📌"}}
-{{$delpinner := ":removepinner:9999"}}
-{{$addpinner := ":addpinner:9999"}}
+{{$delpinner := "removepinner:9999"}}
+{{$addpinner := "addpinner:9999"}}
 {{$success:= "✅"}}
 {{$confuse := "❓"}}
 {{/* embed colors */}}
@@ -37,9 +37,14 @@ https://github.com/FravBox/YagCCs/ for how to edit/use
 {{ $sfx := print "\n\n[Jump to post](" .Message.Link ") | <#" .Channel.ID "> | [Link to thread](https://discord.com/channels/" .Guild.ID "/" .Channel.ID ")" }}
 {{ $ftr := (sdict "text" (print "Channel ID " .Channel.ID " | From " .User.String " (ID: " .User.ID ")") )}}
 
+{{$msg := .Message.Content }}
+{{if eq 21 .Message.Type}}
+    {{$msg = (getMessage .Channel.ParentID ((getMessage nil .Message.ID).MessageReference).MessageID).Content }}
+{{end}}
+
 {{ $tcreate := cembed 
-"title" (print " \"" $tname "\" Created" )
-"description" (print "**" .User.Mention "** started **" $tlink "** from <#" .Channel.ParentID "> on <t:" currentTime.Unix ":F>." $sfx )
+"title" (print " 🆕 " $tname  )
+"description" (print "**" .User.Mention "** posted **" $tlink "** from <#" .Channel.ParentID "> on <t:" currentTime.Unix ":F>." $sfx "\n**The Message:** \n >>> " $msg )
 "footer" $ftr
 "color" $c1
 }}
