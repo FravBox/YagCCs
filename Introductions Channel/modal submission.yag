@@ -20,7 +20,7 @@ posts the intro and logs it.
 
 {{/* PREFIX - name, pronouns, & avatar */}}
 {{ $prefix := cembed
-"description" (print "# " $name " (" .User.Mention ")'s Intro\n** " $pronouns "**" )
+"description" (print "# " $name " \n###" .User.Mention "\n** " $pronouns "**" )
 "thumbnail" (sdict "url" (.Member.AvatarURL "256") )
 "color" 16744192
 }}
