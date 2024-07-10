@@ -4,6 +4,7 @@ I had a fever dream so I coded this in about 3 hours. It's a text-based game whe
 Installing it and playing requires no coding knowledge. It will work as-is. However, I'm sure with just basic knowledge of regex and CCs, you could probably make this game much better and personalized.
 
 ## How to play
+
 The game is so simple, that in order to make it fun, you should NOT actually tell the players how it works. They should only know the following rules:
 
 ---
