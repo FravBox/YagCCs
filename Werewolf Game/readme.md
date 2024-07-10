@@ -33,7 +33,8 @@ Every message you make has an impact, even just chatting without actually doing 
 
 
 ## Mechanics   
-The game is, like I said, extremely simple. It starts with 1 werewolf at 100 HP. All werewolves have a shared HP pool, so additional werewolves double the HP pool. When HP reaches 0, the players win and the game is over.     
+The game is, like I said, extremely simple. It starts with 1 werewolf at 100 HP. All werewolves have a shared HP pool, so additional werewolves double the HP pool.       
+When HP reaches 0, the players win and the game is over.     
 There is no losing condition.     
 Players have an infinite amount of time to play.
 
