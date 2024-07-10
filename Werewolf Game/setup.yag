@@ -1,0 +1,26 @@
+{{/* start a new werewolf game
+trigger type: command
+trigger: createww
+
+More info: https://github.com/FravBox/YagCCs
+*/}}
+
+{{$werewolf := dict
+"hp" 100
+"ww" 1
+"cure" 0
+}}
+
+{{dbSet .Channel.ID "werewolf" $werewolf }}
+# There's a werewolf roaming in this channel! What can we do about it?! 😱
+**To interact with the werewolf:**
+You have to use simple commands.
+"I/we/the chat" does thing to/at "werewolf"
+(Your sentence has to begin with a pronoun and end with werewolf)
+
+If there was no response, that was not one of the commands. 
+
+**Your goal is to get rid of the werewolf**
+(It is NOT a social deduction game; the bot is the werewolf)
+
+Every message you make has an impact, even just chatting without actually doing anything to the werewolf.

@@ -1,0 +1,200 @@
+{{/* werewolf game
+trigger type: regex
+trigger: \A
+Make sure to limit this command so it only works in ONE channel
+More info: https://github.com/FravBox/YagCCs
+*/}}
+
+{{- $db := (dbGet .Channel.ID "werewolf") -}}
+{{- if $db -}}
+
+{{- $roll := randInt 1 101 -}}
+{{- $dmg := randInt 1 11 -}}
+{{- $chars := 50 -}}
+ 
+{{- $wwdb := $db.Value -}}
+
+{{- /* win game */ -}}
+{{- if (le $wwdb.hp 0) -}}
+# You did it! The werewolf is no more! :tada:
+
+{{- dbDel .Channel.ID "werewolf" -}}
+{{- return -}}
+{{- end -}}
+
+{{- /* no negative numbers for cures */ -}}
+{{- $cure := $wwdb.cure -}}
+{{- if (lt $wwdb.cure 0) -}}
+    {{- $cure = 0 -}}
+{{- end -}}
+
+{{- /* at least 1 werewolf */ -}}
+{{- $wwc := $wwdb.ww -}}
+{{- if (lt $wwc 1) -}}
+    {{- $wwc = 1 -}}
+{{- end -}}
+
+
+{{- $ww := dict
+"hp" $wwdb.hp
+"ww" $wwc
+"cure" $cure -}}
+
+{{- $add := (add $dmg $wwdb) -}}
+
+{{/* reduce refinds */ -}}
+{{- $c := 0 -}}
+
+{{- /* if cure is mentioned */ -}}
+{{- if reFind `(?i)cure` .Message.Content -}}
+    {{$c = 1 -}}
+{{- end -}}
+
+{{- /* if cmd ends in werewolf */ -}}
+{{- $w := 0 -}}
+{{- if reFind `(?i)(werewolf|werewolves|lycanthropy)(\!?|\??|\.?)$` .Message.Content -}}
+    {{- $w = 1 -}}
+{{- end -}}
+
+
+
+{{- /* count chars */ -}}
+{{- if ge (len .Message.Content) $chars -}}
+	{{- if ge $roll 80 -}}
+        {{- /* ww HP down */ -}}
+{{sendMessage nil "*The werewolf appears to be getting weaker...*" }}
+
+        {{- $ww.Set "hp" ( sub ($ww.Get "hp") $dmg) -}}
+    {{- end -}}
+{{- else if and (le (len .Message.Content) $chars) (le $roll 10) -}}
+        {{- /* ww HP up */ -}}
+        {{sendMessage nil "*The werewolf appears to be getting stronger...* <:wtf:750776515377233961> " }}
+
+        {{- $ww.Set "hp" (add ($ww.Get "hp") $dmg) -}}
+{{- end -}}
+
+{{- /* New werewolves */ -}}
+{{- if and (eq $w 1) (reFind `(?i)(I( ?)((((want to|wanna)) be)|(wish I (was|were))|am|\'m))|((can I be|make me)?)( ?)` .Message.Content) -}}
+    {{- if ge $roll 50 -}}
+        {{sendMessage nil "*Another werewolf has appeared!* :scream: "}}
+
+        {{- $ww.Set "ww" (add ($ww.Get "ww") 1) -}}
+        {{- $ww.Set "hp" (mult ($ww.Get "hp") 2) -}}
+        {{sendMessage nil (print "`There are currently " ($ww.Get "ww") " werewolves surrounding the chat.`") }}
+
+    {{- end -}}
+{{- end -}}
+
+
+{{- /* making a cure */ -}}
+{{- if and (reFind `(?i)((I|we|chat)?)( ?)(make|made|create|concoct|invent|mix)( ?)((a?) cure)` .Message.Content) (eq $w 1) -}}
+    {{- if ge $roll 50 -}}
+        {{sendMessage nil " :tada: *You successfully created a cure for lycanthropy! What are you going to do with it now?* " }}
+
+        {{- $ww.Set "cure" (add ($ww.Get "cure") 1) -}}
+{{sendMessage nil (print "`You currently have " ($ww.Get "cure" ) " cures.`" ) }}    
+
+    {{- else -}}
+       {{sendMessage nil (print " *Unfortunately, your attempts to create a cure have failed this time...* <:hutacry:941144964002353202>\n`You currently have " ($ww.Get "cure") " cures.`" ) }}
+    {{- end -}}
+{{- end -}}
+
+{{- /* stats */ -}}
+{{- if (and (reFind `(?i)(stats|statistics|HP|character sheet|how many|situation|observe|perception|watch|status)` .Message.Content) (or (eq $c 1) (reFind `(?i)werewolf|werewolves` .Message.Content)) ) -}}
+    {{- if ge $roll 10 -}}
+*You were able to discern the current situation!*
+The first werewolf appeared <t:{{(($db).CreatedAt).Unix }}:R>.
+There are currently {{ $ww.ww }} werewolves roaming in the area.
+Their total HP is {{ $ww.hp }}.
+You currently have {{ $ww.cure }} cure(s) for lycanthropy.
+
+    {{- else -}}
+{{sendMessage nil " *You were unable to discern the current situation this time.* :pensive: " }}
+
+    {{- end -}}
+{{- end -}}
+
+{{- /* throwing */ -}}
+{{- if and (reFind `(?i)(^(I|we|us|chat))( ?)(throw|threw|toss|chuck|hurl|fling|launch|pitch|send|lob|cast)` .Message.Content) (eq $w 1) -}}
+    {{- if not (eq $c 1) -}}{{- /* if you didn't mention a cure */ -}}
+        {{- if le $roll 50 -}}
+            {{sendMessage nil " *The werewolf was able to dodge your attack!* :scream: " }}
+
+        {{- else -}}
+            {{sendMessage nil (print "*You did " ($dmg) " damage to a werewolf!*" ) }}
+
+            {{- $ww.Set "hp" (sub ($ww.Get "hp") $dmg) -}}
+        {{- end -}}
+    {{- else -}}{{- /* if you mentioned cure */ -}}
+        
+        {{- if (le ($ww.Get "cure") 0) -}}
+            {{sendMessage nil "*You don't have any cures to throw!* <:tisacry:751189504584319086>" }}
+
+        {{- else -}}
+            {{sendMessage nil "Your cure broke! Why would you waste it like that?! <:vbuty:830283572216463431>" }}
+
+            {{- if le $roll 50 -}}
+                {{sendMessage nil "*AND the werewolf was able to dodge your attack!* :scream: " }}
+
+            {{- else -}}
+                {{sendMessage nil (print "*... But you did " ($dmg) " damage to it with your attack.* " ) }}
+
+            {{- $ww.Set "hp" (sub ($ww.Get "hp") $dmg) -}}
+            {{- end -}}
+        {{- end -}}
+
+        {{- $ww.Set "cure" (sub ($ww.Get "cure") 1) -}}
+    {{- end -}}    
+{{- end -}}
+
+{{- /* other types of attack */ -}}
+{{- if and (reFind `(?i)(^(I|we|us|chat))( ?)(punch|kick|shove|push|bite|eat|kill|shoot|attack|fight|duel|date|romance|charm|kiss|lick|pat|pet|shake|hug|hit|freeze|trap)` .Message.Content) (eq $w 1) (ne $c 1) -}}
+    {{- if (reFind `(?i)shoot` .Message.Content) -}}
+        {{sendMessage nil " *There are no guns here...* "}}
+
+    {{- else -}}
+        {{- if ge $roll 50 -}}
+            {{sendMessage nil "You can't get that close! Maybe try throwing something at the werewolf instead?" }}
+
+        {{- else -}}
+            {{sendMessage nil "You pull away from your attack and you notice that you're bleeding... Oh..\nOh no..." }}
+
+        {{- $ww.Set "ww" (add ($ww.Get "ww") 1) -}}
+        {{sendMessage nil (print "`There are now " ($ww.Get "ww" ) " werewolves in the area...`" ) }}
+
+        {{end}}
+    {{end}}
+{{- end -}}
+
+{{- /* give cure to werewolf */ -}}
+{{- if and (reFind `(?i)(^(I|we|chat|us|me))` .Message.Content) (eq $c 1) (eq $w 1) 
+(not (reFind `(?i)(throw|threw|toss|chuck|hurl|fling|launch|pitch|send|lob|attack)|(make|made|create|concoct|invent|mix)` .Message.Content)) -}}
+    {{- if le ($ww.Get "cure") 0 -}}
+        {{sendMessage nil "*You don't have any cures to give...*" }}
+
+    {{- else -}} 
+    
+        {{- $ww.Set "cure" (sub ($ww.Get "cure") 1) -}}
+
+        {{- if (ge $roll 90) -}}
+            {{- if (le ($ww.Get "ww") 1) -}}
+                {{- $ww.Set "hp" 0 -}}
+                {{sendMessage nil ". . ." }}
+            {{- else -}}
+                {{- $ww.Set "ww" (sub ($ww.Get "ww") 1) -}}
+                {{sendMessage nil (print "You cured 1 werewolf!\nUnfortunately, there is " ($ww.Get "ww" ) " more... :pensive: " ) }}
+
+                {{- $ww.Set "hp" (div ($ww.Get "hp") 2) -}}
+            {{- end -}}
+        {{- else -}}
+            {{sendMessage nil (print "*You attempted to give the werewolf the cure, but it doesn't appear to have done anything...* :pensive: \n(You could always try again.)\n `You currently have " ($ww.Get "cure" ) " cures.`" ) }}
+
+        {{- end -}}
+    {{- end -}}
+{{- end -}}
+
+{{- /* end entire command */ -}}
+{{- dbSet .Channel.ID "werewolf" $ww -}}
+
+
+{{- end -}}
