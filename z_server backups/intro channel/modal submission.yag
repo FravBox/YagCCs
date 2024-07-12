@@ -16,8 +16,9 @@ posts the intro and logs it. */}}
 {{$body := print (index .Values 2) }}
 
 {{/* PREFIX - name, pronouns, & avatar */}}
+
 {{ $prefix := cembed
-"description" (print "# " $name " \n### " .User.Mention "\n** " $pronouns "**" )
+"description" (print "# " $name " \n### " $pronouns "\n <:br:937128105821216898>\n" .User.Mention "\n-# " .User.Username)
 "thumbnail" (sdict "url" (.Member.AvatarURL "256") )
 "color" 16744192
 }}
@@ -56,7 +57,7 @@ posts the intro and logs it. */}}
     Your introduction has been edited. [View it here.]({{$intro.Value.link}})
 
     {{/* Log edit */}}
-    {{sendMessage $jl (complexMessage "embed" (cembed "description" (print .User.Mention " **(" .User.Globalname ") just posted an [intro](https://discord.com/channels/" .Guild.ID "/" $ch ")** at <t:" currentTime.Unix "> \nFind it [here](" ($infos.Get "link" ) "). \nUser ID: " .User.ID ) "color" 16760265 ) )}}
+    {{sendMessage $jl (complexMessage "embed" (cembed "description" (print .User.Mention " **(" .User.Username ") just posted an [intro](https://discord.com/channels/" .Guild.ID "/" $ch ")** at <t:" currentTime.Unix "> \nFind it [here](" ($infos.Get "link" ) "). \nUser ID: " .User.ID ) "color" 16760265 ) )}}
 
     {{sendMessage $jl (complexMessage "embed" (cembed "description" (print "**Previous intro content:**\n(original posted " ($intro.Value.otime) ")\n>>> " $prevbody ) ) ) }}
 
@@ -89,7 +90,7 @@ posts the intro and logs it. */}}
 
 
     {{/* Log new */}}
-    {{$new := cembed "description" (print .User.Mention " **(" .User.Globalname ") just posted an [intro](https://discord.com/channels/" .Guild.ID "/" $ch ")** at <t:" currentTime.Unix "> \nFind it [here](" ((getMessage nil $2).Link) "). \nUser ID: " .User.ID ) "color" 16760265}}
+    {{$new := cembed "description" (print .User.Mention " **(" .User.Username ") just posted an [intro](https://discord.com/channels/" .Guild.ID "/" $ch ")** at <t:" currentTime.Unix "> \nFind it [here](" ((getMessage nil $2).Link) "). \nUser ID: " .User.ID ) "color" 16760265}}
 
     {{sendMessage $jl (complexMessage "embed" $new )}}
 {{ephemeralResponse}}
