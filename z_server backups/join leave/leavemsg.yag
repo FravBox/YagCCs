@@ -39,7 +39,7 @@
 {{$ich := $idb.Value.ch}}
 
 {{if $idb}}
-    {{$x := sendMessageRetID $modl (cembed "description" (print "<@" ($idb.Value.user).ID "> (" ($idb.Value.user).Username "#" ($idb.Value.user).Discriminator ")'s <#" $ich "> post (#" ($idb.Value.place) " of " (dbCount "intro") ") was deleted since they left the server.\n\nIntro Content:\n >>> " (getMessage $idb.Value.ch $idb.Value.msg).ContentWithMentionsReplaced ) "color" 16737921) }}
+    {{$x := sendMessageRetID $modl (cembed "description" (print "<@" ($idb.Value.user).ID "> (" ($idb.Value.user).Globalname ")'s <#" $ich "> post (#" ($idb.Value.place) " of " (dbCount "intro") ") was deleted since they left the server.\n\nIntro Content:\n >>> " (getMessage $idb.Value.ch $idb.Value.msg).ContentWithMentionsReplaced ) "color" 16737921) }}
 
     {{deleteMessage $ich ($idb.Value.msg) 1}}
     {{dbDel $user.ID "intro"}}
