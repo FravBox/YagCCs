@@ -52,7 +52,7 @@ this is when they click the buttons. */}}
     {{sendResponse .Interaction.Token (complexMessage "content" "Your introduction has been deleted." "ephemeral" true) }}
 
     {{/* log deletion */}}
-    {{sendMessage $log (complexMessage "embed" (cembed "description" (print .User.Mention " **(" .User.Globalname ") deleted their [intro](https://discord.com/channels/" .Guild.ID "/" $ch ")** at <t:" currentTime.Unix "> \n**Previous intro content:**\n>>> " $intro.Value.name "\n" $intro.Value.text ) 
+    {{sendMessage $log (complexMessage "embed" (cembed "description" (print .User.Mention " **(" .User.Username ") deleted their [intro](https://discord.com/channels/" .Guild.ID "/" $ch ")** at <t:" currentTime.Unix "> \n**Previous intro content:**\n>>> " $intro.Value.name "\n" $intro.Value.text ) 
     "fields" (cslice
     (sdict "name" "Details" "value" (print "Originally Posted: " $intro.Value.otime "\n" $intro.Value.etime "\nPlace: " $intro.Value.place ) "inline" false )
     ))
