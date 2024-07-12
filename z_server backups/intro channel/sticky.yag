@@ -1,0 +1,28 @@
+{{/* Trigger type: command. Take note of CCID */}}
+
+{{/* sticky message with buttons for intros */}}
+{{$ch := 1252109363678675004}} {{/* intro channel ID */}}
+
+{{/* buttons for sticky msg*/}}
+    {{$jump := cbutton "label" "Jump to the top" "url" "https://discord.com/channels/750541618389712896/1252109363678675004/1252109561956139008" "style" "link" "emoji" (sdict "name" "⏫") }}
+    {{$edit := cbutton "label" "Create or edit your intro" "custom_id" "intro-create" "emoji" (sdict "name" "📝" )}} {{/* create/edit intro button */}}
+    {{$del := cbutton "label" "Delete your intro" "custom_id" "intro-del" "style" "danger" "emoji" (sdict "name" "✖️" )}} {{/* delete intro button */}}
+    {{$buttons := cslice $edit $jump $del}}
+
+    {{/* sticky message db */}}
+    {{$sdb := dbGet 1 "introsticky"}}
+
+    {{if $sdb}}
+        {{deleteMessage $sdb.Value.ch $sdb.Value.msg 1}}
+    {{end}}
+
+    {{/* send sticky msg content */}}
+    {{$mid := sendMessageRetID $ch (complexMessage  "content" (print "## There are currently `" (dbCount "intro") "` introductions out of `" ((dbGet 0 "vcount").Value) "` verified users." ) "buttons" $buttons ) }}
+
+
+    {{$sticky := sdict
+    "ch" $ch
+    "msg" $mid
+    }}
+
+    {{dbSet 1 "introsticky" $sticky}}
