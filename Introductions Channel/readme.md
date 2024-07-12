@@ -1,7 +1,7 @@
 # Introductions channel
 This is a set of 3 commands that makes an introduction channel using buttons and modals (text input).
 
-![image](https://github.com/FravBox/YagCCs/assets/20410737/25c14a90-3f2c-4ab0-9231-9ea85bd988a7)
+![image](https://github.com/user-attachments/assets/f046a602-c485-48a2-b6c8-35f57d65918d)
 ![image](https://github.com/FravBox/YagCCs/assets/20410737/607f417f-90df-4498-90b1-968f9dd0e004)    
 ![image](https://github.com/FravBox/YagCCs/assets/20410737/c8a4a0ac-c45a-4177-aa39-ff687a52d3ed)    
 ![image](https://github.com/FravBox/YagCCs/assets/20410737/251d14d8-8817-47e2-bd66-b738f26c6f6f)
