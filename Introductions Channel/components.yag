@@ -30,7 +30,7 @@ this is when they click the buttons. */}}
          "fields" (cslice
         (sdict "label" "Name" "value" ($intro.Value.name) "required" true)
         (sdict "label" "Pronouns" "value" ($intro.Value.pronouns) )
-        (sdict "label" "About yourself" "value" ($intro.Value.text) "style" 2)
+        (sdict "label" "About yourself" "value" ($intro.Value.text) "max_length" 2048 "style" 2)
         )
         }}
     {{end}}
