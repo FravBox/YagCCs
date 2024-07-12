@@ -18,7 +18,7 @@ posts the intro and logs it. */}}
 {{/* PREFIX - name, pronouns, & avatar */}}
 
 {{ $prefix := cembed
-"description" (print "# " $name " \n### " $pronouns "\n <:br:937128105821216898>\n" .User.Mention "\n-# " .User.Username)
+"description" (print "# " $name " \n### " $pronouns "\n-# " .User.Mention " or @" .User.Username)
 "thumbnail" (sdict "url" (.Member.AvatarURL "256") )
 "color" 16744192
 }}
@@ -48,7 +48,7 @@ posts the intro and logs it. */}}
     "user" .User.Mention
     "place" $intro.Value.place
     }}
-    {{$prevbody := print "Name:\n" $intro.Value.text "\nPronouns:\n" $intro.Value.pronouns "\nIntro:\n" $intro.Value.text}} {{/* save previous intro text */}}
+    {{$prevbody := print "**Name:**\n" $intro.Value.name "\n**Pronouns:**\n" $intro.Value.pronouns "\n**Intro:**\n" $intro.Value.text}} {{/* save previous intro text */}}
 
     {{/* overwrite db with new stuff */}}
     {{dbSet .User.ID "intro" $infos}} 
