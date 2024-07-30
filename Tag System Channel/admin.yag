@@ -1,0 +1,202 @@
+{{/* Tag system - admin
+covers admin buttons
+trigger type: message component
+regex: ^tagi-
+
+More info: https://github.com/FravBox/YagCCs
+*/}}
+
+{{/* role ID for admin of entire tag system */}}
+{{$admin := 123}}
+
+{{/* thumbnail. CC won't work without one */}}
+{{$thumbnail := "https://bentovid.com/user/images/tags.png" }}
+
+{{/* channel ID of tag reference channel */}}
+{{$tch := 456}}
+
+{{/* Logs CCID */}}
+{{$logs := 789}}
+
+{{/* embed color in decimal */}}
+{{$color := 5267711 }}
+
+{{/* DON'T EDIT BELOW */}}
+{{$u := .User.ID}}
+{{ephemeralResponse}}
+{{if not (hasRoleID $admin)}}
+    You must have the <@&{{$admin}}> role to use these options.
+    {{return}}
+{{end}}
+
+
+{{$aliaslist := (dbGet 749 "aliaslist").Value}}
+{{if not $aliaslist}}
+    {{dbSet 749 "aliaslist" (cslice "admin")}}
+{{end}}
+
+{{$done := "\n## Finished! :checkered_flag: \n"}}
+{{$e := ":wastebasket:"}}
+{{$refbtn := cbutton "label" "Manage" "custom_id" "tage-ref" "emoji" (sdict "name" "📝")}}
+
+{{if eq .StrippedID "migrate"}}
+    {{/* MIGRATION */}} {{/* only 4 at a time */}}
+    {{sendResponse nil (complexMessage "content" "👩🏿‍🏭 Working..." "ephemeral" true)}}
+
+    {{$migrate := (dbGet 749 "tgmigrate").Value}}
+    {{$skip := 0}} {{$alist1 := cslice}}
+    {{if not $migrate}}
+        {{dbSet 749 "tgmigrate" (sdict "skip" 0 "alist" (cslice))}}
+    {{else}}
+        {{$skip = $migrate.skip}}
+        {{$alist1 = $migrate.alist}}
+    {{end}}
+
+    {{$x := dbTopEntries "tg.|%" 4 $skip}}
+
+    {{$time := currentTime.Unix}}{{$ref := ""}}{{$tname := ""}}{{$als := ""}}{{$newkey := ""}}{{$alist := cslice}}{{$db := ""}}{{$reflink := ""}} {{$y := ""}}{{$z := ""}}{{$xy := ""}}{{$un := .User.Username}}
+    {{range $x}}
+        {{$tname = (index (split .Key "|") 1)}}
+        {{$als = (joinStr "" (split .Key "tg."))}}
+        {{$newkey = print "tg." $tname $als -}}
+        {{$alist = $alist.AppendSlice (reSplit " " (trimSpace (reReplace "\\|" $als " ")))}}
+        {{$z = print $z "**Old** " .Key " :arrow_right: "}}
+
+        {{- $ref = sendMessageRetID $tch (complexMessage "embed" (cembed
+        "title" $tname
+        "description" (print "**__Aliases__**\n-# Use any of these to call this tag.\n`;" (joinStr "` `;" $alist) "`\n\n**__Content__**\n" .Value) 
+        "fields" (cslice 
+        (sdict "name" "__Information__" "value" (print "**Created:**\n<t:" .CreatedAt.Unix ":D> (<t:" .CreatedAt.Unix ":R>)\nby <@" $u "> (@" $un ")\n\n**Last edit:**\n<t:" $time ":D> (<t:" $time ":R>)\nby <@" $u "> (@" $un ")"))
+        (sdict "name" "__Previous content__" "value" .Value))
+        "footer" (sdict "text" "Tag system" "icon_url" (print (reReplace " " (print $thumbnail "?=" $newkey ) "%20" )))
+        "color" $color)
+        "buttons" $refbtn) -}} {{$reflink = print "https://discord.com/channels/" $.Guild.ID "/" $tch "/" $ref}}
+        {{- $db = sdict 
+        "author" $u
+        "tname" $tname
+        "aliases" $alist
+        "creation" .CreatedAt.Unix
+        "lastedit" $time
+        "lasteditor" $u
+        "prevcontent" .Value
+        "content" .Value
+        "img" ""
+        "ref" $ref
+        "reflink" $reflink -}}
+        {{dbSet 749 $newkey $db}}
+        {{$z = print $z "**New** " $newkey " :white_check_mark: \n"}}
+    {{end}}
+    {{$y = $alist1.AppendSlice $alist}}
+    {{dbSet 749 "tgmigrate" (sdict "skip" (add $skip 4) "alist" $y)}}
+
+    {{sendResponse nil (complexMessage "content" $z "ephemeral" true)}}
+
+    {{- if not $x -}}
+        {{/* find alias dupes if any */}}
+        {{$d := cslice}}
+        {{$alist2 := cslice}}
+
+        {{range ($aliaslist.AppendSlice ((((dbGet 749 "tgmigrate").Value).alist).AppendSlice $y))}}
+            {{- if in $alist2 . -}}
+                {{if not (in $d .)}}{{- $d = $d.Append .}}{{- end}}
+            {{- else}}
+                {{$alist2 = $alist2.Append .}}
+            {{- end -}}
+        {{end}}
+        {{dbSet 749 "aliaslist" $alist2}}
+        {{dbDel 749 "tgmigrate"}}
+        {{$done}}
+    {{- else -}}
+        {{sendResponse nil (complexMessage "content" (print "## There's more left, please run the command again.\n:warning: **If you stop now, the tag system will not work properly.**\n You need to migrate **all** tags before everything is saved to the database.") "buttons" (cbutton "label" "Keep migrating" "custom_id" "tagi-migrate" "emoji" (sdict "name" "♻️")) "ephemeral" true)}}
+    {{end}}
+    {{return}}
+
+    {{/* STICKY MESSAGE */}}
+{{else if eq .StrippedID "start"}}
+    {{execCC $logs nil 0 (sdict "type" 8 "ch" $tch)}}
+    {{$done}}
+    {{return}}
+
+{{else if eq .StrippedID "exit"}}
+    {{/* DELETE ALL */}}
+    {{sendResponse nil (complexMessage "content" "## Keep running this command until it no longer errors." "ephemeral" true)}}
+    {{ephemeralResponse}}
+        {{$x := dbGetPattern 749 "tg.%" 52 0}}
+        {{- range $x -}}
+            {{- print .Key -}} {{- dbDel 749 .Key -}} {{- print " " $e "\n" -}}
+        {{- end -}}
+        {{- $y := dbTopEntries "twip" 52 0 -}}
+        {{- range $y -}}
+            {{- print "User's WIP tag" -}} {{- dbDel .UserID .Key -}} {{- print " " $e "\n" -}}
+        {{- end -}}
+        {{- dbDel 749 "tgadmin-sticky" -}}
+        {{- print "\nRef channel's sticky post reference " $e }}
+        {{- dbDel 749 "tgmigrate" -}}
+        {{- print "\n Migration helper " $e -}}
+        {{- dbDel 749 "aliaslist" -}}
+        {{- print "\nMaster alias list " $e -}}
+        {{$done}}
+    {{return}}
+
+{{else if eq .StrippedID "noref"}}
+    {{$count := (dbGet 749 "tgnorefs").Value}}
+    {{if not $count}}
+        {{$count = sdict
+        "del" 0
+        "skip" 0
+        }}
+    {{end}}
+    {{$x := dbGetPattern 749 "tg.%" 100 $count.skip}} 
+    {{$t := ""}} {{$m := ""}} {{$ch := ""}} {{$mid := ""}} {{$y := ""}} {{$db := ""}} {{$alist := cslice }}
+    {{sendResponse nil (complexMessage "content" "👷🏿‍♀️ Working..." "ephemeral" true)}}
+    {{range $x}}
+        {{$t = .Value}}
+        {{$m = reFindAllSubmatches `(?i)https://(?:\w+\.)?discord(?:app)?\.com/channels\/(\d+)\/(\d+)\/(\d+)` $t.reflink}}
+        {{$ch = index $m 0 2}}
+        {{$mid = index $m 0 3}}
+        {{$y = getMessage $ch $mid}}
+
+        {{if not $y}}
+            {{- sendMessage nil (complexMessage "content" (print "# :x: :label: Deleted Tag\n**Name:\n** `" $t.tname "`\n**Aliases:**\n `" (joinStr "` `" $t.aliases) "`\n**Created:\n** <t:" $t.creation ":D> by <@" $t.author ">\n**Last edited:**\n <t:" $t.lastedit ":D> by <@" $t.lasteditor ">\n**Content:**\n```md\n" $t.content "\n```\n**Image:**\n" (or $t.img "none" ) ) "allowed_mentions" nil) -}}
+            {{- $db = sdict
+            "ch" $ch
+            "type" 2
+            "key" .Key
+            "tname" $t.tname
+            "tbody" $t.content
+            "img" $t.img
+            "reflink" $t.reflink
+            "aliases" $t.aliases -}}
+
+            {{$alist = $alist.AppendSlice $t.aliases}}
+            {{dbDel 749 .Key}}
+            {{$count.Set "del" (add $count.del 1)}}
+            {{if ge $count.del 5}}
+                {{break}}
+            {{end}}
+        {{else}}
+            {{$count.Set "skip" (add $count.skip 1)}}
+        {{end}}
+    {{end}}
+    {{/* deal with aliaslist */}}
+    {{$newalist := cslice}}
+    {{range $aliaslist}}
+        {{if not (in $alist .)}}
+            {{if not (in $newalist .)}} {{$newalist = $newalist.Append .}}
+            {{end}}
+        {{end}}
+    {{end}}
+    {{dbSet 749 "aliaslist" $newalist}}
+
+    {{if not $x}}
+        {{dbDel 749 "tgnorefs"}}
+        {{$done}}
+    {{else}}
+        {{sendResponse nil (complexMessage "content" (print "## We went through `" (add $count.del $count.skip) "` tags and deleted `" $count.del "` so far.\nThere's more to search through, but there's no harm in stopping now if you want.") "buttons" (cbutton "label" "Keep looking" "custom_id" "tagi-noref" "emoji" (sdict "name" "♻️")) "ephemeral" true)}}
+        {{$count.Set "del" 0}}
+        {{dbSet 749 "tgnorefs" $count}}
+    {{end}}
+
+{{end}}
+
+

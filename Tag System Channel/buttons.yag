@@ -1,0 +1,285 @@
+{{/* tag system - buttons
+trigger type: message component
+trigger: ^tag(e|s)-
+
+More info: https://github.com/FravBox/YagCCs
+*/}}
+
+{{/* role ID for tag mods - authors can always manage their own tags */}}
+{{$staff := 123}} 
+
+{{/* CCID of logs */}}
+{{$log := 456}}
+
+
+{{/* DON'T EDIT BELOW */}}
+
+{{$err := "Something went wrong.\nTry dismissing all previous ephemeral messages and starting over.\nError "}}
+
+{{/* determine trigger */}}
+{{$edit := 0}}
+{{if reFind `^tage-` .CustomID}}
+    {{$edit = 1}}
+{{end}}
+
+{{/* default fields */}}
+{{$v1 := ""}} {{$v2 := ""}} {{$v3 := ""}} {{$v4 := ""}} {{$token := .Interaction.Token}} {{$r := 0}} {{$key := ""}} {{$tmatch := ""}} {{$mid := .Message.ID}} {{$u := .User.ID}} {{$ok := 0}}
+
+{{/* if there's a WIP */}}
+{{$wip := (dbGet $u "twip").Value}}
+{{if .ExecData}}
+    {{$wip = .ExecData}}
+{{end}}
+
+{{if $wip}}
+    {{$v1 = $wip.tname}}
+    {{$v2 = $wip.aliases}}
+    {{$v3 = $wip.tbody}}
+    {{$v4 = $wip.img}}
+    {{$token = $wip.token}}
+    {{$r = $wip.msg}}
+    {{$key = $wip.key}}
+{{end}}
+
+{{/* WIP tag db structure */}}
+{{$twip := sdict
+"tname" $v1
+"aliases" $v2
+"tbody" $v3
+"img" $v4
+"token" $token
+"msg" $r
+"key" $key
+}}
+
+{{/* cancel button */}}
+{{$out := (cbutton "label" "Cancel" "custom_id" "tags-out" "style" "secondary" )}}
+
+{{/* CANCEL ACTION */}}
+{{if eq .StrippedID "out"}}
+    {{updateMessage (complexMessageEdit "content" "**Action canceled.**")}}
+    {{dbDel $u "twip" }}
+    {{return}}
+{{end}}
+
+{{/* Search for a tag */}}
+{{if eq .StrippedID "manage" }}
+    {{dbDel $u "twip"}}
+    {{/* search modal fields */}}
+    {{$searchfields := (cslice
+    (sdict "label" "Tag Name (preferred)" "placeholder" "Tag names can have spaces" "value" $v1 "max_length" 45)
+    (sdict "label" "Alias - What you type to post your tag" "placeholder" "Only one alias without the semicolon." "value" $v2 "max_length" 45)
+        ) }}
+
+    {{/* send search tag modal */}}
+    {{$search_modal := sdict
+    "title" "Find tag - only one field needed"
+    "custom_id" "tags-manage"
+    "fields" $searchfields }}
+
+    {{sendModal $search_modal}}
+    {{return}}
+{{end}}
+
+{{/* FUZZY SEARCH */}}
+{{if eq .StrippedID "fuzzyb"}}
+    {{sendModal (sdict "title" "Partial search" "custom_id" "tags-fuzzy" "fields" (sdict "label" "Tag name or alias starts with" "placeholder" "One tag name or alias without the semicolon" "max_length" 45 "value" $v1 "required" true))}}
+{{end}}
+
+{{/* Manage a tag */}}
+{{if $edit}}
+
+    {{if eq .StrippedID "ref"}} {{/* came from ref post */}}     
+        {{$key = print (reReplace "\\?=" (reReplace "%20" (reFind `\?=tg\..*` ((index .Message.Embeds 0).Footer.IconURL)) " ") "")}}
+        {{$twip.Set "token" $token}}
+    {{else}}
+        {{if not $wip}}
+            {{ephemeralResponse}}
+            {{$err}} 96.
+            {{return}}
+        {{end}}    
+    {{end}}
+
+    {{$tmatch = dbGet 749 $key}}
+    {{$twip.Set "key" $key}}
+
+    {{$t := $tmatch.Value}}
+    {{if not $tmatch}}
+        {{ephemeralResponse}}
+        {{$err}} 107.
+        {{dbDel $u "twip"}}
+        {{return}}
+    {{end}}
+            
+    {{if and (ne $u $t.author) (not (hasRoleID $staff))}} 
+        {{/* kick out if not author or staff */}}
+        {{$msg := print "## You can only manage tags you created unless you have the <@&" $staff "> role."}}
+
+        {{if and $wip (eq $mid $r)}}
+            {{updateMessage (complexMessageEdit "content" $msg )}}
+        {{else}} 
+            {{sendResponse nil (complexMessage "content" $msg "ephemeral" true)}}
+        {{end}}
+
+        {{dbDel $u "twip"}}
+        {{return}}
+    {{end}}
+
+
+    {{/* load tinfo */}}
+    {{$tbody := $t.content}}
+
+    {{if $t.img}}
+        {{$tbody = print $t.content "\n**[[Image link]](" $t.img ")**"}}
+    {{end}}
+
+    {{$tinfo := print "\n**Tag Name:** `" $t.tname "`\n**Aliases:** `" (joinStr "`, `" $t.aliases) "`\n**Link to tag:** " $t.reflink "\n**Content:**\n>>> " $tbody}}
+
+    {{/* DELETING */}}
+    {{/* del1 - you really want to delete? */}}
+    {{if eq .StrippedID "del1"}}
+        {{if not $wip}}
+            {{ephemeralResponse}}
+            {{$err}} 141.
+            {{return}}
+        {{end}}
+        {{$b := cbutton "label" "⬅ Previous menu" "custom_id" "tage-edit"}}
+        {{$del := (cbutton "label" (print "Delete \"" $t.tname "\"" ) "custom_id" "tage-del2" "style" "danger" )}}
+        {{$btns := cslice $b $del $out}}
+
+        {{$msg := print "# :warning: Are you SURE you want to __DELETE__ this tag? :warning: \n## This cannot be undone!" $tinfo }}
+
+            {{if and $wip (eq $mid $r)}}
+                {{updateMessage (complexMessageEdit "content" $msg "buttons" $btns)}}
+            {{else}} 
+                {{$r = sendResponseRetID nil (complexMessage "content" $msg "buttons" $btns "ephemeral" true)}}
+                {{$twip.Set "msg" $r}}
+            {{end}}
+
+        {{dbSetExpire $u "twip" $twip 1200}}
+        {{return}}
+
+    {{/* del2 - actually delete the tag */}}
+    {{else if eq .StrippedID "del2"}} 
+        {{$msg := print "## :put_litter_in_its_place:  You have deleted the tag and it's reference message." $tinfo}}
+
+        {{if eq $mid $r}}
+            {{updateMessage (complexMessageEdit "content" $msg) }}
+        {{else}}
+            {{$r = sendResponseRetID nil (complexMessage "content" $msg "ephemeral" true)}}
+            {{$twip.Set "msg" $r}}
+        {{end}}
+        {{/* log it & delete tag - from log cc */}}
+        {{execCC $log nil 0 (sdict "type" "2" "key" $key)}}
+        {{return}}
+
+    {{else if or (eq .StrippedID "ref") (eq .StrippedID "edit")}}
+
+    {{/* SEND MANAGEMENT BUTTONS */}}
+    {{$b1 := (cslice
+        (cbutton "label" "Tag name" "custom_id" "tage-name")
+        (cbutton "label" "Aliases" "custom_id" "tage-alias")
+        (cbutton "label" "Content" "custom_id" "tage-content")
+        (cbutton "label" "Image" "custom_id" "tage-img")) }}
+    {{$b2 := (cslice
+        (cbutton "label" "Delete" "custom_id" "tage-del1" "style" "danger" "emoji" (sdict "name" "✖️"))
+        $out)}}
+
+        {{$prefix := "# What would you like edit about this tag?"}}
+        {{$msg := print $prefix $tinfo}}
+
+        {{if eq "ref" .StrippedID}}
+            {{dbDel $u "twip"}}
+            {{$r = sendResponseRetID .Interaction.Token (complexMessage "content" $msg "buttons" $b1 "buttons" $b2 "ephemeral" true)}}
+            {{$twip.Set "msg" $r}}
+
+        {{else}}
+            {{updateMessage (complexMessageEdit "content" $msg "buttons" $b1 "buttons" $b2)}}
+        {{end}}
+        {{if not $v3}}
+            {{$twip.Set "tbody" $t.content}}
+        {{else if not $v4}}
+            {{$twip.Set "img" $t.img}}      
+        {{end}}
+        {{dbSetExpire $u "twip" $twip 1200}}
+        {{return}}
+
+    {{else}}
+        {{/* send management modals */}}
+        {{$tn := print "Edit " $t.tname "'s "}}
+        {{$name := $t.tname}} {{$alias := $t.aliases}} {{$content := $t.content}} {{$img := $t.img}}
+
+        {{if eq $wip.key $key}}
+            {{if $wip.tname}}
+                {{$name = $wip.tname}}
+            {{else if $wip.aliases}}
+                {{$alias = $wip.aliases}}
+            {{else if $wip.tbody}}
+                {{$content = $wip.tbody}}
+            {{else if $wip.img}}
+                {{$img = $wip.img}}
+            {{end}}
+        {{else}}
+            {{dbDel $u "twip"}}
+        {{end}}
+
+
+        {{if eq "name" .StrippedID}}
+            {{sendModal (sdict 
+            "title" (print $tn "tag name") 
+            "custom_id" "tagm-name" "fields" 
+            (sdict "label" "New tag name" "value" $name "max_length" 29 "required" true)
+            )}}
+
+        {{else if eq "alias" .StrippedID}}
+            {{sendModal (sdict 
+            "title" (print $tn "aliases") 
+            "custom_id" "tagm-alias" 
+            "fields" 
+            (sdict "label" "All aliases (separate with spaces)" "placeholder" "Enter ALL aliases, not just new ones." "value" (joinStr " " $alias) "max_length" 200 "required" true)
+            )}}
+
+        {{else if eq "content" .StrippedID}}
+            {{sendModal (sdict 
+            "title" (print $tn "content")
+             "custom_id" "tagm-content" 
+             "fields" (cslice 
+             (sdict "label" "Tag content" "value" $content "max_length" 1000 "style" 2 "required" true)
+             ))}}
+
+        {{else if eq "img" .StrippedID}}
+            {{sendModal (sdict 
+            "title" (print $tn "image")
+                "custom_id" "tagm-img" 
+                "fields" (cslice 
+                (sdict "label" "Image URL" "value" $img)
+                ))}}
+
+        {{end}}
+        {{$twip.Set "msg" $r}}
+        {{dbSetExpire $u "twip" $twip 1200}}
+        {{return}}
+
+    {{end}}
+
+{{end}}
+
+{{/* CREATE NEW TAG */}} 
+{{if eq .StrippedID "new" }}
+    {{dbDel $u "twip"}}
+    {{$tagfields := (cslice
+    (sdict "label" "Tag Name" "placeholder" "Can only contain characters A-z, 0-9, & spaces." "value" $v1 "max_length" 29 "required" true)
+    (sdict "label" "Aliases - What you'll type to post your tag" "placeholder" "Only use A-z & 0-9. Separate with spaces." "max_length" 200 "value" $v2 "required" true)
+    (sdict "label" "Content" "placeholder" "The actual contents of your Tag. \nYou can use markdown." "value" $v3 "max_length" 1000 "required" true "style" 2)
+    (sdict "label" "Image URL - Optional" "placeholder" "Will post an embedded image with your tag." "value" $v4) 
+    ) }}
+
+    {{/* send create tag modal */}}
+    {{$create_modal := sdict
+    "title" "Create a new tag"
+    "custom_id" "tags-create"
+    "fields" $tagfields }}
+
+    {{sendModal $create_modal}}
+    {{return}}
+{{end}}

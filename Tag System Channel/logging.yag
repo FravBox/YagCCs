@@ -1,0 +1,338 @@
+{{/* tag system - logging
+no trigger */}}
+
+{{/* logs channel ID */}}
+{{$logch := 0}} 
+
+{{/* link to first post in tag channel */}}
+{{$first := "https://discord.com/channels/YourMessageHere"}}
+
+{{/* embed thumbnail - CC won't work without one */}}
+{{$thumb := "https://bentovid.com/user/images/tags.png" }}
+
+{{/* embed color in decimal */}}
+{{$color := 5267711 }}
+
+{{/* DON'T EDIT BELOW */}}
+
+{{/* TYPES
+1 create
+2 delete
+3 alias
+4 tname
+5 body
+6 img
+8 repost sticky
+*/}}
+
+{{/* get info 1 */}}
+{{$ex := .ExecData}}
+{{$type := toInt $ex.type}}
+{{$ch := $ex.ch}}
+
+{{if eq $type 8}}{{/* send sticky */}}
+    {{$stickyb := cslice
+    (cbutton "label" "Create a new tag" "custom_id" "tags-new" "style" "success" "emoji" (sdict "name" "🏷️")) 
+    (cbutton "label" "Jump to the top" "url" $first "style" "link" "emoji" (sdict "name" "⏫") )
+    (cbutton "label" "Manage a tag" "custom_id" "tags-manage" "emoji" (sdict "name" "🗃️"))
+    (cbutton "label" "Partial search" "custom_ID" "tags-fuzzyb" "emoji" (sdict "name" "🧐"))
+    }}
+
+    {{$sdb := (dbGet 749 "tgadmin-sticky").Value}}
+    {{if $sdb}}
+        {{deleteMessage $sdb.ch $sdb.msg 1}}
+    {{end}}
+
+    {{$reply := sendMessageRetID $ch (complexMessage "content" (print "## There are currently `" (dbCount (sdict "userID" 749 "pattern" "tg.%")) "` tags." ) "buttons" $stickyb )}}
+
+    {{$sticky := sdict
+    "ch" $ch
+    "msg" $reply
+    }}
+    {{dbSet 749 "tgadmin-sticky" $sticky}}
+    {{return}}
+{{end}}
+
+{{/* get info 2 */}}
+{{$u := .User.ID}}
+{{$key := $ex.key}}
+{{$t := (dbGet 749 $key).Value}}
+{{$tname := $ex.tname}}
+{{$tbody := $ex.tbody}}
+{{$img := $ex.img}}
+{{$refl := $ex.reflink}}
+{{$token := .Interaction.Token}}
+{{$alist := (dbGet 749 "aliaslist").Value}}
+{{$wip := (dbGet $u "twip").Value}}
+{{$time := currentTime.Unix }}
+{{$author := $u}}
+{{$r := ""}}
+{{$als := $ex.aliases}}
+
+{{if ge (len (joinStr " " $alist)) 9500}}
+    The alias list is over 9k characters! The system can't handle 10k+! Delete some tags or aliases.
+{{end}}
+
+{{/* WIP tag db */}}
+{{$twip := sdict
+"tname" $t.tname
+"aliases" $t.aliases
+"tbody" $t.content
+"img" $t.img
+"token" $token
+"msg" $wip.msg
+"key" $wip.key
+}}
+
+{{if $wip}}
+    {{$r = $wip.msg}}
+{{end}}
+
+{{/* helpers */}}
+{{$no := "ever edited"}}
+{{$prevcontent := print "Tag's main content n" $no}}
+{{$content := $tbody}}
+{{$ref := ""}}
+{{$emoji := ":new:"}}
+{{$action := " created "}}
+{{$og := ""}}
+{{$new := ""}}
+{{$thing := ""}}
+{{$2nd := ""}}
+{{$hasimg := ""}}
+{{$embed := ""}}
+{{$oldkey := $key}}
+{{$logbody := ""}}
+{{$name := $t.tname}}
+
+{{/* edits vs creates */}}
+{{if and (ne $type 1) (ne $type 2)}}
+    {{$emoji = ":pencil:"}}
+    {{$action = " edited "}}
+    {{$author = $t.author}}
+    {{$time = $t.creation}}
+    {{$content = $t.content}}
+    {{$prevcontent = $t.content}}
+    {{$refl = $t.reflink}}
+    {{$ref = $t.ref}}
+
+    {{if and (ne $type 4) (ne $type 1)}}
+        {{$tname = $t.tname}}
+    {{end}}
+    {{if not $tbody}}
+        {{$tbody = $t.content}}
+        {{$prevcontent = $t.prevcontent}}
+    {{end}}
+    {{if and (not $img) (ne $type 6)}}
+        {{$img = $t.img}}
+    {{end}}
+{{end}}
+
+{{if eq $type 3}}
+    {{$thing = "aliases"}}
+    {{$og = print "`;" (joinStr "` `;" $t.aliases) "`"}}
+{{else if eq $type 4}}
+    {{$thing = "tag name"}}
+    {{$og = $t.tname}}
+    {{$new = $tname}}
+    {{$als = slice $t.aliases 1}}
+
+{{else if eq $type 5 2}}
+    {{$als = $t.aliases}}
+    {{$og = $t.content}}
+    {{$new = $tbody}}
+    {{$thing = "body"}}
+    {{$prevcontent = $t.content}}
+    {{$content = $tbody}}
+    {{$twip.Set "tbody" $tbody}}
+
+{{else if eq $type 6}}
+    {{$thing = "image"}}
+    {{$og = $t.img}}
+    {{$als = $t.aliases}}
+    {{$twip.Set "img" $img}}
+{{end}}
+
+{{/* add tname as alias */}}
+{{if ne $type 2}}
+    {{$als = (cslice (reReplace " " (lower $tname) "")).AppendSlice $als}}
+    {{/* find dupes if any */}}
+    {{$d := cslice}}
+    {{$als2 := cslice}}
+    {{range $als}}
+        {{- if in $als2 . -}}
+            {{if not (in $d .)}}{{- $d = $d.Append .}}{{- end}}
+        {{- else}}
+            {{$als2 = $als2.Append .}}
+        {{- end -}}
+    {{end}}
+    {{if lt (len (joinStr "" $als2)) 1}}
+        {{$als2 = ""}}
+    {{end}}
+    {{$als = $als2}}
+    {{if eq $type 3}}
+        {{$new = print "`;" (joinStr "` `;" $als) "`"}}
+    {{end}}
+
+{{end}}
+
+{{/* Tag db */}}
+{{$db := sdict
+    "author" $author
+    "tname" $tname
+    "aliases" $als
+    "creation" $time
+    "lastedit" currentTime.Unix
+    "lasteditor" $u
+    "prevcontent" $prevcontent
+    "content" $content
+    "img" $hasimg
+    "ref" $ref
+    "reflink" $refl
+}}
+
+{{/* reusable buttons */}}
+{{$edit := (cbutton "label" "Manage" "custom_id" "tage-ref" "emoji" (sdict "name" "📝")) }} {{/* from ref post */}}
+{{$back := (cbutton "label" "⬅ Previous menu" "custom_id" "tage-edit" )}}
+{{$out := (cbutton "label" "Cancel" "custom_id" "tags-out" "style" "secondary" )}}
+{{$btns := $edit}}
+
+{{/* build ref post */}}
+{{if eq $type 3 4}}
+    {{if eq $type 4}}
+        {{$key = print "tg." $tname "|" (joinStr "|" $t.aliases) "|" }}
+    {{else if eq $type 3}}
+        {{$key = print "tg." $t.tname "|" (joinStr "|" $als) "|"}}
+    {{end}}
+    {{$ot := (dbGet 749 $oldkey).Value}}
+    {{$db.Set "content" $ot.content}}
+{{end}}
+
+{{$key = lower $key}}
+{{$th := print (reReplace " " (print $thumb "?=" $key ) "%20" )}}
+
+{{$body := print "**__Aliases__**\n-# Use any of these to call this tag.\n`;" (joinStr "` `;" $als) "`\n\n**__Content__**\n" $tbody }}
+{{$edit1 := print "**Created:**\n <t:" $time ":D> (<t:" $time ":R>)\nby <@" $author "> (@" ((getMember (print $author)).User).Username ")" }}
+{{$edit2 := print "\n\n**Last edit:**\n <t:" currentTime.Unix ":D> (<t:" currentTime.Unix ":R>)\nby <@" $u "> (@" ((getMember (print $u)).User).Username ")" }}
+{{$foot := (sdict "text" "Tag system" "icon_url" (print $th))}}
+
+{{$fields := cslice
+(sdict "name" "__Information__" "value" (print $edit1 $edit2))
+(sdict "name" "__Previous content__" "value" $prevcontent)
+}}
+
+{{if ne $type 2}}
+    {{$embed = cembed
+        "title" $tname
+        "description" $body
+        "color" $color
+        "fields" $fields
+        "footer" $foot
+    }}
+
+    {{/* include img if it exists */}}
+    {{if gt (len $img) 7}}
+        {{$hasimg = trimSpace (print (reReplace " " $img "%20" ))}}
+        {{$db.Set "img" $hasimg}}
+        {{if eq $type 6}}
+            {{$new = $hasimg}}
+        {{end}}
+
+        {{$embed = cembed
+        "title" $tname
+        "description" $body
+        "color" $color
+        "image" (sdict "url" $hasimg)
+        "fields" $fields
+        "footer" $foot
+        }}
+    {{end}}
+{{end}}
+
+{{/* deal with master alias list */}}
+{{if and (ge $type 1) (le $type 4)}}
+    {{/* remove aliases from master list */}}
+    {{if ne $type 1}}
+        {{$newalist := cslice}}
+        {{range $alist}}
+            {{if not (in $t.aliases .)}}
+                {{if not (in $newalist .)}} {{$newalist = $newalist.Append .}} {{end}}
+            {{end}}
+        {{ end }}
+        
+        {{/* DELETE TAG */}}
+        {{if eq $type 2}}
+            {{dbSet 749 "aliaslist" $newalist}}
+            {{deleteMessage $ch $t.ref 1}}
+
+            {{$logbody = print "# :x: :label: The tag, `" $name "`, has been deleted\n**Tag author:** <@" $t.author ">\n**Editor:** <@" $u ">\n**Aliases:** `;" (joinStr "` `;" $t.aliases) "`\n**Content:**\n>>> " $t.content}}
+            {{sendMessage $logch (complexMessage "content" $logbody "allowed_mentions" nil)}}
+            {{dbDel 749 $key}}
+            {{dbDel $u "twip"}}
+            {{return}}
+        {{else}} {{/* list without tag's original aliases in it */}}
+            {{$alist = $newalist}}
+        {{end}}
+    {{end}}
+
+    {{/* append to master alias list */}}
+    {{dbSet 749 "aliaslist" ($alist.AppendSlice $als)}}
+{{end}}
+
+{{/* Send ref post */}}
+
+{{if eq $type 1}} {{/* new tag */}}
+    {{$edit2 = ""}}
+    {{$ref = sendMessageRetID nil (complexMessage "embed" $embed "buttons" $btns)}}
+
+    {{$refl = (getMessage nil $ref).Link}}
+
+    {{$db.Set "ref" $ref}}
+    {{$db.Set "reflink" $refl}}
+    {{$db.Set "lasteditor" (print "N" $no) }}
+    {{$name = $tname}}
+
+{{else if or (ne $type 1) (ne $type 2)}} {{/* all edits */}}
+    {{editMessage $ch $t.ref (complexMessageEdit "embed" $embed "buttons" $btns)}}
+    {{dbSetExpire $u "twip" (sdict "key" $key "msg" $r) 1200}}
+{{end}}
+
+
+{{/* update db */}}
+{{if eq $type 3 4}}
+    {{dbDel 749 $oldkey}} {{/* del old tag when changed name or alias */}}
+    {{dbDel $u "twip"}}
+{{end}}
+{{dbSet 749 $key $db}} {{/* save tag */}}
+
+
+{{$msg := print "## ✅ Your tag has been saved.\n[**View it here**](" $refl ")." }}
+
+{{if and ($wip) (eq .Message.ID $wip.msg)}}
+    {{if eq $type 3 4}}
+        {{/* new tag name or alias */}}
+        {{updateMessage (complexMessageEdit "content" $msg)}}
+    {{else}}
+        {{$btns = cslice $back $out}}
+        {{updateMessage (complexMessageEdit "content" $msg "buttons" $btns)}}
+    {{end}}
+{{else}}
+    {{sendResponse .Interaction.Token (complexMessage "content" $msg "ephemeral" true)}}
+{{end}}
+
+{{/* send sticky post */}}
+{{if eq $type 1}}
+    {{execCC .CCID nil 0 (sdict "ch" .Channel.ID "type" 8)}}
+{{end}}
+
+{{/* send log post */}}
+{{if ne $type 8}}
+    {{if gt $type 2}}
+        {{$2nd = print "\n**Original " $thing ":**\n" $og "\n\n**New " $thing 
+        ":**\n" $new}}
+    {{end}}
+
+    {{$logbody = print "# " $emoji " :label: The tag, `" $name "`, has been" $action "\n**Tag author:** <@" $author ">\n**Editor:** <@" $u ">" $2nd}}
+
+    {{sendMessage $logch (complexMessage "content" (print $logbody "\n\n**Go to tag:** " $refl) "allowed_mentions" nil)}}
+{{end}}

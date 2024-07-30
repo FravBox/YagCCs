@@ -1,0 +1,86 @@
+{{/* tag system - calling
+what happens when you type ;alias or ;admin in a channel
+trigger type: starts with
+trigger: ;
+
+More info: https://github.com/FravBox/YagCCs
+*/}}
+
+
+{{/* admin role in charge of entire system */}}
+{{$admin := 123}}
+
+{{/* thumbnail. CC won't work without one */}}
+{{$thumbnail := "https://bentovid.com/user/images/tags.png" }}
+
+{{/* embed color in decimal */}}
+{{$color := 5267711 }}
+
+{{/* emoji for when yag couldn't find the tag you wanted */}}
+{{$nop := "⛔"}}
+
+
+{{/* DON'T EDIT BELOW */}}
+
+{{$trigger := lower (index (split .StrippedMsg " ") 0)}}
+
+{{if and (eq $trigger "admin") (not (hasRoleID $admin))}}
+{{$x := sendMessageRetID nil (complexMessage "reply" .Message.ID "content" (print "You must have the <@&" $admin "> role to use this tag."))}}
+{{deleteMessage nil $x 5}}
+{{return}}
+{{end}}
+
+{{if ne $trigger "admin"}}
+    {{$x := dbGetPattern 749 (print "tg.%|" $trigger "|%") 1 0}}
+
+    {{if not $x}}
+        {{addReactions $nop}}
+        {{sleep 5}}
+        {{deleteMessageReaction nil .Message.ID 204255221017214977 $nop}}
+        {{return}}
+    {{end}}
+
+    {{$key := print "?=" (reReplace " " ((index $x 0).Key) "%20")}}
+
+    {{$t := (index $x 0).Value}}
+
+    {{/* create embed */}}
+    {{$embed := ""}}
+    {{$body := print "-# **Aliases:** `;" (joinStr "` `;" $t.aliases) "`\n\n" $t.content "\n\n-# [**Tag information**](" $t.reflink ")"}}
+   
+    {{if $t.img}}
+        {{$embed = cembed
+            "title" (title $t.tname)
+            "description" $body
+            "footer" (sdict "text" "Tag system" "icon_url" (print $thumbnail $key))
+            "color" $color
+            "image" (sdict "url" $t.img)
+        }}
+    {{else}}
+        {{$embed = cembed
+            "title" (title $t.tname)
+            "description" $body
+            "footer" (sdict "text" "Tag system" "icon_url" (print $thumbnail $key))
+            "color" $color
+        }}
+    {{end}}
+
+    {{sendMessage nil (complexMessage "embed" $embed)}}
+    {{return}}
+{{end}}
+
+{{/* ;ADMIN */}}
+{{if eq $trigger "admin"}}
+    {{$abtns := cslice
+    (cbutton "label" "Start" "custom_id" "tagi-start" "style" "success" "emoji" (sdict "name" "🪄"))
+    (cbutton "label" "Migrate tags" "custom_id" "tagi-migrate" "style" "secondary")
+    (cbutton "label" "Delete all" "custom_id" "tagi-exit" "style" "danger")
+    (cbutton "label" "Delete tags with no posts" "custom_id" "tagi-noref" "style" "secondary")
+    }}
+
+    {{$msg := "## 0. If you use any commands with a trigger of \x60starts with ;\x60 you should disable them.\n## 1. Start\n-# **Make a post in your tag reference channel if you haven't already** & put the message link in the logs CC before doing this.\nSets up the initial db entries needed for the system to work & posts the sticky message with the buttons to interact with tags.\nIf your sticky message has disappeared or your \"first\" link has changed, pressing this button will repost it without harming your tags.\n## 2. (Optional) migrate tags\nYou used a previous tag system & want to convert them to this one.\n-# This assumes your previous tag system uses a specific db structure.\n-# If your db keys don't start with \x60tg.|\x60 then you'll have to transfer or delete tags manually.\n**This option will __NOT__ delete anything.**\nDue to yag limits, we can only transfer 4 tags at a time.\nOnce you start, you cannot stop. If you stop mid-way, you will have to \"Delete All\" before continuing later.\n## 3. Delete all\nDeletes all databases associated with this CC. Use this if you want to remove the tag system or \"reset to factory settings\".\nDue to Yag limits, we can only delete 10 (or 50 for premium servers) at a time. Continue running this command until you get a response without error.\n-# Note: this will not delete any posts in the reference tag channel, but it will break all functions associated with them.\n-# Delete the channel and/or posts manually after running this command.\n## 4. Delete tags with no posts\nUse if you accidentally deleted tag messages in the reference channel.\nThis attempts to find bad message links & delete the tags associated with them.\nDue to yag limits, you may have to run it more than once.\nIf you have the opposite problem - duplicate messages for the same tag - manually delete __the first__ (oldest) message only."}}
+
+    {{sendMessage nil (complexMessage "content" (print "-# **Note:** Use `;admin` to call this message.\n-# Only the <@&" $admin "> role will be able to use the buttons.\n" $msg ) "buttons" $abtns )}}  
+    
+    {{return}}
+{{end}}

@@ -1,0 +1,352 @@
+{{/* tag system - modals
+Trigger type: modal submission
+ID regex: ^tag(m|s|e)-
+
+More info: https://github.com/FravBox/YagCCs
+*/}}
+
+{{/* logs CCID */}}
+{{$log := 123}}
+
+{{/* DON'T EDIT BELOW */}}
+{{$v1 := ""}}{{$v2 := ""}}{{$v3 := ""}}{{$v4 := ""}}{{$tagm := 0}}{{$rl := ""}}{{$id := .StrippedID}}
+
+{{if (reFind `^tagm` .CustomID)}}
+   {{$tagm = 1}}
+   {{if eq "name" $id}}
+       {{$v1 = index .Values 0}}
+   {{else if eq "alias" $id}}
+       {{$v2 = index .Values 0}}
+   {{else if eq "content" $id}}
+       {{$v3 = index .Values 0}}
+   {{else if eq "img" $id}}
+       {{$v4 = index .Values 0}}
+   {{end}}
+{{else}}
+   {{$v1 = index .Values 0}}
+
+   {{if eq "fuzzy" $id}}
+        {{$v2 = ""}}
+   {{else}}
+        {{$v2 = index .Values 1}}
+   {{end}}
+
+   {{if eq "create" $id}}
+       {{$v3 = index .Values 2}}
+       {{$v4 = index .Values 3}}
+   {{end}}
+{{end}}
+
+{{/* alias slices */}}
+{{$als := split (trimSpace (reReplace " +" (lower $v2) " ")) " "}}
+{{if lt (len (joinStr "" $als)) 1}}
+   {{$als = ""}}
+{{end}}
+
+{{$tn := trimSpace $v1}}
+{{$tbody := ""}}
+{{$t := ""}}
+{{$token := .Interaction.Token}}
+{{$r := 0}}
+{{$mid := .Message.ID}}
+{{$ir := 0}}
+{{$m := 0}}
+{{$u := .User.ID}}
+{{$alist := (dbGet 749 "aliaslist").Value}}
+{{$key := ""}}
+
+{{if or (eq $id "create") (eq $id "content")}}
+   {{$tbody = $v3}}
+{{end}}
+
+{{$w := (dbGet $u "twip").Value}}
+{{if $w}}
+   {{$token = $w.token}}
+   {{$r = $w.msg}}
+   {{$key = $w.key}}
+{{end}}
+
+{{/* WIP db */}}
+{{$tw := sdict
+"tname" $tn
+"aliases" (joinStr " " $als)
+"tbody" $v3
+"img" $v4
+"token" $token
+"msg" $r
+"key" $key
+}}
+
+{{/* btns */}}
+{{$ta := "Try again"}}
+{{$e := (sdict "name" "♻️")}}
+
+{{$btns := ""}}
+{{$new := cbutton "label" $ta "custom_id" "tags-new" "emoji" $e}}
+{{$find := cbutton "label" $ta "custom_id" "tage-manage" "emoji" $e}}
+{{$fz := cbutton "label" $ta "custom_ID" "tags-fuzzyb" "emoji" $e}}
+
+{{$out := cbutton "label" "Cancel" "custom_id" "tags-out" "style" "secondary"}}
+{{$redit := cbutton "label" "Manage" "custom_id" "tage-ref" "emoji" (sdict "name" "📝")}}{{/* from ref post */}}
+{{$fedit := cbutton "label" "Manage" "custom_id" "tage-edit" "emoji" (sdict "name" "📝")}}
+{{$name := cbutton "label" $ta "custom_id" "tage-name" "emoji" $e}}
+{{$al := cbutton "label" $ta "custom_id" "tage-alias" "emoji" $e}}
+{{$body := cbutton "label" $ta "custom_id" "tage-content" "emoji" $e}}
+{{$img := cbutton "label" $ta "custom_id" "tage-img" "emoji" $e}}
+{{$b := cbutton "label" "⬅ Previous menu" "custom_id" "tage-edit"}}
+
+{{/* inputs legal? */}}
+{{$bc := "0"}}
+{{$rb := " can only contain the characters: A-z, 0-9"}}
+
+{{/* check name & aliases */}}
+{{if and (not $tn) (not $als) (eq "manage" $id)}}
+
+   {{$bc = "You must fill in at least one field."}}
+   {{$rb = ""}}
+
+{{else if reFind "admin" (print $v1 " " $v2)}}
+   {{$bc = "You cannot use `admin` in the name or alias."}}
+   {{$rb = ""}}
+
+{{else if and ($tn) (not (reFind `^[a-zA-Z\d\ ]+$` $tn))}}
+       {{$bc = "The tag name"}}
+       {{$rb = print $rb ", and spaces."}}
+
+{{else if and ($als) (not (reFind `^[a-zA-Z\d\ ]+$` $v2))}}
+   {{$bc = "A tag alias"}}
+   {{$rb = print $rb "."}}
+
+{{else if $v4}}
+   {{$i := `(?i)\.((p?)jp(e?)g|gif|(a?)png|avif|jfif|svg|webp|bmp|ico|cur|tif)`}}
+   {{$i2 := $i}}
+
+   {{if gt (len $v4) 1}}
+       {{$bc = "The image link"}}
+       {{$rb = " is not valid.\nIt must start with `http://` or `https://` and link directly to an image file."}}
+
+       {{if not (reFind .LinkRegex $v4)}}
+           {{$ir = 1}}
+       {{else}}
+           {{if not (reFind `discord((app)?)\.com` $v4)}}
+               {{/* change if discord */}}
+               {{$i2 = print $i "$"}}
+           {{else}}
+               {{$i2 = print $i `($|\?)`}}
+           {{end}}
+       {{end}}
+
+       {{if not (reFind $i2 $v4)}}
+           {{$ir = 1}}
+       {{end}}
+   {{else}}
+       {{$v4 = "0"}}
+       {{$tw.Set "img" $v4}}
+   {{end}}
+
+   {{if not $ir}}
+       {{$bc = "0"}}
+   {{end}}
+{{end}}
+
+{{if ne $bc "0"}}
+   {{if eq $id "manage"}}
+       {{$btns = cslice $find $out}}
+   {{else if eq $id "fuzzy"}}
+       {{$btns = cslice $fz $out}}
+   {{else if eq $id "create"}}
+       {{$btns = cslice $new $out}}
+   {{else if eq $id "name"}}
+       {{$btns = cslice $name $b $out}}
+   {{else if eq $id "alias"}}
+       {{$btns = cslice $al $b $out}}
+   {{else if eq $id "content"}}
+       {{$btns = cslice $body $b $out}}
+   {{else if eq $id "img"}}
+       {{$btns = cslice $img $b $out}}
+       {{$tw.Set "img" $v4}}
+   {{end}}
+
+   {{/* send $ta */}}
+   {{if and ($w) (eq $mid $r)}}
+       {{updateMessage (complexMessageEdit "content" (print "## " $bc $rb ) "buttons" $btns )}}
+   {{else}}
+       {{$r = sendResponseRetID nil (complexMessage "content" (print "## " $bc $rb ) "buttons" $btns "ephemeral" true)}}
+       {{$tw.Set "msg" $r}}
+   {{end}}
+
+   {{dbSetExpire $u "twip" $tw 1200}}
+   {{return}}
+{{end}}
+
+{{/* find pre-existing tags */}}
+{{$m := 0}}{{$1st := ""}}{{$2nd := ""}}{{$msg := ""}}
+
+{{if eq $id "fuzzy"}}
+   {{$btns = cslice $fz $out}}
+   {{$x := dbGetPattern 749 (print "tg.%" $tn "%") 29 0}}
+   {{$et := ""}} {{$y := cslice}}
+   {{if $x}}
+       {{range $x -}}
+
+           {{- $y = $y.Append (sdict "name" .Value.tname "value" (print .Value.reflink "\nAuthor: <@" .Value.author "> | Last edit: <t:" .Value.lastedit ":D>\n")) -}}
+       {{- end -}}
+
+       {{$et = "Possible matches"}}
+   {{else}}
+       {{$et = "No tags found"}}
+   {{end}}
+
+   {{if and ($w) (eq $mid $r)}}
+       {{updateMessage (complexMessageEdit "embed" (cembed "title" $et "fields" $y) "buttons" $btns)}}
+   {{else}}
+       {{$r = sendResponseRetID nil (complexMessage "embed" (cembed "title" $et "fields" $y) "buttons" $btns "ephemeral" true)}}
+       {{$tw.Set "msg" $r}}
+   {{end}}
+
+   {{dbSetExpire $u "twip" $tw 1200}}
+   {{return}}
+{{end}}
+
+{{if or ($tn) (and ($tn) ($als) (eq $id "manage"))}}
+   {{$x := lower (print "tg." $tn "|%" )}}
+   {{$m = dbTopEntries $x 1 0}}
+   {{$1st = "Your tag name "}}
+   {{if and ($m) (eq "name" $id)}}
+       {{if eq $w.key ((index $m 0).Key)}}{{/* is this the tag we're currently editing? */}}
+           {{$m = dbTopEntries $x 1 1}}
+
+           {{if not $m}}
+               {{$m = 0}}
+           {{end}}
+       {{end}}
+   {{end}}
+
+{{end}}
+
+{{if and (not $m) ($als)}}{{/* check aliases */}}
+   {{if eq "alias" $id}}
+       {{$tw.Set "aliases" (joinStr " " $als)}}
+       {{if not $w}}
+           {{ephemeralResponse}}
+            error 232.
+           {{return}}
+       {{end}}
+       {{$x := (dbGet 749 $key).Value}} {{/* get current tag's aliases (which are a slice)*/}}
+       {{$newalist := cslice}}
+       {{range $alist}}
+           {{if not (in $x.aliases .)}}
+               {{if not (in $newalist .)}} {{$newalist = $newalist.Append .}} {{end}}
+           {{end}}
+       {{end}}
+
+        {{range $als}}
+            {{if in $newalist .}}{{$m = .}}{{break}}{{else}}{{$m = 0}}{{end}}
+        {{end}}
+
+   {{else}}
+       {{$m = (reFind (print "\\b(" (joinStr "|" $als) ")\\b" ) (joinStr " " $alist))}}
+   {{end}}
+
+   {{if $m}}
+       {{$1st = "The alias "}}
+       {{$2nd = print "`" $m "` "}}
+       {{$x := print "tg.%|" $m "|%"}}
+       {{$m = dbTopEntries $x 1 0}}
+   {{end}}
+{{end}}
+
+{{if $m}}
+   {{$3rd := "is already in use.\n\nConflicting tag:\n"}}
+   {{$btns = cslice $new $out}}
+
+   {{if eq .StrippedID "manage"}}
+        {{$btns = cslice $fedit $out}}
+        {{$1st = "Tag found!"}}
+        {{$2nd = ""}} {{$3rd = "\n\n"}}
+
+   {{else if $tagm}}
+       {{if eq $id "name"}}
+           {{$btns = cslice $name $b $out}}
+       {{else if eq $id "alias"}}
+           {{$btns = cslice $al $b $out}}
+       {{end}}
+   {{end}}
+   {{$mkey := $key}}
+   {{$t = index $m 0}}
+   {{$key = $t.Key}}
+   {{$t = $t.Value}}
+   {{$rl = $t.reflink}}
+
+   {{if $t.img}}
+       {{$tbody = print $t.content "\n**[[Image link]](" $t.img ")**"}}
+   {{else}}
+        {{$tbody = $t.content}}
+   {{end}}
+
+   {{$tinfo := print "**Tag Name:** `" $t.tname "`\n**Aliases:** `" (joinStr "`, `" $t.aliases) "`\n**Link to tag:** " $t.reflink "\n**Content:**\n>>> " $tbody}}
+
+   {{$msg = print "## " $1st $2nd $3rd $tinfo}}
+
+   {{if $w}}
+       {{updateMessage (complexMessageEdit "content" $msg "buttons" $btns)}}
+   {{else}}
+       {{$r = sendResponseRetID nil (complexMessage "content" $msg "buttons" $btns "ephemeral" true)}}
+       {{$tw.Set "msg" $r}}
+   {{end}}
+
+   {{if $tagm}}
+       {{$tw.Set "key" $mkey}}
+   {{else}}
+       {{$tw.Set "key" $key}}
+   {{end}}
+   {{dbSetExpire $u "twip" $tw 1200}}
+   {{return}}
+
+{{else if and (not $m) (eq $id "manage")}}
+   {{$btns = cslice $find $out}}
+   {{$msg = "## No tag found."}}
+
+   {{if $w}}
+       {{updateMessage (complexMessageEdit "content" $msg "buttons" $btns)}}
+   {{else}}
+       {{$r = sendResponseRetID nil (complexMessage "content" $msg "buttons" $btns "ephemeral" true)}}
+       {{$tw.Set "msg" $r}}
+   {{end}}
+   {{dbSetExpire $u "twip" $tw 1200}}
+   {{return}}
+{{end}}
+
+{{/* passed checks */}}
+{{$ins := sdict
+"tname" $v1
+"aliases" $als
+"tbody" $v3
+"img" $v4
+"reflink" $rl
+"key" $key
+"type" ""
+"ch" .Channel.ID}}
+
+{{if and (not $m) ($tagm) ($w)}}
+   {{if eq $id "name"}}
+       {{$ins.Set "type" 4}}
+   {{else if eq $id "alias"}}
+       {{$ins.Set "type" 3}}
+   {{else if eq $id "content"}}
+       {{$ins.Set "type" 5}}
+   {{else if eq $id "img"}}
+       {{$ins.Set "type" 6}}
+   {{end}}
+   {{execCC $log nil 0 $ins}}
+   {{return}}
+{{end}}
+
+{{if eq $id "create"}}
+   {{$key = lower (print "tg." $tn "|" (joinStr "|" $als) "|")}}
+   {{$ins.Set "key" $key}}
+   {{$ins.Set "type" 1}}
+   {{dbDel $u "twip"}}
+   {{execCC $log nil 0 $ins}}
+{{return}}
+{{end}}
