@@ -39,6 +39,7 @@ Do you currently use [jo3-l](https://github.com/jo3-l)'s [Tag system](https://ya
 <li>If you want to change the author of a tag later, I had to code an extra command for that. See it in /extras/change tag author.yag</li>
 <li>You must migrate ALL tags. If you stop partway through, the system will break and you will have to "delete all" before you can continue.</li>
 <li>Migration and "delete all" do not alter your old tags in any way.</li>
+<li><b>Known issue:</b> Aliases on individual tags can get a little screwy sometimes, especially if your tags have characters not allowed in the current system. Manually editing the tags once they have been migrated will fix it (through the button management; no coding necessary).
 </ul>
 </details>
 
