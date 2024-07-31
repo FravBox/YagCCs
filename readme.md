@@ -3,7 +3,8 @@ You can use my (@standardquip / Fravbox) code & edit it however you want **excep
 If another user is credited, you must keep the credit in the code. If the code is in my server backups folder, please ask before using it.
 
 # How To Use
-Everything here assumes you can at least read basic code. I tell you what to edit for your server, but some are easier to use than others.
+Everything here assumes you can at least read basic code. I tell you what to edit for your server, but some are easier to use than others.     
+**Bolded commands are the most useful/finished/easy to use.** 
 
 `server backups` is my personal server backups and aren't useful to outsiders.
 
@@ -29,7 +30,7 @@ Delete posts from YAGPDB with an emoji. Has several custom options.
 </details>
 
 <details>
-<summary>Introductions Channel</summary>
+<summary><b>Introductions Channel</b></summary>
 
 Uses buttons and modals (form submission) to post introductions to a channel. Easily allow people to edit their own intros. Deletes intros when people leave the server.
 </details>
@@ -64,6 +65,13 @@ A very basic system that allows users to submit prompts for writing, art, etc. Y
 
 </details>
 
+<details><summary><b>Tag System Channel</b></summary>
+
+A tag system that uses a reference channel, buttons, and modals (text inputs) so you don't have to deal with text commands anymore. Loosely based on [jo3-l](https://github.com/jo3-l)'s [Tag system](https://yagpdb-cc.github.io/tags/overview) on the YAGPDB-CC website.
+
+Tags (sometimes called "snippets") are pre-formatted messages you can call at any time. They are specifically helpful for support servers where the same questions are asked frequently.
+</details>
+
 <details>
 <summary>Templates</summary>
 
@@ -75,7 +83,7 @@ Random quick reference for snippets & templates.
 </details>
 
 <details>
-<summary>Thread Management (most useful of all my CCs!!)</summary>
+<summary><b>Thread Management</b></summary>
  
  * Thread Pins    
 Allows the author of the first message in a thread to manage pins in the thread via post replies.
