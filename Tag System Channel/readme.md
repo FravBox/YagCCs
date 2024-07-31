@@ -107,7 +107,8 @@ If you don't understand what any of this means, do not change the thumbnail URL.
 
 **6. Add `buttons.yag`**    
 - On your dashboard, the trigger type is `message component` and the regex is `^tag(e|s)-`
-- Inside the CC on line 9, change `$staff` to the ID of the role you want to be able to manage any tag, regardless of its author. Tag authors will always be able to edit their own tags, regardless of roles.
+- Inside the CC on line 9, change `$staff` to the IDs of the role you want to be able to manage any tag, regardless of its author. Do not delete the word `cslice`, even if you only list one role.      
+Tag authors will always be able to edit their own tags, regardless of roles.
 - On line 12, put the CCID of the `logging.yag` command in `$log`
 
 
