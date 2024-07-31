@@ -27,7 +27,11 @@ Tag authors can always manage their own tags. But you can set a mod role that ca
 Once you've installed the custom commands to your dashboard, use `;admin` to initialize the system. 
 Image 9
 
-<ul><li> **Start** gets you started right away!</li>
+<<<<<<< HEAD
+<ul><li> **Start** gets you started right away!
+=======
+<ul markdown="1"><li markdown="1"> **Start** gets you started right away!</li>
+>>>>>>> 1c40bd294f04418898a4225e8305baf2b7fa5f12
 <li>**Migrate Tags**      
 Do you currently use [jo3-l](https://github.com/jo3-l)'s [Tag system](https://yagpdb-cc.github.io/tags/overview)? Convert all those tags to this system without losing them!     
 <details><summary>Note about migration</summary>
