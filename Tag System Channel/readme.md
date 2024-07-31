@@ -36,7 +36,7 @@ Do you currently use [jo3-l](https://github.com/jo3-l)'s [Tag system](https://ya
 <details><summary>Note about migration</summary>
 <ul>
 <li>Migrating tags makes the admin the author of all tags migrated.</li>
-<li>There is not an easy way to change the author of a tag (you would have to code a separate cc to do this for yourself).</li>
+<li>If you want to change the author of a tag later, I had to code an extra command for that. See it in /extras/change tag author.yag</li>
 <li>You must migrate ALL tags. If you stop partway through, the system will break and you will have to "delete all" before you can continue.</li>
 <li>Migration and "delete all" do not alter your old tags in any way.</li>
 </ul>
@@ -116,6 +116,9 @@ If you don't understand what any of this means, do not change the thumbnail URL.
 - If you want to use any of the other admin functions, read the admin message for instructions on how to use that function.
 - If you create some tags and then later decide to migrate your old tags, this is doable. However, you should migrate as soon as possible because if any error should happen, the most likely outcome will be needing to use the "delete all" function, which will delete the tags you created before migration.
 
+# Extras
+in the `/extras/` folder are some extra companion commands, totally optional.     
+Currently the only thing in there is `change tag author.yag` (which does what it implies) but I imagine I will end up adding more eventually.
 
 # Final Notes
 - If you have problems, you can ping me in the YAGPDB support server: `@standardquip` or create an issue here on github

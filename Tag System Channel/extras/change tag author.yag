@@ -1,0 +1,80 @@
+{{/* Tags system - extras
+change author
+
+trigger type: command
+trigger: tagauthor
+usage: -tagauthor TagRefMessageURL @NewAuthor
+
+More info: https://github.com/FravBox/YagCCs/
+*/}}
+
+{{/* channel ID of tag log channel. If you don't want logs for this, keep it at 0. */}}
+{{$logch := 0}}
+
+{{/* DON'T EDIT BELOW */}}
+
+{{$no := "No tag found at that url"}}
+
+{{ $args := parseArgs 2 "Syntax: `-tagauthor TagRefMessageURL @NewAuthor`" 
+    (carg "string" "the URL to the tag's reference post that you wish to change.")
+    (carg "userid" "A mention or user ID for who you would like to be the new author of the tag." )
+}}
+
+{{if not (reFind `discord` .StrippedMsg)}}
+    {{$no}}
+    {{return}}
+{{end}}
+
+{{$m := reFindAllSubmatches `(?i)https://(?:\w+\.)?discord(?:app)?\.com/channels\/(\d+)\/(\d+)\/(\d+)` ($args.Get 0)}}
+{{$ch := index $m 0 2}}
+{{$mid := index $m 0 3}}
+
+{{$x := (getMessage $ch $mid)}}
+{{if not $x}}
+    {{$no}}
+    {{return}}
+{{end}}
+
+{{$y := $x.Embeds}}
+{{if not $y}}
+    {{$no}}
+    {{return}}
+{{end}}
+
+{{$z := ((index $y 0).Footer.IconURL)}}
+{{if not $z}}
+    {{$no}}
+    {{return}}
+{{end}}
+
+{{$key := print (reReplace "\\?=" (reReplace "%20" (reFind `\?=tg\..*` $z) " ") "")}}
+{{if not $key}}
+    {{$no}}
+    {{return}}
+{{end}}
+
+{{$t := (dbGet 749 $key).Value}}
+{{if not $t}}
+    {{$no}}
+     {{return}}
+{{end}}
+
+{{$db := sdict
+"author" ($args.Get 1)
+"tname" $t.tname
+"aliases" $t.aliases
+"creation" $t.creation
+"lastedit" currentTime.Unix
+"lasteditor" .User.ID
+"prevcontent" $t.prevcontent
+"content" $t.content
+"img" $t.img
+"ref" $t.ref
+"reflink" $t.reflink
+}}
+
+{{dbSet 749 $key $db}}
+{{$no := sendMessage nil (complexMessage "content" (print "Tag author changed from <@" $t.author "> to <@" ($args.Get 1) ">!") "allowed_mentions" nil)}}
+{{if $logch}}
+    {{sendMessage $logch (complexMessage "content" (print "# :pencil: :label: The tag, `" $t.tname "` has changed authors\n**Original author:** <@" $t.author ">\n**New author:** <@" ($args.Get 1) ">\n\nAction performed by <@" .User.ID ">.") "allowed_mentions" nil)}}
+{{end}}
