@@ -1,15 +1,13 @@
 {{/* tag system - buttons
 trigger type: message component
 trigger: ^tag(e|s)-
-
-More info: https://github.com/FravBox/YagCCs
 */}}
 
-{{/* role ID for tag mods - authors can always manage their own tags */}}
-{{$staff := 123}} 
+{{/* role IDs for tag mods - authors can always manage their own tags */}}
+{{$staff := cslice 1087071584776368349}} 
 
 {{/* CCID of logs */}}
-{{$log := 456}}
+{{$log := 0123}}
 
 
 {{/* DON'T EDIT BELOW */}}
@@ -17,28 +15,28 @@ More info: https://github.com/FravBox/YagCCs
 {{$err := "Something went wrong.\nTry dismissing all previous ephemeral messages and starting over.\nError "}}
 
 {{/* determine trigger */}}
-{{$edit := 0}}
+{{$e := 0}}
 {{if reFind `^tage-` .CustomID}}
-    {{$edit = 1}}
+    {{$e = 1}}
 {{end}}
 
 {{/* default fields */}}
-{{$v1 := ""}} {{$v2 := ""}} {{$v3 := ""}} {{$v4 := ""}} {{$token := .Interaction.Token}} {{$r := 0}} {{$key := ""}} {{$tmatch := ""}} {{$mid := .Message.ID}} {{$u := .User.ID}} {{$ok := 0}}
+{{$v1 := ""}}{{$v2 := ""}}{{$v3 := ""}}{{$v4 := ""}}{{$token := .Interaction.Token}}{{$r := 0}}{{$key := ""}}{{$tmatch := ""}}{{$mid := .Message.ID}}{{$u := .User.ID}}{{$id := .StrippedID}}
 
 {{/* if there's a WIP */}}
-{{$wip := (dbGet $u "twip").Value}}
+{{$w := (dbGet $u "twip").Value}}
 {{if .ExecData}}
-    {{$wip = .ExecData}}
+    {{$w = .ExecData}}
 {{end}}
 
-{{if $wip}}
-    {{$v1 = $wip.tname}}
-    {{$v2 = $wip.aliases}}
-    {{$v3 = $wip.tbody}}
-    {{$v4 = $wip.img}}
-    {{$token = $wip.token}}
-    {{$r = $wip.msg}}
-    {{$key = $wip.key}}
+{{if $w}}
+    {{$v1 = $w.tname}}
+    {{$v2 = $w.aliases}}
+    {{$v3 = $w.tbody}}
+    {{$v4 = $w.img}}
+    {{$token = $w.token}}
+    {{$r = $w.msg}}
+    {{$key = $w.key}}
 {{end}}
 
 {{/* WIP tag db structure */}}
@@ -56,14 +54,14 @@ More info: https://github.com/FravBox/YagCCs
 {{$out := (cbutton "label" "Cancel" "custom_id" "tags-out" "style" "secondary" )}}
 
 {{/* CANCEL ACTION */}}
-{{if eq .StrippedID "out"}}
+{{if eq $id "out"}}
     {{updateMessage (complexMessageEdit "content" "**Action canceled.**")}}
     {{dbDel $u "twip" }}
     {{return}}
 {{end}}
 
 {{/* Search for a tag */}}
-{{if eq .StrippedID "manage" }}
+{{if eq $id "manage" }}
     {{dbDel $u "twip"}}
     {{/* search modal fields */}}
     {{$searchfields := (cslice
@@ -82,18 +80,18 @@ More info: https://github.com/FravBox/YagCCs
 {{end}}
 
 {{/* FUZZY SEARCH */}}
-{{if eq .StrippedID "fuzzyb"}}
+{{if eq $id "fuzzyb"}}
     {{sendModal (sdict "title" "Partial search" "custom_id" "tags-fuzzy" "fields" (sdict "label" "Tag name or alias starts with" "placeholder" "One tag name or alias without the semicolon" "max_length" 45 "value" $v1 "required" true))}}
 {{end}}
 
 {{/* Manage a tag */}}
-{{if $edit}}
+{{if $e}}
 
-    {{if eq .StrippedID "ref"}} {{/* came from ref post */}}     
+    {{if eq $id "ref"}}{{/* came from ref post */}}     
         {{$key = print (reReplace "\\?=" (reReplace "%20" (reFind `\?=tg\..*` ((index .Message.Embeds 0).Footer.IconURL)) " ") "")}}
         {{$twip.Set "token" $token}}
     {{else}}
-        {{if not $wip}}
+        {{if not $w}}
             {{ephemeralResponse}}
             {{$err}} 96.
             {{return}}
@@ -110,12 +108,25 @@ More info: https://github.com/FravBox/YagCCs
         {{dbDel $u "twip"}}
         {{return}}
     {{end}}
-            
-    {{if and (ne $u $t.author) (not (hasRoleID $staff))}} 
-        {{/* kick out if not author or staff */}}
-        {{$msg := print "## You can only manage tags you created unless you have the <@&" $staff "> role."}}
+        
+    {{$perms := 0}}{{$roles := ""}}
+    {{if eq $u $t.author}}
+        {{$perms = 1}}
+    {{else}}
+        {{range $staff}}
+            {{$roles = print (joinStr ">, <@&" $roles .)}}
+            {{if hasRoleID .}}
+                {{$perms = 1}}
+                {{break}}
+            {{end}}
+        {{end}}
+    {{end}}
 
-        {{if and $wip (eq $mid $r)}}
+    {{if not $perms}} 
+        {{/* kick out if not author or staff */}}
+        {{$msg := print "## You can only manage tags you created unless you have one of these roles: <@&" $roles ">."}}
+
+        {{if and $w (eq $mid $r)}}
             {{updateMessage (complexMessageEdit "content" $msg )}}
         {{else}} 
             {{sendResponse nil (complexMessage "content" $msg "ephemeral" true)}}
@@ -137,8 +148,8 @@ More info: https://github.com/FravBox/YagCCs
 
     {{/* DELETING */}}
     {{/* del1 - you really want to delete? */}}
-    {{if eq .StrippedID "del1"}}
-        {{if not $wip}}
+    {{if eq $id "del1"}}
+        {{if not $w}}
             {{ephemeralResponse}}
             {{$err}} 141.
             {{return}}
@@ -149,7 +160,7 @@ More info: https://github.com/FravBox/YagCCs
 
         {{$msg := print "# :warning: Are you SURE you want to __DELETE__ this tag? :warning: \n## This cannot be undone!" $tinfo }}
 
-            {{if and $wip (eq $mid $r)}}
+            {{if and $w (eq $mid $r)}}
                 {{updateMessage (complexMessageEdit "content" $msg "buttons" $btns)}}
             {{else}} 
                 {{$r = sendResponseRetID nil (complexMessage "content" $msg "buttons" $btns "ephemeral" true)}}
@@ -160,7 +171,7 @@ More info: https://github.com/FravBox/YagCCs
         {{return}}
 
     {{/* del2 - actually delete the tag */}}
-    {{else if eq .StrippedID "del2"}} 
+    {{else if eq $id "del2"}} 
         {{$msg := print "## :put_litter_in_its_place:  You have deleted the tag and it's reference message." $tinfo}}
 
         {{if eq $mid $r}}
@@ -173,7 +184,7 @@ More info: https://github.com/FravBox/YagCCs
         {{execCC $log nil 0 (sdict "type" "2" "key" $key)}}
         {{return}}
 
-    {{else if or (eq .StrippedID "ref") (eq .StrippedID "edit")}}
+    {{else if or (eq $id "ref") (eq $id "edit")}}
 
     {{/* SEND MANAGEMENT BUTTONS */}}
     {{$b1 := (cslice
@@ -188,7 +199,7 @@ More info: https://github.com/FravBox/YagCCs
         {{$prefix := "# What would you like edit about this tag?"}}
         {{$msg := print $prefix $tinfo}}
 
-        {{if eq "ref" .StrippedID}}
+        {{if eq "ref" $id}}
             {{dbDel $u "twip"}}
             {{$r = sendResponseRetID .Interaction.Token (complexMessage "content" $msg "buttons" $b1 "buttons" $b2 "ephemeral" true)}}
             {{$twip.Set "msg" $r}}
@@ -207,31 +218,31 @@ More info: https://github.com/FravBox/YagCCs
     {{else}}
         {{/* send management modals */}}
         {{$tn := print "Edit " $t.tname "'s "}}
-        {{$name := $t.tname}} {{$alias := $t.aliases}} {{$content := $t.content}} {{$img := $t.img}}
+        {{$name := $t.tname}}{{$alias := $t.aliases}}{{$content := $t.content}}{{$img := $t.img}}
 
-        {{if eq $wip.key $key}}
-            {{if $wip.tname}}
-                {{$name = $wip.tname}}
-            {{else if $wip.aliases}}
-                {{$alias = $wip.aliases}}
-            {{else if $wip.tbody}}
-                {{$content = $wip.tbody}}
-            {{else if $wip.img}}
-                {{$img = $wip.img}}
+        {{if eq $w.key $key}}
+            {{if $w.tname}}
+                {{$name = $w.tname}}
+            {{else if $w.aliases}}
+                {{$alias = $w.aliases}}
+            {{else if $w.tbody}}
+                {{$content = $w.tbody}}
+            {{else if $w.img}}
+                {{$img = $w.img}}
             {{end}}
         {{else}}
             {{dbDel $u "twip"}}
         {{end}}
 
 
-        {{if eq "name" .StrippedID}}
+        {{if eq "name" $id}}
             {{sendModal (sdict 
             "title" (print $tn "tag name") 
             "custom_id" "tagm-name" "fields" 
             (sdict "label" "New tag name" "value" $name "max_length" 29 "required" true)
             )}}
 
-        {{else if eq "alias" .StrippedID}}
+        {{else if eq "alias" $id}}
             {{sendModal (sdict 
             "title" (print $tn "aliases") 
             "custom_id" "tagm-alias" 
@@ -239,7 +250,7 @@ More info: https://github.com/FravBox/YagCCs
             (sdict "label" "All aliases (separate with spaces)" "placeholder" "Enter ALL aliases, not just new ones." "value" (joinStr " " $alias) "max_length" 200 "required" true)
             )}}
 
-        {{else if eq "content" .StrippedID}}
+        {{else if eq "content" $id}}
             {{sendModal (sdict 
             "title" (print $tn "content")
              "custom_id" "tagm-content" 
@@ -247,7 +258,7 @@ More info: https://github.com/FravBox/YagCCs
              (sdict "label" "Tag content" "value" $content "max_length" 1000 "style" 2 "required" true)
              ))}}
 
-        {{else if eq "img" .StrippedID}}
+        {{else if eq "img" $id}}
             {{sendModal (sdict 
             "title" (print $tn "image")
                 "custom_id" "tagm-img" 
@@ -265,7 +276,7 @@ More info: https://github.com/FravBox/YagCCs
 {{end}}
 
 {{/* CREATE NEW TAG */}} 
-{{if eq .StrippedID "new" }}
+{{if eq $id "new" }}
     {{dbDel $u "twip"}}
     {{$tagfields := (cslice
     (sdict "label" "Tag Name" "placeholder" "Can only contain characters A-z, 0-9, & spaces." "value" $v1 "max_length" 29 "required" true)
