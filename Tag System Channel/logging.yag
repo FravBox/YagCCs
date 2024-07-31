@@ -308,7 +308,7 @@ no trigger */}}
 
 {{$msg := print "## ✅ Your tag has been saved.\n[**View it here**](" $refl ")." }}
 
-{{if and ($wip) (eq .Message.ID $wip.msg)}}
+{{if and ($wip) (eq .Message.ID (toInt $wip.msg))}}
     {{if eq $type 3 4}}
         {{/* new tag name or alias */}}
         {{updateMessage (complexMessageEdit "content" $msg)}}
