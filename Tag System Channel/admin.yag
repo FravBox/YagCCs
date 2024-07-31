@@ -138,6 +138,7 @@ More info: https://github.com/FravBox/YagCCs
         {{$done}}
     {{return}}
 
+    {{/* DELETE TAGS WITH NO REFS */}}
 {{else if eq .StrippedID "noref"}}
     {{$count := (dbGet 749 "tgnorefs").Value}}
     {{if not $count}}
@@ -152,11 +153,14 @@ More info: https://github.com/FravBox/YagCCs
     {{range $x}}
         {{$t = .Value}}
         {{$m = reFindAllSubmatches `(?i)https://(?:\w+\.)?discord(?:app)?\.com/channels\/(\d+)\/(\d+)\/(\d+)` $t.reflink}}
-        {{$ch = index $m 0 2}}
-        {{$mid = index $m 0 3}}
-        {{$y = getMessage $ch $mid}}
 
-        {{if not $y}}
+        {{if $m}}
+            {{$ch = index $m 0 2}}
+            {{$mid = index $m 0 3}}
+            {{$y = getMessage $ch $mid}}
+            {{$count.Set "skip" (add $count.skip 1)}}
+
+        {{else}}
             {{- sendMessage nil (complexMessage "content" (print "# :x: :label: Deleted Tag\n**Name:\n** `" $t.tname "`\n**Aliases:**\n `" (joinStr "` `" $t.aliases) "`\n**Created:\n** <t:" $t.creation ":D> by <@" $t.author ">\n**Last edited:**\n <t:" $t.lastedit ":D> by <@" $t.lasteditor ">\n**Content:**\n```md\n" $t.content "\n```\n**Image:**\n" (or $t.img "none" ) ) "allowed_mentions" nil) -}}
             {{- $db = sdict
             "ch" $ch
@@ -171,11 +175,10 @@ More info: https://github.com/FravBox/YagCCs
             {{$alist = $alist.AppendSlice $t.aliases}}
             {{dbDel 749 .Key}}
             {{$count.Set "del" (add $count.del 1)}}
+
             {{if ge $count.del 5}}
                 {{break}}
             {{end}}
-        {{else}}
-            {{$count.Set "skip" (add $count.skip 1)}}
         {{end}}
     {{end}}
     {{/* deal with aliaslist */}}
