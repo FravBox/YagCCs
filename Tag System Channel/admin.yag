@@ -67,7 +67,7 @@ More info: https://github.com/FravBox/YagCCs
         "description" (print "**__Aliases__**\n-# Use any of these to call this tag.\n`;" (joinStr "` `;" $alist) "`\n\n**__Content__**\n" .Value) 
         "fields" (cslice 
         (sdict "name" "__Information__" "value" (print "**Created:**\n<t:" .CreatedAt.Unix ":D> (<t:" .CreatedAt.Unix ":R>)\nby <@" $u "> (@" $un ")\n\n**Last edit:**\n<t:" $time ":D> (<t:" $time ":R>)\nby <@" $u "> (@" $un ")"))
-        (sdict "name" "__Previous content__" "value" .Value))
+        (sdict "name" "__Previous content__" "value" "Tag's main content never edited"))
         "footer" (sdict "text" "Tag system" "icon_url" (print (reReplace " " (print $thumbnail "?=" $newkey ) "%20" )))
         "color" $color)
         "buttons" $refbtn) -}} {{$reflink = print "https://discord.com/channels/" $.Guild.ID "/" $tch "/" $ref}}
