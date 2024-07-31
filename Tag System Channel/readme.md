@@ -27,7 +27,7 @@ Tag authors can always manage their own tags. But you can set a mod role that ca
 Once you've installed the custom commands to your dashboard, use `;admin` to initialize the system. 
 Image 9
 
-<ul><li> **Start** gets you started right away!</li>
+<ul><li> **Start** gets you started right away!
 <li>**Migrate Tags**      
 Do you currently use [jo3-l](https://github.com/jo3-l)'s [Tag system](https://yagpdb-cc.github.io/tags/overview)? Convert all those tags to this system without losing them!     
 <details><summary>Note about migration</summary>
@@ -35,13 +35,13 @@ Do you currently use [jo3-l](https://github.com/jo3-l)'s [Tag system](https://ya
 - There is not an easy way to change the author of a tag (you would have to code a separate cc to do this for yourself)
 - You must migrate ALL tags. If you stop partway through, the system will break and you will have to "delete all" before you can continue.
 - Migration and "delete all" do not alter your old tags in any way.
-</details></li>
+</details>
 
 <li>**Delete all**      
-Don't like the system? Screwed it up royally somehow? This system cleans up after itself.</li>
+Don't like the system? Screwed it up royally somehow? This system cleans up after itself.
 
 <li>**Delete tags with no posts**    
-Because we use the reference channel to keep track of our tags, deleting those posts can cause terror on the system. But don't worry - if you accidentally deleted a message, it's still there and we can recover it.</li></ul> 
+Because we use the reference channel to keep track of our tags, deleting those posts can cause terror on the system. But don't worry - if you accidentally deleted a message, it's still there and we can recover it.</ul> 
 image 10
 
 ## And of course... Calling tags anywhere
@@ -55,15 +55,15 @@ Furthermore, to keep things organized, you should name each CC the same way it i
 
 image 14
 
-<ol><li>**If you have other CCs that use the `starts with ;` trigger, disable them.**     
-Change the other CC triggers if possible. Running this system with other CCs of the same trigger may produce unwanted results in your server.</li>
+**0. If you have other CCs that use the `starts with ;` trigger, disable them.**     
+Change the other CC triggers if possible. Running this system with other CCs of the same trigger may produce unwanted results in your server.
 
-<li>**Make a "Tag Reference" channel**    
+**1. Make a "Tag Reference" channel**    
 This is where all of the tags will be posted on creation, as well as the buttons to interact with them. The systemw ill not work without this channel.    
 - Change the channel permissions so everyone can see the channel and messages, but are unable to post in the channel.
-- Make the first post in the channel yourself or with a bot, and save the message link. We will use it in the next step.</li>
+- Make the first post in the channel yourself or with a bot, and save the message link. We will use it in the next step.
 
-<li>**Add `logging.yag` first and keep note of its CC ID.**     
+**2. Add `logging.yag` first and keep note of its CC ID.**     
 image 12     
 - Set the trigger to "none" in your dashboard.
 - Inside the code, on line 5, change `$logch` to the ID of the channel you wish to post the tag logs. If you don't want any logs, keep it at `0`.     
@@ -78,39 +78,39 @@ If you remove the image, the system will behave erradically and you may not be a
 
 If you don't like the current image and/or you wish to host it yourself, you can put any image URL in line 11 to replace it. However, the URL must be a DIRECT link to the image (it must end in the image extention, e.g. .jpg,.png, etc).
 
-If you don't understand what any of this means, do not change the thumbnail URL.</details></li>
+If you don't understand what any of this means, do not change the thumbnail URL.</details>
 
-<li>**Add `modals.yag`**    
+**3. Add `modals.yag`**    
 - On your dashboard, the trigger type is `modal submission` and the component custom ID regex is `^tag(m|s|e)-`
 - Inside the code, on line 4, change `$log` to the CC ID of `logging.yag`. 
-</li>
 
-<li>**Add `admin.yag**    
+
+**4. Add `admin.yag**    
 - On your dashboard, the trigger type is `message component` and the regex is `^tagi-`
 - Inside the CC, change line 10 `$admin` to the role ID you wish to have control of the entire tag system. This role will be able to run the admin functions (set up the system, migrate tags, delete everything) but cannot edit individual tags.
 - Line 13 is an optional change. See the note about thumbnails in the `logging.yag` step.
 - On line 16, change `$tch` to the ID of your "tag reference" channel. This is the channel with the first message you created in an earlier step. This channel shows all of your tags when they are created.
 - On line 19, change `$logs` to the CC ID of `logging.yag`.
-- Line 22 is an optional change if you want to change the color of tag embeds.</li>
+- Line 22 is an optional change if you want to change the color of tag embeds.
 
-<li>**Add `calling.yag`**    
+**5. Add `calling.yag`**    
 - On your dashboard, the trigger type is `starts with` and the trigger is `;`
 - Inside the CC on line 11, put the ID of the admin role from the previous step in `$admin`
 - Line 14 and 17 are optional changes for the thumbnail and embed color. See the notes for these from the `logging.yag` step.
 - Line 20 is an optional change. When YAGPDB cannot find a tag you are trying to call, it reacts with this emoji (and deletes the reaction 5 seconds later)
-</li>
 
-<li>**Add `buttons.yag`**    
+
+**6. Add `buttons.yag`**    
 - On your dashboard, the trigger type is `message component` and the regex is `^tag(e|s)-`
 - Inside the CC on line 9, change `$staff` to the ID of the role you want to be able to manage anyt ag, regardless of its author. Tag authors will always be able to edit their own tags, regardless of roles.
 - On line 12, put the CCID of the `logging.yag` command in `$log`
-</li>
 
-<li>**In discord, type `;admin` in any channel and click "start" to start the system.**     
+
+**7. In discord, type `;admin` in any channel and click "start" to start the system.**     
 - I highly recommend you run the admin functions in a channel that is NOT your tag reference channel.
 - If you want to use any of the admin functions, read the admin message for instructions on how to use that function.
 - If you create some tags and then later decide to migrate your old tags, this is possible. However, you should migrate as soon as possible because if any error should happen, the most likely outcome will be having to use the "delete all" function, which will delete the tags you created before migration.
-</li></ol>
+
 
 # Final Notes
 - If you have problems, you can ping me in the YAGPDB support server: `@standardquip` or create an issue here on github
