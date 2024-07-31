@@ -4,7 +4,7 @@ trigger: ^tag(e|s)-
 */}}
 
 {{/* role IDs for tag mods - authors can always manage their own tags */}}
-{{$staff := cslice 1087071584776368349}} 
+{{$staff := cslice 111111111 2222222222 333333333}} 
 
 {{/* CCID of logs */}}
 {{$log := 0123}}
