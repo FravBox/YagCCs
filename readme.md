@@ -67,7 +67,7 @@ A very basic system that allows users to submit prompts for writing, art, etc. Y
 
 <details><summary><b>Tag System Channel</b></summary>
 
-A tag system that uses a reference channel, buttons, and modals (text inputs) so you don't have to deal with text commands anymore. Loosely based on [jo3-l](https://github.com/jo3-l)'s [Tag system](https://yagpdb-cc.github.io/tags/overview) on the YAGPDB-CC website.
+A tag system that uses a reference channel, buttons, and modals (form submission) so you don't have to deal with text commands. Loosely based on [jo3-l](https://github.com/jo3-l)'s [Tag system](https://yagpdb-cc.github.io/tags/overview) on the YAGPDB-CC website.
 
 Tags (sometimes called "snippets") are pre-formatted messages you can call at any time. They are specifically helpful for support servers where the same questions are asked frequently.
 </details>
