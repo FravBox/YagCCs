@@ -119,7 +119,7 @@ Tag authors will always be able to edit their own tags, regardless of roles.
 - If you create some tags and then later decide to migrate your old tags, this is doable. However, you should migrate as soon as possible because if any error should happen, the most likely outcome will be needing to use the "delete all" function, which will delete the tags you created before migration.
 
 # Extras
-in the `/extras/` folder are some extra companion commands, totally optional.     
+In the `/extras/` folder are some extra text commands, totally optional.     
 Currently the only thing in there is `change tag author.yag` (which does what it implies) but I imagine I will end up adding more eventually.
 
 # Final Notes
