@@ -43,13 +43,13 @@ no trigger */}}
         {{deleteMessage $sdb.ch $sdb.msg 1}}
     {{end}}
 
-    {{$reply := sendMessageRetID $ch (complexMessage "content" (print "## There are currently `" (dbCount (sdict "userID" 749 "pattern" "tg.%")) "` tags." ) "buttons" $stickyb )}}
+    {{$r := sendMessageRetID $ch (complexMessage "content" (print "## There are currently `" (dbCount (sdict "userID" 749 "pattern" "tg.%")) "` tags." ) "buttons" $stickyb )}}
 
-    {{$sticky := sdict
+    {{$s := sdict
     "ch" $ch
-    "msg" $reply
+    "msg" $r
     }}
-    {{dbSet 749 "tgadmin-sticky" $sticky}}
+    {{dbSet 749 "tgadmin-sticky" $s}}
     {{return}}
 {{end}}
 
@@ -63,9 +63,9 @@ no trigger */}}
 {{$refl := $ex.reflink}}
 {{$token := .Interaction.Token}}
 {{$alist := (dbGet 749 "aliaslist").Value}}
-{{$wip := (dbGet $u "twip").Value}}
+{{$w := (dbGet $u "twip").Value}}
 {{$time := currentTime.Unix }}
-{{$author := $u}}
+{{$au := $u}}
 {{$r := ""}}
 {{$als := $ex.aliases}}
 
@@ -80,12 +80,12 @@ no trigger */}}
 "tbody" $t.content
 "img" $t.img
 "token" $token
-"msg" $wip.msg
-"key" $wip.key
+"msg" $w.msg
+"key" $w.key
 }}
 
-{{if $wip}}
-    {{$r = $wip.msg}}
+{{if $w}}
+    {{$r = $w.msg}}
 {{end}}
 
 {{/* helpers */}}
@@ -109,7 +109,7 @@ no trigger */}}
 {{if and (ne $type 1) (ne $type 2)}}
     {{$emoji = ":pencil:"}}
     {{$action = " edited "}}
-    {{$author = $t.author}}
+    {{$au = $t.author}}
     {{$time = $t.creation}}
     {{$content = $t.content}}
     {{$prevcontent = $t.content}}
@@ -172,13 +172,16 @@ no trigger */}}
     {{$als = $als2}}
     {{if eq $type 3}}
         {{$new = print "`;" (joinStr "` `;" $als) "`"}}
+
+    {{else if eq $type 1}}
+        {{$key = print "tg." $tname "|" (joinStr "|" $als) "|"}}
     {{end}}
 
 {{end}}
 
 {{/* Tag db */}}
 {{$db := sdict
-    "author" $author
+    "author" $au
     "tname" $tname
     "aliases" $als
     "creation" $time
@@ -201,7 +204,7 @@ no trigger */}}
 {{if eq $type 3 4}}
     {{if eq $type 4}}
         {{$key = print "tg." $tname "|" (joinStr "|" $t.aliases) "|" }}
-    {{else if eq $type 3}}
+    {{else}}
         {{$key = print "tg." $t.tname "|" (joinStr "|" $als) "|"}}
     {{end}}
     {{$ot := (dbGet 749 $oldkey).Value}}
@@ -212,7 +215,7 @@ no trigger */}}
 {{$th := print (reReplace " " (print $thumb "?=" $key ) "%20" )}}
 
 {{$body := print "**__Aliases__**\n-# Use any of these to call this tag.\n`;" (joinStr "` `;" $als) "`\n\n**__Content__**\n" $tbody }}
-{{$edit1 := print "**Created:**\n <t:" $time ":D> (<t:" $time ":R>)\nby <@" $author "> (@" ((getMember (print $author)).User).Username ")" }}
+{{$edit1 := print "**Created:**\n <t:" $time ":D> (<t:" $time ":R>)\nby <@" $au "> (@" ((getMember (print $au)).User).Username ")" }}
 {{$edit2 := print "\n\n**Last edit:**\n <t:" currentTime.Unix ":D> (<t:" currentTime.Unix ":R>)\nby <@" $u "> (@" ((getMember (print $u)).User).Username ")" }}
 {{$foot := (sdict "text" "Tag system" "icon_url" (print $th))}}
 
@@ -308,7 +311,7 @@ no trigger */}}
 
 {{$msg := print "## ✅ Your tag has been saved.\n[**View it here**](" $refl ")." }}
 
-{{if and ($wip) (eq .Message.ID (toInt $wip.msg))}}
+{{if and ($w) (eq .Message.ID (toInt $w.msg))}}
     {{if eq $type 3 4}}
         {{/* new tag name or alias */}}
         {{updateMessage (complexMessageEdit "content" $msg)}}
@@ -332,7 +335,7 @@ no trigger */}}
         ":**\n" $new}}
     {{end}}
 
-    {{$logbody = print "# " $emoji " :label: The tag, `" $name "`, has been" $action "\n**Tag author:** <@" $author ">\n**Editor:** <@" $u ">" $2nd}}
+    {{$logbody = print "# " $emoji " :label: The tag, `" $name "`, has been" $action "\n**Tag author:** <@" $au ">\n**Editor:** <@" $u ">" $2nd}}
 
     {{sendMessage $logch (complexMessage "content" (print $logbody "\n\n**Go to tag:** " $refl) "allowed_mentions" nil)}}
 {{end}}
