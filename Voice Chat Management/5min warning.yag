@@ -1,0 +1,47 @@
+{{/* VC mgmt - 5min warning
+trigger: none
+no need to edit anything
+more info: https://github.com/FravBox/YagCCs/
+*/}}
+
+{{/* don't edit below */}}
+
+{{/* host user ID */}}
+{{$u := .ExecData.u}}
+{{$cooldown := .ExecData.cooldown}}
+{{$db := .ExecData.db}}
+{{$udb := .ExecData.udb}}
+{{$maxtime := .ExecData.maxtime}}
+{{$shost := .ExecData.shost}}
+{{$vhost := .ExecData.vhost}}
+{{$mute := .ExecData.mute}}
+
+{{/* host vc status */}}
+{{$v := .Guild.GetVoiceState $u}}
+
+{{if $v}}
+{{sendMessageNoEscape $db.ch (print "**<@" $u ">, your host privileges will expire in 5 minutes!**\nIf you need to add more time, Select \"Become a stage host\" from the interface menu again.")}}
+    {{return}}
+{{else}}
+    {{takeRoleID $u $shost}}
+    {{takeRoleID $u $vhost}}
+
+    {{/* unmute everyone */}}
+    {{if ge (len $db.mutes) 1}}
+        {{range $db.mutes}}
+            {{takeRoleID . $mute}}
+            {{execAdmin "unmute" . "Mute by Stage Host expired.\nIf you are currently in a voice channel, you will have to reconnect for these changes to take effect."}} {{/* so it's logged */}}
+        {{end}}
+        {{sendMessage nil (complexMessage "content" (print "The following users have been unmuted: <@" (joinStr ">, <@" $db.mutes) ">" ) "ephemeral" true)}}
+    {{end}}
+
+    {{/* if you're close to maxtime, 1hr cooldown. Else, dbDel */}}
+    {{$sum := add $db.time $cooldown (div $cooldown 2)}}
+    {{if ge $sum $maxtime}}
+        {{$udb.Set "cooldown" 1}}
+        {{dbSetExpire $u "vc_host" $udb $cooldown}}
+    {{else}}
+        {{dbDel $u "vc_host"}}
+    {{end}}
+    {{return}}
+{{end}}

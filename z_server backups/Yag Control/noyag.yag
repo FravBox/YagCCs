@@ -1,0 +1,11 @@
+{{/* command: noyag */}}
+{{/* Deletes Yag's last message */}}
+	{{$silent := (execAdmin "clear 1 204255221017214977 -ma 30m -nopin")}}
+	{{deleteTrigger 0}}
+
+{{/* Sends to modlog */}}
+	{{$modlog := 970007312632795167}}
+	{{$log := execAdmin "logs 10"}}
+	{{$msg := cembed "description" (joinStr "" "**" .User.Mention "** (ID: " .User.ID ") used `-noyag` in " .Channel.Mention  "\n([View Logs](" $log "))" )  "color" 16772608 }}
+	
+	{{sendMessage $modlog $msg}}

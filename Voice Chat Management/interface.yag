@@ -1,0 +1,19 @@
+{{/* VC Mgmt - interface
+contains the message used for assigning roles & muting members. 
+trigger is whatever you want
+no need to edit anything
+more info: https://github.com/FravBox/YagCCs/
+*/}}
+
+{{$msg := "# Stage hosting\nStage hosts can use voice activity in push to talk channels and mute people in their VC.\nThere can only be one host per channel.\nAdditionally, if you are hosting in a stage channel, you become the speaker, stage moderator, can control when other people may speak, and can update discord server events.\n## Become a stage host\nStep 1. Join a voice channel.\nStep 2. Tap \"Become Stage Host\" & pick how much time is needed.\nStep 3. Mute members in the VC or tell us you're done hosting."}}
+
+{{$bhost := cslice
+(cbutton "label" "🎤 Become a stage host" "custom_id" "vc-host" "style" "success")
+(cbutton "label" "Stop hosting" "custom_id" "vc-unhost" "style" "primary" "emoji" (sdict "name" "🚫" ))
+}}
+
+{{$bmute := cslice
+(cbutton "label" "🔈 🔊 Mute or unmute someone" "custom_id" "vc-mute" "style" "danger")}}
+
+{{sendMessage nil (complexMessage "content" $msg "buttons" $bhost "buttons" $bmute)}}
+

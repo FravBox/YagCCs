@@ -1,0 +1,93 @@
+{{/* If someone has a vague question, send message about asking better questions to improve feedback
+Trigger: regex .*
+*/}}
+
+{{$min := 450}} {{/* minimum character requirement for questions. If message is under this, always post "improve feedback" message. */}}
+{{$max := 700}} {{/* questions over this length will never get the "improve feedback" message */}}
+
+
+{{/* message to send */}}
+{{$improve_feedback := (cembed
+"title" "Get better feedback with more detailed questions!"
+"description" "\"Is this good?\" doesn't give us much to go on. \n\nConsider adding more information to your request."
+"image" (sdict "url" "https://bentovid.com/user/images/guides/critiquematrix_sm.png")
+"fields" (cslice
+    (sdict
+        "name" "Is there something specific you could use help with?"
+        "value" "-# *Ask questions about things like:*\n- Sync accuracy/use\n- Story progression\n- Scene selection\n- Effects use\n- Overall flow"
+        "inline" true
+    )
+    (sdict "name" "Don't know what to ask?" "value" " " "inline" false)
+    (sdict
+        "name" "Tell us your goals"
+        "value" "-# *Examples:*\n- Target audience\n- Specific story/genre\n- Particular technique\n- Edit like someone else (Who? Got an example video?)"
+        "inline" true
+    )
+    (sdict
+        "name" "Give context"
+        "value" "-# *Examples:*\n- How long you've been editing\n- What new thing you're attempting to do\n- Why you're making this video\n- Your feelings about the vid\n- Any problems you've encountered while editing this"
+        "inline" true
+    )
+    (sdict
+    "name" "What type of feedback are you looking for?"
+    "value" " "
+    "inline" false
+    )
+)
+"color" 48028
+"footer" (sdict
+    "text" "Tapping 🗑️ will delete this message"
+)
+)
+}}
+
+
+{{/* code below */}}
+{{$msg := .Message.Content}}
+{{$vague := `(?i)((how)?.?((are|is|am).?(this|my|I|it|the).?((vid|edit|amv|do(ing)?)|good|ok((ay)?))))|((what)?.?(do you|should I).?(like|think|have)?.)`}}
+
+{{/* Skip conditions */}}
+{{$skip := 1}}
+{{$vid := 0}}
+
+{{if and (reFind `<@&750551422973771787>` $msg) (ge (len $msg) $max)}}
+    {{/* pinged critique and max length */}}
+    {{return}}
+{{end}}
+
+{{range .Message.Attachments}}
+	{{if (reFind `(?i)\.(mp4|webm|mov|avi)\z` .Filename)}}
+        {{$vid = 1}}
+    {{end}}
+{{end}}
+
+{{if not $vid}}
+    {{if (reFind `(?i)http(s?):\/\/((www\.)?(youtube|vimeo|drive\.google)(\.com)|(youtu\.be|f((rame)?)\.io))` $msg)}}
+        {{$vid = 1}}
+    {{end}}
+{{end}}
+
+{{if not $vid}}
+    {{/* no vids to critique */}}
+    {{return}}
+{{end}}
+
+
+{{if le (len $msg) $min}}
+    {{$skip = 0}}
+
+{{else if (reFind $vague $msg)}}
+    {{$skip = 0}}
+{{end}}
+
+
+{{if $skip}}
+    {{/* question is good, leave cc */}}
+    {{return}}
+{{else}}
+    {{/* Question is bad. Post the thing & add reaction */}}
+
+	{{$yagMsg := sendMessageNoEscapeRetID nil (complexMessage "embed" $improve_feedback "reply" .Message.ID )}}
+	{{addMessageReactions nil $yagMsg "🗑️"}}
+
+{{end}}

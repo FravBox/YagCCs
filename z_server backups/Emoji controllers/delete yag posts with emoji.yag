@@ -15,7 +15,7 @@ CC ID: 249
 {{$server := 751674884765253754}} {{/* server category */}}
 {{$ref := 1103417972699177081}}{{/* reference category */}}
 {{$sb := 1038951032467755008}} {{/* starboard channel */}}
-{{$intros := 1033952269265272863}} {{/* introductions channel */}}
+{{$intros := 1252109363678675004}} {{/* introductions channel */}}
 
 {{if (reFind `Staff Message:` .Message.Content)}}
 	{{return}}
@@ -41,6 +41,7 @@ CC ID: 249
 {{$color :=  11053224 }} {{/* color of modlog embed, in decimal */}}
 
 {{$vidshare := 871735111127793674 }} {{/* vid share channel to not quote vpr message */}}
+{{$critique := 750545070020886588}} {{/* don't quote improve feedback message either */}}
 
 {{/* the message for the modlog - this will go in an embed */}}
 {{$modmsg := (print " **" $user.Mention " (" $user.String ") used " $emoji " in <#" $msg.ChannelID ">** ([link](https://discord.com/channels/" .Guild.ID "/" $msg.ChannelID ")) at <t:" currentTime.Unix ">\n\n**User ID:** " $user.ID  )}}
@@ -72,8 +73,12 @@ CC ID: 249
         {{$user2 := $msg.ReferencedMessage.Author}}
         {{sendMessage $modch (cembed "description" (print $modmsg $logfooter "\n\n**Deleted Message:**\nVPR Warning for " $user2 ". " ) "color" $color )}}
 
+    {{else if and ($msg.Embeds) (or (eq $ch.ID $critique) (eq $ch.ParentID $critique) ) }}
+        {{$user2 := $msg.ReferencedMessage.Author}}
+        {{sendMessage $modch (cembed "description" (print $modmsg $logfooter "\n\n**Deleted Message:**\n\"Improve Feedback\" message for " $user2 ". " ) "color" $color )}}
+
         
-    {{else if and ($msg.Embeds) (ne $ch.ID $vidshare) }}
+    {{else if and ($msg.Embeds) (ne $ch.ID $vidshare) (ne $ch.ID $critique)}}
         {{sendMessage $modch (cembed "description" (print $modmsg $logfooter ) "color" $color )}}
         {{sendMessage $modch (complexMessage "content" "\n**Deleted Message:**" "embed" (index $msg.Embeds 0) )}}
     {{end}}

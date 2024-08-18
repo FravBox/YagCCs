@@ -109,6 +109,13 @@ Also has a nice join and leave message template.
 </details>
 
 <details>
+<summary>Voice Chat Management</summary>
+
+Allows people to "host" in VCs, giving them temporary privileges to mute people. Originally made to allow people to host their own events in stage channels without having to make permanent stage moderators. <br>
+In theory this CC works; all parts were tested. But the CC as an entire system is untested. Test it before applying to a public server.
+</details>
+
+<details>
 <summary>Werewolf Game</summary>
 Simple text-based word game where people in a channel try to take care of a werewolf problem. NOT a social deduction game. The bot is the werewolf.
 </details>

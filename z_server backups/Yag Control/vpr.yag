@@ -1,0 +1,21 @@
+{{/* Remind about vpr if no vpr mentioned 
+Trigger: regex .* 
+*/}}
+
+{{/* Actual Message */}}
+{{$add_vpr := cembed "description" "## This channel requires flash warnings.\n### Please edit your message to indicate if your video has flashing or not.\n Although not required, you can add more [VPR terms](https://bentovid.com/vpr#common-pho) if you'd like to increase accessibility.\ne.g. `VPR flashing, glitch effects, peripheral`, etc.\n\n*Tapping :wastebasket: will hide this message.*" "color" 0xff6a00 "thumbnail" (sdict "url" "https://bentovid.com/user/pages/05.vpr/PSEnby.png") }}
+
+{{/* Skip conditions */}}
+{{$skip := false}}
+{{if not (reFind `(?i)(youtube.com|youtu.be|vimeo.com|drive.google.com|streamable.com|frame.io|f.io)` .Message.Content)}}
+    {{$skip := true}}
+
+{{else if (reFind `(?i)(vpr|flash|flicker|glitch|shak|pattern|safe|motion|particles|peripheral)` .Message.Content)}}
+    {{$skip := true}}
+
+{{/* Post the thing & add reaction */}}
+{{else if not $skip}}
+	{{$yagMsg := sendMessageNoEscapeRetID nil (complexMessage "embed" $add_vpr "reply" .Message.ID )}}
+	{{addMessageReactions nil $yagMsg "🗑️"}}
+
+{{end}}

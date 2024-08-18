@@ -1,0 +1,37 @@
+{{/* vid-critique - 1hr cooldown per user 
+trigger: \A 
+*/}}
+    {{/* 0 for per user, 1 for global */}}
+		{{$isGlobal := 0}}
+		{{/* name your cooldown name (anything works) */}}
+		{{$name := "critique sm cd"}}
+		{{/* Length of the cooldown (in seconds) */}}
+		{{$lengthSec := 3600}}
+
+		{{/* CREATING VARIABLES DO NOT TOUCH */}}
+		{{$id := 0}}
+		{{$key := joinStr "" "cooldown1_" $name}}
+		
+        {{if eq $isGlobal 0}}
+		    {{$id = .User.ID}}
+
+            {{if dbGet (toInt64 $id) $key}} 
+                {{/* Code to execute when cooldown is active */}}
+            {{else}}
+                {{/* Create cooldown entry */}}
+                {{dbSetExpire (toInt64 $id) $key "cooldown1" $lengthSec}}
+
+{{/* vid-critique sticky content */}}
+			{{$role := cbutton "label" "Add or remove @Critique ping" "custom_id" "critique-role" }}
+            {{$more := cbutton "label" "Unlock this channel" "custom_id" "critique-sticky" "emoji" (sdict "name" "🔓" ) }}
+            {{$message := complexMessage "content" "If you are unwilling to change your video, DO NOT ask for critique!\n-# [How to give, receive, & ask for critique](<https://bentovid.com/sguides/critique>)\n-# **Anyone can give critique**, but you can get the ping list role from <id:customize> or the button attached to this message." "buttons" (cslice $more $role)}}
+
+            {{/* do not edit below */}}
+                {{if $db := dbGet .Channel.ID "stickymessage"}}
+                    {{deleteMessage nil (toInt $db.Value) 0}}
+                {{end}}
+                
+                {{$id := sendMessageRetID nil $message}}
+                {{dbSet .Channel.ID "stickymessage" (str $id)}}
+            {{end}}
+		{{end}}
