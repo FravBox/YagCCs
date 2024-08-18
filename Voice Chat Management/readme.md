@@ -4,7 +4,8 @@ Originally made to allow people to host their own events in stage channels witho
 I coded the entire thing and tested all the pieces. I have not tested the system as a single entity because I ended up going in a different direction and am not using this in my own server.    
 **Test this before you use it in a public server.**
 
-![image](https://github.com/user-attachments/assets/3bcb4afc-1b73-40fa-b493-dd0983698ba5)      
+![image](https://github.com/user-attachments/assets/01aad47c-636f-4c18-a2fe-b1f6b856e287)     
+![image](https://github.com/user-attachments/assets/8bfd082c-4b11-4e13-adbd-73b4f9b4e6d7)     
 ![image](https://github.com/user-attachments/assets/a161dd34-becb-405d-aac9-903e0ff148af)     
 ![image](https://github.com/user-attachments/assets/da1fc81f-ff7b-407d-b6ca-202b0de49616)     
 The mute DM:     
