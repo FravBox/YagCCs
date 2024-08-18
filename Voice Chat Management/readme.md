@@ -4,6 +4,12 @@ Originally made to allow people to host their own events in stage channels witho
 I coded the entire thing and tested all the pieces. I have not tested the system as a single entity because I ended up going in a different direction and am not using this in my own server.    
 **Test this before you use it in a public server.**
 
+![image](https://github.com/user-attachments/assets/3bcb4afc-1b73-40fa-b493-dd0983698ba5)      
+![image](https://github.com/user-attachments/assets/a161dd34-becb-405d-aac9-903e0ff148af)     
+![image](https://github.com/user-attachments/assets/da1fc81f-ff7b-407d-b6ca-202b0de49616)     
+The mute DM:     
+![image](https://github.com/user-attachments/assets/2d53735a-110b-4dde-a585-e6238ca8cadf)
+
 ## Features
 - An "interface" message with buttons which allow you to rent the "Stage host" role for a specific amount of time and un/mute people.
 - Only people who are currently in a VC can become hosts
@@ -13,9 +19,9 @@ I coded the entire thing and tested all the pieces. I have not tested the system
 - Only people who are currently in the same VC the host is in can be muted
 - There is a configurable staff role that is immune from stage host mutes
 - All the muted people are automatically unmuted when: 
- - The host manually unmutes them
- - The host's time/privileges expires
- - The host manually unhosts themself
+  - The host manually unmutes them
+  - The host's time/privileges expires
+  - The host manually unhosts themself
 
 ## Downfalls
 There are limits to Yag & Discord I had to work around... Here's the downfalls.
@@ -24,11 +30,11 @@ There are limits to Yag & Discord I had to work around... Here's the downfalls.
 - The above results in superfluous mod log entries & a mute DM.
 - This CC assumes you will send the mute DM.
 - Because you can only un/mute people who are in the same channel as you, you can't un/mute someone if they're not currently in VC at all. (You can edit the CC to allow this but I will not help you do that)
-- If you do not set up your discord permissions correctly, a stage host's mute can mute someone from all VCs for the duration.
+- If you have more than one voice channel, you set it up following my instructions, and you do not edit the CC at all, a stage host's mute can mute someone from all VCs in the same category for the duration.
 
 # How to Install
 
-## \0. Set up your voice channels & roles
+## 0. Set up your voice channels & roles
 Make the following roles and *do not touch the permissions yet. Leave them at default.*    
 If you will be using both stage channels and reular voice channels, make 2 different roles for stage hosts.    
 Make a muted role.
@@ -42,7 +48,7 @@ If you have a stage channel: 1 role should be the minimum permissions required f
 If you use regular voice channels: No special permissions are required, but I would recommend granting at least  "Use Voice activity" and "set channel status."    
 For the muted role: Explicitly disallow the following: Send voice messages, speak, video, use soundboard, use external sounds, use voice activity, set channel status, use activities, (optionally) request to speak
 
-## \1. Go to the yag Dashboard > Moderation > Moderation > Mute    
+## 1. Go to the yag Dashboard > Moderation > Moderation > Mute    
 If Yag's mute function is not already enabled and setup, enable it and set it up with a mute role. This is completely independent from the Stage host mute role. We just need *this* mute enabled so we can disconnect people from VCs temporarily, send notification DMs, and put things in the mod log (if you want that). Have the bot manage the role unless you know what you're doing.
 
 This CC assumes you send mute DMs. The format that will make the most sense with this CC is the following:
@@ -62,25 +68,25 @@ You have been :loud_sound: Unmuted
 {{if .Reason}}{{.Reason}}{{end}}
 ```
 
-## \2. Add the commands.
+## 2. Add the commands.
 - Add `5min warning.yag` first. Take note of it's CC ID. It's trigger is `none`
 - Add `vc mgmt components.yag` next. 
- - trigger type is `message component`
- - trigger regex is `^vc-`
- - add 5min warning's CC ID to line 8 `$ccid`
- - Put the role IDs for your stage host roles in lines 11 & 12. If you don't have a stage channel, use the same role ID for both.
- - add the role ID for the muted role (the one stage hosts will assign, not yag's) in line 15
- - change the limits if you want (I recommend keeping the defaults)
+  - trigger type is `message component`
+  - trigger regex is `^vc-`
+  - add 5min warning's CC ID to line 8 `$ccid`
+  - Put the role IDs for your stage host roles in lines 11 & 12. If you don't have a stage channel, use the same role ID for both.
+  - add the role ID for the muted role (the one stage hosts will assign, not yag's) in line 15
+  - change the limits if you want (I recommend keeping the defaults)
 
 - Add `interface.yag`
  - The trigger can be whatever you want. I personally designed this to be posted in a locked channel once and then never used again, but you do you.
 
- ## \3. Use the command for the interface somewhere.
+ ## 3. Use the command for the interface somewhere.
  I designed this to be used in a permanent channel that is locked from posting by all roles, but it will still work if you only want it as a text command. 
 
  In any case, use the command somewhere to post the interface. Make sure you're connected to a voice channel, and then use the interface to start hosting & muting people. Enjoy!
 
- ### Final Notes
+ # Final Notes
  I will not be updating this cc unless it's a very easily fixed issue, but I will approve PRs. No new features will be added. 
 
  My code is heavily commented so you should be able to modify it if you have experience with custom commands. If you have questions you can ping me (`@standardquip`) in the yag support server to explain how/why I did something, but I will not update the code myself or code for you.
