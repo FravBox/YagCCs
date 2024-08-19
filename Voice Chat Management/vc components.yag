@@ -34,7 +34,8 @@ https://github.com/FravBox/YagCCs/
 {{$v := .Guild.GetVoiceState $u}}
 {{$ch := $v.ChannelID}}
 {{$vs := .Guild.VoiceStates}}
-{{$db := (dbGet $u "vc_host").Value}}
+{{$db2 := dbGet $u "vc_host"}}
+{{$db := $db2.Value}}
 {{$hosts := dbTopEntries "vc_host" 6 0}}
 {{$grant := ""}}
 {{$mutes := cslice}}
@@ -271,7 +272,7 @@ Ask them to press the "Stop hosting" button so you can take over or join a diffe
             {{end}}
         {{end}}
         {{$udb.Set "mutes" $mutes}}
-        {{dbSetExpire $u "vc_host" $udb (sub $db.ExpiresAt.Unix currentTime.Unix)}}
+        {{dbSetExpire $u "vc_host" $udb (sub $db2.ExpiresAt.Unix currentTime.Unix)}}
 
         {{updateMessage (print "<@" $mu "> has been unmuted.")}}
         {{return}}
@@ -289,7 +290,7 @@ Ask them to press the "Stop hosting" button so you can take over or join a diffe
 
     {{$udb.Set "mutes" (($db.mutes).Append $mu)}}
 
-    {{dbSetExpire $u "vc_host" $udb (sub $db.ExpiresAt.Unix currentTime.Unix)}}
+    {{dbSetExpire $u "vc_host" $udb (sub $db2.ExpiresAt.Unix currentTime.Unix)}}
     {{end}}
 
 {{end}}
