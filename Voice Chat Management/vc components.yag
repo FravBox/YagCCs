@@ -36,7 +36,7 @@ https://github.com/FravBox/YagCCs/
 {{$vs := .Guild.VoiceStates}}
 {{$db := (dbGet $u "vc_host").Value}}
 {{$hosts := dbTopEntries "vc_host" 6 0}}
-{{$grant := currentTime.Unix}}
+{{$grant := ""}}
 {{$mutes := cslice}}
 {{$cd1 := 0}}
 
@@ -202,6 +202,7 @@ Ask them to press the "Stop hosting" button so you can take over or join a diffe
     {{else}}
         {{$udb.Set "duration" $time}}
         {{$udb.Set "time" $time}}
+        {{$udb.Set "granted" currentTime.Unix}}
     {{end}}
 
     {{takeRoleID $u $role $time}}
