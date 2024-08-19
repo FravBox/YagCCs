@@ -176,9 +176,10 @@ Ask them to press the "Stop hosting" button so you can take over or join a diffe
 
     {{if $db}} {{/* if they're currently hosting */}}
         {{$sum := add $time $db.time}}
+        {{cancelScheduledUniqueCC $ccid $u}}
 
         {{if ge $sum $max}}
-            {{/* you cannot host for longer than $max consecutively */}}
+            {{/* you cannot host for longer than $max */}}
             {{$time = sub $max $sum}}
             {{$udb.Set "cooldown" 1}}
             {{$udb.Set "time" $sum}}
@@ -207,12 +208,12 @@ Ask them to press the "Stop hosting" button so you can take over or join a diffe
 
     {{takeRoleID $u $role $time}}
     {{dbSetExpire $u "vc_host" $udb (add $time $cooldown)}}
-    {{/* 5min warning message */}}
+    {{/* 5min warn */}}
     {{scheduleUniqueCC $ccid $ch (sub $time 300) (print $u) $exec}}
     {{updateMessage (print "You are now hosting!\n## Your privileges will expire at <t:" (add currentTime.Unix $time) ":t> (<t:" (add currentTime.Unix $time) ":R>)" $cd )}}
     {{return}}
 
-{{/* MUTE BUTTON */}}
+{{/* MUTE BTN */}}
 {{else if eq "mute" $id}}
     {{if and (not (hasRoleID $vc)) (not (hasRoleID $sm))}}
         You must be hosting to use this function.
@@ -255,7 +256,7 @@ Ask them to press the "Stop hosting" button so you can take over or join a diffe
     {{end}}
     {{return}}
 
-    {{/* TOGGLE MUTE FUNCTION */}}
+    {{/* TOGGLE MUTE */}}
 {{else if eq "togglemute" $id}}
     {{$mu := str (index .Values 0)}} {{/* user to be un/muted */}}
 
@@ -263,7 +264,7 @@ Ask them to press the "Stop hosting" button so you can take over or join a diffe
         {{takeRoleID $mu $mute}}
         {{$q := execAdmin "unmute" $mu "manually by the stage host\nUnfortunately, you will have to reconnect to the voice channel for these changes to take effect."}} {{/* so it goes to the log */}}
 
-        {{/* toggle unmutes in db */}}
+        {{/* toggle mutes in db */}}
         {{$mutes := cslice}}
         {{range $db.mutes}}
             {{if targetHasRoleID . $mute}}
@@ -276,10 +277,10 @@ Ask them to press the "Stop hosting" button so you can take over or join a diffe
         {{updateMessage (print "<@" $mu "> has been unmuted.")}}
         {{return}}
     {{else}}
-        {{/* check db to figure out how much host time they have left and make that $time */}}
+        {{/* check db 4 how much host time they have left & make that $time */}}
         {{$time2 := sub $db.duration (sub currentTime.Unix $db.granted)}}
 
-        {{/* so they're disconnected from vc and it's logged */}}
+        {{/* to disconnect from vc & log */}}
         {{$q := execAdmin "mute" $mu (print "The stage host has muted you. You can rejoin the channel but you will be unable to speak.\nThis will expire <t:" (add currentTime.Unix $time2) ":R> at <t:" (add currentTime.Unix $time2) ":t>.\nThis only effects voice channels.") }}
         {{giveRoleID $mu $mute}}
         {{$q := execAdmin "unmute" $mu "ignore"}}
