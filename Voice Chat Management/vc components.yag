@@ -127,7 +127,7 @@ cooldown = is 1, must wait 1hr before hosting again, so they can't re-up forever
 
 {{/* if they're in stage channel, give different role */}}
 {{if eq ((getChannel $v.ChannelID).Type) 13}}
-    {{$role = $sm}} {{/* give different role for stage channels */}}
+    {{$role = $sm}}
 {{end}}
 
 

@@ -1,0 +1,295 @@
+{{/* VC Hosting - components
+what happens when they click the buttons
+trigger type: message component
+regex: ^vc-
+*/}}
+
+{{/* 5min warning CC ID */}}
+{{$ccid := 362}}
+
+{{/* host roles */}}
+{{$sm := 1273402065095495761}} {{/* stage moderator */}}
+{{$vc := 1273406076556935188}} {{/* regular VCs */}}
+
+{{/* channels */}}
+{{$invite := 1274864214955135057}}
+{{$ptt := 1274864331456249917}}
+{{$stage := 1273082607478771712}} {{/* panel room */}}
+
+{{/* unmute role */}}
+{{$unmute := 1275175638516502528}}
+
+{{/* staff role (immune from host mutes) */}}
+{{$staff := 750543521227866215}}
+
+{{/* limits */}}
+{{$max := 21600}} {{/* max consecutive duration for hosting in seconds (21600 = 6hrs) */}}
+{{$cooldown := 3600}} {{/* must wait this long (in seconds) to host again if they hit maxtime (3600 = 1hr) */}}
+
+{{/* actual code */}}
+
+{{/* helpers */}}
+{{$id := .StrippedID}}
+{{$btns := cslice}}
+{{$time := 0}}
+{{$length := $time}}
+{{$role := $vc}}
+{{$u := .User.ID}}
+{{$v := .Guild.GetVoiceState $u}}
+{{$ch := 0}}
+{{if $v}}
+    {{$ch = $v.ChannelID}}
+{{end}}
+{{$db2 := dbGet $u "vc_host"}}
+{{$db := $db2.Value}}
+{{$hosts := dbTopEntries "vc_host" 6 0}}
+{{$grant := 0}}
+{{$unmutes := cslice}}
+{{$cd1 := 0}}
+{{$cdb := (dbGet $u "ch").Value}}
+{{if $cdb}}
+    {{$ch = toInt $cdb}}
+{{end}}
+{{$msg := 0}}
+
+{{if $db}}
+    {{$grant = $db.granted}}
+    {{$length = $db.duration}}
+    {{$time = $db.time}}
+    {{$role = $db.role}}
+    {{$unmutes = $db.unmutes}}
+    {{$cd1 = $db.cooldown}}
+    {{if ne $db.ch $ch}}
+        {{$ch = $db.ch}}
+    {{end}} 
+{{end}}
+
+{{ephemeralResponse}}
+
+
+{{/* db format */}}
+{{$udb := dict
+"granted" $grant
+"duration" $length
+"time" $time
+"ch" $ch
+"role" $role
+"unmutes" $unmutes
+"cooldown" $cd1
+}}
+{{/* 
+granted = original grant time.
+duration = seconds til takeRole
+time = sum of all durations, so they can't re-up forever
+mutes = cslice of all muted UserIDs (as strings)
+cooldown = is 1, must wait 1hr before hosting again, so they can't re-up forever
+*/}}
+
+{{$exec := dict 
+"u" $u 
+"cooldown" $cooldown
+"db2" $db2
+"udb" $udb
+"maxtime" $max
+"shost" $sm
+"vhost" $vc
+"type" 1
+"sm" $sm
+"vc" $vc
+"invite" $invite
+"unmute" $unmute
+"Values" 0
+}}
+
+{{/* UNHOST */}}
+{{if eq $id "unhost"}}
+    {{removeRoleID $sm}}
+    {{removeRoleID $vc}}
+    {{cancelScheduledUniqueCC $ccid $u}}
+    You are no longer hosting in <#{{$ch}}>.
+    {{if not $db}}
+        {{return}}
+    {{else if $cdb}}
+        {{dbDel $u "ch"}}
+    {{end}}
+
+    {{/* re-mute everyone */}}
+    {{if ge (len $db.unmutes) 1}}
+        {{range $db.unmutes}}
+            {{takeRoleID . $unmute}}
+        {{end}}
+        {{sendResponse nil (complexMessage "content" (print "The following users have been re-muted: <@" (joinStr ">, <@" $db.unmutes) ">.\nIf they are currently in the VC, this change will take effect the next time they join." ) "ephemeral" true)}}
+    {{end}}
+    {{/* if you're close to maxtime, 1hr cooldown. Else, dbDel */}}
+    {{$sum := add $db.time $cooldown (div $cooldown 2)}}
+    {{if ge $sum $max}}
+        {{$udb.Set "cooldown" 1}}
+        {{dbSetExpire $u "vc_host" $udb $cooldown}}
+    {{else}}
+        {{dbDel $u "vc_host"}}
+    {{end}}
+    {{return}}
+{{end}}
+
+{{if $db}}
+    {{$x := "You must be in the channel you're hosting in to use these menus.\nIf you want to change your host channel, stop hosting first."}}
+    {{if not $v}}
+        {{$x}}
+        {{return}}
+    {{else if (ne $v.ChannelID $db.ch)}}
+        {{$x}}
+        {{return}}
+    {{end}}
+{{end}}
+
+{{/* ADD HOST TIME BUTTON */}}
+{{if eq "host" $id}}
+    {{if $db}}
+        {{if (eq $db.cooldown 1)}}
+            You have hit the max hosting time. Wait a while before trying to host again.
+            {{return}}
+        {{end}}
+    {{end}}
+
+    {{/* first time host - select which vc to host in */}}
+    {{if not $db}}
+        {{$btns = cmenu
+        "type" "text"
+        "placeholder" "Where to host?"
+        "custom_id" "vc-ch"
+        "options" (cslice
+        (sdict "label" "Panel Room" "value" (str $stage))
+        (sdict "label" "Invite Only" "value" (str $invite))
+        (sdict "label" "Push to Talk" "value" (str $ptt))
+        )}}
+
+        {{sendResponse nil (complexMessage "content" "## What channel do you want to host in?" "menus" $btns "ephemeral" true)}}
+        {{return}}
+    {{else}} {{/* renew time */}}
+        {{$msg = sendResponseRetID nil (complexMessage "content" ":hourglass:" "ephemeral" true)}}
+    {{end}}
+{{end}}
+
+{{/* BECOME HOST / select time */}}
+{{if or ($msg) (eq "ch" $id)}}
+    {{if not $msg}}
+        {{$ch = toInt (index .Values 0)}}
+    {{end}}
+
+    {{dbSetExpire $u "ch" (str $ch) 600}} 
+    {{/* check if someone else is hosting in that channel */}}
+    {{$x := 0}} {{$u2 := 0}}
+    {{if $hosts}}
+        {{$z := print "## <@" .UserID "> is currently hosting in <#" $ch ">.\nAsk them to stop hosting so you can take over or select a different channel to host in." }}
+        {{range $hosts}}
+            {{if and (eq .Value.ch $ch) (ne .UserID $u)}}
+                {{if not $msg}}
+                    {{updateMessage $z}}
+                {{else}}
+                    {{editResponse nil $msg (complexMessageEdit "content" $z)}}
+                {{end}}
+
+                {{return}}
+            {{end}}
+        {{end}}
+    {{end}}
+
+    {{$btns = cslice
+    (cbutton "label" "40 minutes" "custom_id" "vc-time-2400")
+    (cbutton "label" "1 hour" "custom_id" "vc-time-3600")
+    (cbutton "label" "2 hours" "custom_id" "vc-time-7200")
+    (cbutton "label" "3 hours" "custom_id" "vc-time-10800")
+    (cbutton "label" "4 hours" "custom_id" "vc-time-14400")
+    }}
+
+    {{$z := print "## How long will you be hosting in <#" $ch ">?\n You can add more time later."}}
+    {{if not $msg}}
+        {{updateMessage (complexMessageEdit "content" $z "buttons" $btns)}}
+    {{else}}
+        {{editResponse nil $msg (complexMessageEdit "content" $z "buttons" $btns)}}
+    {{end}}
+    {{return}}
+
+{{/* HOST DURATIONS */}}
+{{else if reFind `^time` $id}}
+    
+    {{/* if they're in stage channel, give different role */}}
+    {{if eq $ch $stage}}
+        {{$role = $sm}}
+    {{end}}
+
+    {{$cd := ""}}
+    {{$time = reFind `\d{1,5}$` $id}}
+
+    {{takeRoleID $u $role}} 
+    {{/* must take first to prevent auto-loss when renewing */}}
+    {{giveRoleID $u $role}}
+
+    {{if $db}} {{/* if they're currently hosting */}}
+        {{$sum := add $time $db.time}}
+
+        {{if ge $sum $max}}
+            {{/* you cannot host for longer than $max consecutively */}}
+            {{$time = add $time (sub $sum $max)}}
+            {{$udb.Set "cooldown" 1}}
+
+            {{$cd = print "\n-# Not the time you expected? You can only host for " (div $max 3600) " hours before you need to take a break."}}
+        {{else}}
+            {{/* add times */}}
+            {{$time = $sum}}
+        {{end}}
+        {{$udb.Set "time" $sum}}
+        {{$udb.Set "duration" $time}}
+
+        {{if $db.unmutes}}
+            {{if ge (len $db.unmutes) 1}}
+                {{/* reset unmutes */}}
+                {{range $db.unmutes}}
+                    {{takeRoleID . $unmute}}
+                    {{giveRoleID . $unmute}}
+                    {{takeRoleID . $unmute $time}}
+                {{end}}
+            {{end}}
+        {{end}}
+    {{else}} {{/* first time */}}
+        {{$udb.Set "duration" $time}}
+        {{$udb.Set "time" $time}}
+        {{$udb.Set "granted" currentTime.Unix}}
+    {{end}}
+
+    {{takeRoleID $u $role $time}}
+    {{dbSetExpire $u "vc_host" $udb (add $time $cooldown)}}
+    {{/* 5min warning message */}}
+    {{$exec.Set "type" 1}}
+    {{scheduleUniqueCC $ccid $ch (sub $time 300) (print $u) $exec}}
+    {{updateMessage (print "You are now hosting in <#" $ch ">!\n## Your privileges will expire at <t:" (add currentTime.Unix $time) ":t> (<t:" (add currentTime.Unix $time) ":R>)" $cd )}}
+
+    {{if $cdb}}
+        {{dbDel $u "ch"}}
+    {{end}}
+    {{return}}
+{{else if or (eq "unmute" $id) (eq "togglemute" $id)}}
+
+    {{if not (hasRoleID $vc)}}
+        You must be hosting in <#{{$invite}}> to use this function.
+        {{return}}
+
+    {{else if ne $v.ChannelID $invite}}
+        These options only apply to <#{{$invite}}>.
+        {{return}}
+    {{end}}
+
+    {{if eq "unmute" $id}}
+        {{/* unmute button */}}
+        {{$exec.Set "type" 2}}
+        {{execCC $ccid nil 0 $exec}}
+        {{return}}
+    {{else if eq "togglemute" $id}}
+        {{/* Unmute functions */}}
+        {{$exec.Set "type" 3}}
+        {{$exec.Set "Values" .Values}}
+        {{execCC $ccid nil 0 $exec}}
+        {{return}}
+    {{end}}
+    {{return}}
+{{end}}

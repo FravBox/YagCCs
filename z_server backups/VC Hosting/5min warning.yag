@@ -1,0 +1,153 @@
+{{/* VC Hosting - 5min warning & mute toggle
+trigger: none
+*/}}
+
+{{/* get data */}}
+{{$ex := .ExecData}}
+
+{{if not $ex}}
+    {{return}}
+{{end}}
+
+{{$u := $ex.u}}
+{{$cooldown := $ex.cooldown}}
+{{$db2 := $ex.db2}}
+{{$db := $db2.Value}}
+{{$udb := $ex.udb}}
+{{$maxtime := $ex.maxtime}}
+{{$sm := $ex.sm}}
+{{$vc := $ex.vc}}
+{{$type := toInt $ex.type}}
+{{$sm := $ex.sm}}
+{{$unmute := $ex.unmute}}
+{{$invite := $ex.invite}}
+{{$id := $ex.id}}
+{{$btns := cslice}}
+
+{{/* host vc status */}}
+{{$v := .Guild.GetVoiceState $u}}
+
+{{ephemeralResponse}}
+
+{{if eq $type 1}}
+    {{/* 5min reminder message */}}
+        
+    {{if $v}}
+    {{sendMessageNoEscape $db.ch (print "**<@" $u ">, your host privileges will expire in 5 minutes!**\nIf you need to add more time, Select \"Become a stage host\" from the interface menu again.")}}
+        {{return}}
+    {{else}}
+        {{takeRoleID $u $sm}}
+        {{takeRoleID $u $vc}}
+
+        {{/* unmute everyone */}}
+        {{if ge (len $db.mutes) 1}}
+            {{range $db.mutes}}
+                {{takeRoleID . $unmute}}
+                {{execAdmin "unmute" . "Mute by Stage Host expired.\nIf you are currently in a voice channel, you will have to reconnect for these changes to take effect."}} {{/* so it's logged */}}
+            {{end}}
+            {{sendMessage nil (complexMessage "content" (print "The following users have been unmuted: <@" (joinStr ">, <@" $db.mutes) ">" ) "ephemeral" true)}}
+        {{end}}
+
+        {{/* if you're close to maxtime, 1hr cooldown. Else, dbDel */}}
+        {{$sum := add $db.time $cooldown (div $cooldown 2)}}
+        {{if ge $sum $maxtime}}
+            {{$udb.Set "cooldown" 1}}
+            {{dbSetExpire $u "vc_host" $udb $cooldown}}
+        {{else}}
+            {{dbDel $u "vc_host"}}
+        {{end}}
+        {{return}}
+    {{end}}
+
+    {{return}}
+
+{{else if eq $type 2}}
+    {{/* UNMUTE BUTTON */}}
+
+    {{$unmutes := "No one"}}
+    {{if $db.unmutes}}
+        {{if ge (len $db.unmutes) 1}}
+            {{$unmutes = print "<@" (joinStr ">, <@" $db.unmutes) ">"}}
+        {{end}}
+    {{end}}
+
+    {{$btns = cmenu 
+    "type" "user"
+    "placeholder" "Find users to toggle mute status"
+    "max_values" 2
+    "custom_id" "vc-togglemute"
+    }}
+    {{/* can't be higher than 2 or will hit cc limits if all users are mutes */}}
+
+    {{sendResponse nil (complexMessage "content" (print "## You have currently unmuted: " $unmutes "\nStaff can always speak.\n### You can change the status of up to 2 users at once.\n-# **Notice:** If you unmuted someone and choose to mute them again, they will be disconnected & DMed.\n-# Muted people can still rejoin the VC, listen in, and type in the text chat.") "menus" $btns "ephemeral" true)}}
+    {{return}}
+
+{{else if eq $type 3}}
+    {{/* TOGGLE MUTE FUNCTION */}}
+    {{$time2 := sub $db.duration (sub currentTime.Unix $db.granted)}}
+    {{$actions := ""}}
+    {{$no := 0}}
+    {{$users := cslice}}
+    {{range $ex.Values}}
+        {{$no = 0}}
+        {{if eq (str $u) .}} 
+            {{$no = 1}}
+        {{end}}
+        {{range (getMember .).Roles}}
+            {{if roleAbove (getRole .) (getRole $sm)}}
+                {{$no = 1}}
+                {{break}}
+            {{end}}
+        {{end}}
+
+        {{if not $no}}
+            {{$users = $users.Append (str .)}}
+        {{end}}
+    {{end}}
+    {{if lt (len $users) 1}}
+    {{updateMessage "You cannot select those users; they are always allowed to speak."}}
+        {{return}}
+        
+    {{else}}
+        {{range $users}}
+            {{$actions = print $actions "<@" . "> has been "}}
+            {{if targetHasRoleID . $unmute}}
+                {{takeRoleID . $unmute}}
+                {{/* 4 logs & disconnect */}}
+                {{$q := execAdmin "mute" . (print "The host has muted you. You can rejoin the channel but you will be unable to speak.\n**This only effects <#" $invite "> and is NOT a Staff action.**" )}}
+                {{$q := execAdmin "unmute" . "ignore"}}
+                {{$actions = print $actions "muted.\n"}}
+            {{else}}
+                {{/* 4 logs & DMs */}}
+                {{$q := execAdmin "unmute" . (print "## The host has unmuted you in <#" $invite ">.\n**If you are currently in the channel, you must disconnect & reconnect to gain your speaking privileges.**\nYour speaking privileges will expire <t:" (add currentTime.Unix $time2) ":R> at <t:" (add currentTime.Unix $time2) ":t>.\n\nIf you are still in <#" $invite "> at this time, your ability to speak will continue until you leave the channel.") }}
+                {{giveRoleID . $unmute}}
+                {{takeRoleID . $unmute $time2}}
+                {{$actions = print $actions "**__un__**muted.\n"}}
+            {{end}}
+        {{end}}
+    {{end}}
+
+    {{if gt (len $ex.Values) (len $users)}}
+        {{$actions = print $actions  "-# Less than you expected? Staff and bots are non-selectable. Staff can always speak.\n"}}
+    {{end}}
+    {{if (reFind `un\_\_\*\*muted` $actions)}}
+        {{$actions = print $actions "If anyone you unmuted is currently in the VC, they will have to disconnect & reconnect to speak."}}
+    {{else}}
+        {{$actions = print $actions "Re-muted people can still listen and type in the chat if they re-join."}}
+    {{end}}
+
+    {{updateMessage $actions}}
+
+        {{/* toggle unmutes in db */}}
+        {{$unmutes := cslice}}
+        what we'll range: {{print (($db.unmutes).AppendSlice $users)}}
+        {{range (($db.unmutes).AppendSlice $users)}}
+            {{if targetHasRoleID . $unmute}}
+            {{$unmutes = $unmutes.Append (str .)}}
+            {{end}}
+        {{end}}
+        {{$udb.Set "unmutes" $unmutes}}
+        {{dbSetExpire $u "vc_host" $udb (sub $db2.ExpiresAt.Unix currentTime.Unix)}}
+        db: {{print (json (dbGet $u "vc_host").Value)}}
+        {{return}}
+{{end}}
