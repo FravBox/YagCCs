@@ -176,11 +176,10 @@ Ask them to press the "Stop hosting" button so you can take over or join a diffe
 
     {{if $db}} {{/* if they're currently hosting */}}
         {{$sum := add $time $db.time}}
-        {{cancelScheduledUniqueCC $ccid $u}}
 
         {{if ge $sum $max}}
             {{/* you cannot host for longer than $max */}}
-            {{$time = sub $max $sum}}
+            {{$time = sub $sum $max}}
             {{$udb.Set "cooldown" 1}}
             {{$udb.Set "time" $sum}}
             {{$udb.Set "duration" $time}}
