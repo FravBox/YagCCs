@@ -179,7 +179,7 @@ Ask them to press the "Stop hosting" button so you can take over or join a diffe
 
         {{if ge $sum $max}}
             {{/* you cannot host for longer than $max */}}
-            {{$time = sub $sum $max}}
+            {{$time = add $time (sub $sum $max)}}
             {{$udb.Set "cooldown" 1}}
             {{$udb.Set "time" $sum}}
             {{$udb.Set "duration" $time}}
