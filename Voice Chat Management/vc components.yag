@@ -181,14 +181,14 @@ Ask them to press the "Stop hosting" button so you can take over or join a diffe
             {{/* you cannot host for longer than $max */}}
             {{$time = add $time (sub $sum $max)}}
             {{$udb.Set "cooldown" 1}}
-            {{$udb.Set "time" $sum}}
-            {{$udb.Set "duration" $time}}
             {{$cd = print "\n-# Not the time you expected? You can only host for " (div $max 3600) " hours before you need to take a break."}}
         {{else}}
             {{/* add times */}}
-            {{$udb.Set "time" $sum}} 
+            {{$time = $sum}}
         {{end}}
-
+        {{$udb.Set "time" $sum}}
+        {{$udb.Set "duration" $time}}
+        
         {{if $db.mutes}}
             {{if ge (len $db.mutes) 1}}
                 {{/* reset mutes */}}
