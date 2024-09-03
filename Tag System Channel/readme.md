@@ -19,6 +19,11 @@ Don't know what you're looking for? Get up to 29 partial matches
 Tired of forgetting what tags actually exist? All tags get posted to a reference channel. Read them all or click the "manage" button when you spot that one annoying typo.     
 ![7](https://github.com/user-attachments/assets/e3d41a9c-0858-4dc3-92cc-faa095adb87d)
 
+## Tag list `;tags`
+Don't want to scroll through the reference channel? `;tags` will list up to 50 of the most recently modified tags.    
+![image](https://github.com/user-attachments/assets/36997d93-d54f-4188-bd2d-d5834902f90b)
+
+
 ## Logging
 Creating, editing, and deleting tags all gets logged in a separate channel of your choice.      
 ![8](https://github.com/user-attachments/assets/cba59046-d8e4-4034-a967-ef0b62aafc68)
