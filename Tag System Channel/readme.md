@@ -17,7 +17,7 @@ Don't know what you're looking for? Get up to 29 partial matches
 
 ## Reference Channel
 Tired of forgetting what tags actually exist? All tags get posted to a reference channel. Read them all or click the "manage" button when you spot that one annoying typo.     
-![7](https://github.com/user-attachments/assets/e3d41a9c-0858-4dc3-92cc-faa095adb87d)
+![image](https://github.com/user-attachments/assets/1483fc4c-c17b-4d9f-89a6-dbdb78d6cf67)
 
 ## Tag list `;tags`
 Don't want to scroll through the reference channel? `;tags` will list up to 50 of the most recently modified tags.    
