@@ -30,7 +30,43 @@ More info: https://github.com/FravBox/YagCCs
 {{return}}
 {{end}}
 
-{{if ne $trigger "admin"}}
+{{if eq $trigger "tags"}}
+    {{/* ;TAGS - TAG LIST */}}
+    {{$x := dbGetPatternReverse 749 "tg.%" 25 0}}
+    {{$y := cslice}}
+    {{if $x}}
+        {{range $x -}}
+            {{- $y = $y.Append (sdict "name" (print ":label: __" (upper .Value.tname) "__" ) "value" (print "**Author:** <@" .Value.author "> | [**Tag link**](" .Value.reflink ")\n**Aliases:** `" (joinStr ", " .Value.aliases) "`\n```\n" (slice .Value.content 0 (min (len .Value.content) 100|toInt)) "\n...\n```") ) -}}
+        {{- end -}}
+    {{else}}
+        {{$y = sdict "name" "No tags found" "value" "Either you don't have any tags yet, or something went wrong."}}
+    {{end}}
+
+    {{sendMessage nil (complexMessage "embed" (cembed 
+    "title" "Tag List" 
+    "description" (print "-# Called with `;tags`\n### Tag Reference Channel\nCreate, manage, and view all tags in <#" (((dbGet 749 "tgadmin-sticky").Value).ch) ">\n## Below are a list of up to 50 of the most recently updated tags" ) 
+    "fields" $y
+    "footer" (sdict "text" "Tag system" "icon_url" $thumbnail)
+    "color" $color))}}
+
+    {{$x = dbGetPatternReverse 749 "tg.%" 25 25}}
+    {{if not $x}}
+        {{return}}
+    {{else}}
+        {{$y = cslice}}
+        {{range $x -}}
+            {{- $y = $y.Append (sdict "name" (print ":label: __" (upper .Value.tname) "__" ) "value" (print "**Author:** <@" .Value.author "> | [**Tag link**](" .Value.reflink ")\n**Aliases:** `" (joinStr ", " .Value.aliases) "`\n```\n" (slice .Value.content 0 (min (len .Value.content) 100|toInt)) "\n...\n```") ) -}}
+        {{- end -}}
+
+        {{sendMessage nil (complexMessage "embed" (cembed
+        "title" "Tag List (cont'd)"
+        "fields" $y
+        "footer" (sdict "text" "Tag system" "icon_url" $thumbnail)
+        "color" $color))}}
+    {{end}}
+{{return}}
+
+{{else if ne $trigger "admin"}}
     {{$x := dbGetPattern 749 (print "tg.%|" $trigger "|%") 1 0}}
 
     {{if not $x}}

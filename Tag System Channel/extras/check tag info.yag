@@ -1,0 +1,73 @@
+{{/* Tags system - extras
+check tag info
+
+trigger type: command
+trigger: taginfo
+usage: -taginfo TagMessageURL
+
+More info: https://github.com/FravBox/YagCCs/
+*/}}
+
+{{/* DON'T EDIT BELOW */}}
+
+{{$no := "No tag found at that url"}}
+
+{{ $args := parseArgs 1 "Syntax: `-taginfo TagRefMessageURL @NewAuthor`" 
+    (carg "string" "the URL to a tag message.")
+}}
+
+{{if not (reFind `discord` .StrippedMsg)}}
+    {{$no}}
+    {{return}}
+{{end}}
+
+{{$m := reFindAllSubmatches `(?i)https://(?:\w+\.)?discord(?:app)?\.com/channels\/(\d+)\/(\d+)\/(\d+)` ($args.Get 0)}}
+{{$ch := index $m 0 2}}
+{{$mid := index $m 0 3}}
+
+{{$x := (getMessage $ch $mid)}}
+{{if not $x}}
+    {{$no}}
+    {{return}}
+{{end}}
+
+{{$y := $x.Embeds}}
+{{if not $y}}
+    {{$no}}
+    {{return}}
+{{end}}
+
+{{$z := ((index $y 0).Footer.IconURL)}}
+{{if not $z}}
+    {{$no}}
+    {{return}}
+{{end}}
+
+{{$key := print (reReplace "\\?=" (reReplace "%20" (reFind `\?=tg\..*` $z) " ") "")}}
+{{if not $key}}
+    {{$no}}
+    {{return}}
+{{end}}
+
+{{$t := (dbGet 749 $key).Value}}
+{{if not $t}}
+    {{$no}}
+     {{return}}
+{{end}}
+
+
+{{sendMessage nil (complexMessage "embed" (cembed
+"title" "Tag Information"
+"description" (print "### Metadata for `" $t.tname "`\nReference post: " $t.reflink "\n\n**__RAW Content__**\n```md\n" $t.content "\n```")
+"fields" (cslice
+(sdict "name" "__Database Key__" "value" (print "`" $key "`") "inline" false)
+(sdict "name" "**__Aliases__**" "value" (print "`" (joinStr " " $t.aliases) "`") "inline" false)
+(sdict "name" "__Creation__" "value" (print "<t:" $t.creation ":F>\nAuthor: <@" $t.author ">" ) "inline" true) 
+(sdict "name" "__Last Edit__" "value" (print "<t:" $t.lastedit ":F>\nby <@" $t.lasteditor ">" ) "inline" true)
+(sdict "name" "__Image__" "value" (print (or $t.img "No image" )) "inline" true)
+)
+))}}
+
+{{if ne "Tag's main content never edited" $t.prevcontent}}
+    {{sendMessage nil (complexMessage "embed" (cembed "description" (print "__**Previous Content**__\n" $t.prevcontent "\n\n__**RAW:**__\n```md\n" $t.prevcontent "```")))}}
+{{end}}

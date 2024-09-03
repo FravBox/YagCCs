@@ -121,10 +121,39 @@ Tag authors will always be able to edit their own tags, regardless of roles.
 
 # Extras
 In the `/extras/` folder are some extra text commands, totally optional.     
-Currently the only thing in there is `change tag author.yag` (which does what it implies) but I imagine I will end up adding more eventually.
+Change tag author, check tag db, manage alias list, repost missing tag refs...
+
 
 # Final Notes
 - If you have problems, you can ping me in the YAGPDB support server: `@standardquip` or create an issue here on github
 - Feel free to take these CCs and edit them to your own needs (provided you can read my code; apologies in advance)
 - If you make a companion CC for this (such as enabling more admin functions or migrating from other systems) please let me know and I will link them here.
 - I will fix problems/errors with this system but most likely will not add anything new. Almost all of the CCs are near the character limit and I don't have premium. If you want to optimize my code, I will accept PRs xD
+
+# Changelog
+**2024 September**     
+- removed previous content from tag ref posts
+- tags now have max length of 2k chars instead of 1k
+- alias is now optional on tag creation
+- aliases are also shown on fuzzy search
+- instead of the full tag content, now only first 100 chars are shown in "manage a tag" message
+- added a tag list command (use `/extras/manage master aliaslist.yag` to add `tags` and prevent future conflicts if you update)     
+<details><summary>How to edit your aliaslist for this update</summary>
+<b>If you don't trust yourself to do this correctly:</b><br>
+The tag system <i>should</i> work fine without doing this. <br>
+If you have a tag that already uses the <code>tags</code> alias, it won't work anymore and will deliver the tag list instead.<br><br>
+<b>Editing your alias list:</b><br>
+1. Install <code>extras/manage master aliaslist.yag</code><br>
+2. Use it<br>
+3. Copy your alias list from the command. After the word "admin" put in the word "tags"<br>
+Your list should now look like: <code>admin tags the rest of your words</code><br>
+4. Run the following code:<br>
+<code>-evalcc {{$x := "the alias list you made in step 3"}}
+{{\* don't edit below *\}}
+{{dbSet 749 "aliaslist" (split $x " ")}}
+done
+</code><br>
+5. Run <code>-aliaslist</code> again to make sure your list looks correct. If it does, you're done.<br>
+If it doesn't, try steps 3-4 again.
+</details>     
+Please replace all your CCs with the new versions. Tag ref posts will update the next time they are edited.

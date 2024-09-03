@@ -9,44 +9,43 @@ More info: https://github.com/FravBox/YagCCs
 {{$log := 123}}
 
 {{/* DON'T EDIT BELOW */}}
-{{$v1 := ""}}{{$v2 := ""}}{{$v3 := ""}}{{$v4 := ""}}{{$tagm := 0}}{{$rl := ""}}{{$id := .StrippedID}}
+{{$v1 := ""}}{{$v2 := ""}}{{$v3 := ""}}{{$v4 := ""}}{{$tagm := 0}}{{$rl := ""}}{{$id := .StrippedID}}{{$v := .Values}}{{$als := cslice}}
 
 {{if (reFind `^tagm` .CustomID)}}
    {{$tagm = 1}}
    {{if eq "name" $id}}
-       {{$v1 = index .Values 0}}
+       {{$v1 = index $v 0}}
    {{else if eq "alias" $id}}
-       {{$v2 = index .Values 0}}
+       {{$v2 = index $v 0}}
    {{else if eq "content" $id}}
-       {{$v3 = index .Values 0}}
+       {{$v3 = index $v 0}}
    {{else if eq "img" $id}}
-       {{$v4 = index .Values 0}}
+       {{$v4 = index $v 0}}
    {{end}}
 {{else}}
-   {{$v1 = index .Values 0}}
+   {{$v1 = index $v 0}}
 
    {{if eq "fuzzy" $id}}
         {{$v2 = ""}}
    {{else}}
-        {{$v2 = index .Values 1}}
+        {{$v2 = index $v 1}}
    {{end}}
 
    {{if eq "create" $id}}
-       {{$v3 = index .Values 2}}
-       {{$v4 = index .Values 3}}
+       {{$v3 = index $v 2}}
+       {{$v4 = index $v 3}}
    {{end}}
 {{end}}
 
 {{/* alias slices */}}
-{{$als := split (trimSpace (reReplace " +" (lower $v2) " ")) " "}}
-{{if lt (len (joinStr "" $als)) 1}}
-   {{$als = ""}}
+{{if ge (len $v2) 1}}
+    {{$als = split (trimSpace (reReplace " +" (lower $v2) " ")) " "}}
 {{end}}
+
 
 {{$tn := trimSpace $v1}}
 {{$tbody := ""}}
 {{$t := ""}}
-{{$token := .Interaction.Token}}
 {{$r := 0}}
 {{$mid := .Message.ID}}
 {{$ir := 0}}
@@ -61,7 +60,6 @@ More info: https://github.com/FravBox/YagCCs
 
 {{$w := (dbGet $u "twip").Value}}
 {{if $w}}
-   {{$token = $w.token}}
    {{$r = $w.msg}}
    {{$key = $w.key}}
 {{end}}
@@ -72,7 +70,6 @@ More info: https://github.com/FravBox/YagCCs
 "aliases" (joinStr " " $als)
 "tbody" $v3
 "img" $v4
-"token" $token
 "msg" $r
 "key" $key
 }}
@@ -100,20 +97,20 @@ More info: https://github.com/FravBox/YagCCs
 {{$rb := " can only contain the characters: A-z, 0-9"}}
 
 {{/* check name & aliases */}}
-{{if and (not $tn) (not $als) (eq "manage" $id)}}
+{{if and (not $tn) (not $v2) (eq "manage" $id)}}
 
    {{$bc = "You must fill in at least one field."}}
    {{$rb = ""}}
 
-{{else if reFind "admin" (print $v1 " " $v2)}}
-   {{$bc = "You cannot use `admin` in the name or alias."}}
+{{else if reFind "\b(admin|tags)\b" (print $v1 " " $v2)}}
+   {{$bc = "You cannot use `admin` or `tags` in the name or alias."}}
    {{$rb = ""}}
 
 {{else if and ($tn) (not (reFind `^[a-zA-Z\d\ ]+$` $tn))}}
        {{$bc = "The tag name"}}
        {{$rb = print $rb ", and spaces."}}
 
-{{else if and ($als) (not (reFind `^[a-zA-Z\d\ ]+$` $v2))}}
+{{else if and ($als) (ge (len $v2) 1) (not (reFind `^[a-zA-Z\d\ ]+$` $v2))}}
    {{$bc = "A tag alias"}}
    {{$rb = print $rb "."}}
 
@@ -189,7 +186,7 @@ More info: https://github.com/FravBox/YagCCs
    {{if $x}}
        {{range $x -}}
 
-           {{- $y = $y.Append (sdict "name" .Value.tname "value" (print .Value.reflink "\nAuthor: <@" .Value.author "> | Last edit: <t:" .Value.lastedit ":D>\n")) -}}
+           {{- $y = $y.Append (sdict "name" .Value.tname "value" (print "Aliases:\n`" (joinStr ", " .Value.aliases) "`\n" .Value.reflink "\nAuthor: <@" .Value.author "> | Last edit: <t:" .Value.lastedit ":D>\n")) -}}
        {{- end -}}
 
        {{$et = "Possible matches"}}
@@ -224,7 +221,7 @@ More info: https://github.com/FravBox/YagCCs
 
 {{end}}
 
-{{if and (not $m) ($als)}}{{/* check aliases */}}
+{{if and (not $m) ($v2)}}{{/* check aliases */}}
    {{if eq "alias" $id}}
        {{$tw.Set "aliases" (joinStr " " $als)}}
        {{if not $w}}
@@ -278,10 +275,10 @@ More info: https://github.com/FravBox/YagCCs
    {{$t = $t.Value}}
    {{$rl = $t.reflink}}
 
+    {{$tbody = print (slice $t.content 0 (min (len $t.content) 100|toInt)) "..." }}
+
    {{if $t.img}}
-       {{$tbody = print $t.content "\n**[[Image link]](" $t.img ")**"}}
-   {{else}}
-        {{$tbody = $t.content}}
+       {{$tbody = print $tbody "\n**[[Image link]](" $t.img ")**"}}
    {{end}}
 
    {{$tinfo := print "**Tag Name:** `" $t.tname "`\n**Aliases:** `" (joinStr "`, `" $t.aliases) "`\n**Link to tag:** " $t.reflink "\n**Content:**\n>>> " $tbody}}

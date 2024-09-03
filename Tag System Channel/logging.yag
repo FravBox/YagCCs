@@ -61,7 +61,6 @@ no trigger */}}
 {{$tbody := $ex.tbody}}
 {{$img := $ex.img}}
 {{$refl := $ex.reflink}}
-{{$token := .Interaction.Token}}
 {{$alist := (dbGet 749 "aliaslist").Value}}
 {{$w := (dbGet $u "twip").Value}}
 {{$time := currentTime.Unix }}
@@ -79,7 +78,6 @@ no trigger */}}
 "aliases" $t.aliases
 "tbody" $t.content
 "img" $t.img
-"token" $token
 "msg" $w.msg
 "key" $w.key
 }}
@@ -98,7 +96,7 @@ no trigger */}}
 {{$og := ""}}
 {{$new := ""}}
 {{$thing := ""}}
-{{$2nd := ""}}
+{{$2nd := cembed}}
 {{$hasimg := ""}}
 {{$embed := ""}}
 {{$oldkey := $key}}
@@ -106,7 +104,7 @@ no trigger */}}
 {{$name := $t.tname}}
 
 {{/* edits vs creates */}}
-{{if and (ne $type 1) (ne $type 2)}}
+{{if not (eq $type 1 2)}}
     {{$emoji = ":pencil:"}}
     {{$action = " edited "}}
     {{$au = $t.author}}
@@ -116,7 +114,7 @@ no trigger */}}
     {{$refl = $t.reflink}}
     {{$ref = $t.ref}}
 
-    {{if and (ne $type 4) (ne $type 1)}}
+    {{if not (eq $type 4 1)}}
         {{$tname = $t.tname}}
     {{end}}
     {{if not $tbody}}
@@ -135,7 +133,9 @@ no trigger */}}
     {{$thing = "tag name"}}
     {{$og = $t.tname}}
     {{$new = $tname}}
-    {{$als = slice $t.aliases 1}}
+    {{if gt (len $t.aliases) 1}}
+        {{$als = slice $t.aliases 1}}
+    {{end}}
 
 {{else if eq $type 5 2}}
     {{$als = $t.aliases}}
@@ -215,13 +215,13 @@ no trigger */}}
 {{$th := print (reReplace " " (print $thumb "?=" $key ) "%20" )}}
 
 {{$body := print "**__Aliases__**\n-# Use any of these to call this tag.\n`;" (joinStr "` `;" $als) "`\n\n**__Content__**\n" $tbody }}
-{{$edit1 := print "**Created:**\n <t:" $time ":D> (<t:" $time ":R>)\nby <@" $au "> (@" ((getMember (print $au)).User).Username ")" }}
-{{$edit2 := print "\n\n**Last edit:**\n <t:" currentTime.Unix ":D> (<t:" currentTime.Unix ":R>)\nby <@" $u "> (@" ((getMember (print $u)).User).Username ")" }}
+{{$edit1 := print "<t:" $time ":D> (<t:" $time ":R>)\nby <@" $au "> (@" ((getMember (print $au)).User).Username ")" }}
+{{$edit2 := print "<t:" currentTime.Unix ":D> (<t:" currentTime.Unix ":R>)\nby <@" $u "> (@" ((getMember (print $u)).User).Username ")" }}
 {{$foot := (sdict "text" "Tag system" "icon_url" (print $th))}}
 
 {{$fields := cslice
-(sdict "name" "__Information__" "value" (print $edit1 $edit2))
-(sdict "name" "__Previous content__" "value" $prevcontent)
+(sdict "name" "__Created__" "value" $edit1 "inline" true)
+(sdict "name" "__Last edit__" "value" $edit2 "inline" true)
 }}
 
 {{if ne $type 2}}
@@ -268,8 +268,8 @@ no trigger */}}
             {{dbSet 749 "aliaslist" $newalist}}
             {{deleteMessage $ch $t.ref 1}}
 
-            {{$logbody = print "# :x: :label: The tag, `" $name "`, has been deleted\n**Tag author:** <@" $t.author ">\n**Editor:** <@" $u ">\n**Aliases:** `;" (joinStr "` `;" $t.aliases) "`\n**Content:**\n>>> " $t.content}}
-            {{sendMessage $logch (complexMessage "content" $logbody "allowed_mentions" nil)}}
+            {{$logbody = print "# :x: :label: The tag, `" $name "`, has been deleted\n**Tag author:** <@" $t.author ">\n**Editor:** <@" $u ">\n**Aliases:** `;" (joinStr "` `;" $t.aliases) "`"}}
+            {{sendMessage $logch (complexMessage "content" $logbody "embed" (cembed "description" (print "**Content:**\n```md\n" $t.content "\n```")) "allowed_mentions" nil)}}
             {{dbDel 749 $key}}
             {{dbDel $u "twip"}}
             {{return}}
@@ -295,7 +295,7 @@ no trigger */}}
     {{$db.Set "lasteditor" (print "N" $no) }}
     {{$name = $tname}}
 
-{{else if or (ne $type 1) (ne $type 2)}} {{/* all edits */}}
+{{else if gt $type 2}} {{/* all edits */}}
     {{editMessage $ch $t.ref (complexMessageEdit "embed" $embed "buttons" $btns)}}
     {{dbSetExpire $u "twip" (sdict "key" $key "msg" $r) 1200}}
 {{end}}
@@ -320,7 +320,7 @@ no trigger */}}
         {{updateMessage (complexMessageEdit "content" $msg "buttons" $btns)}}
     {{end}}
 {{else}}
-    {{sendResponse .Interaction.Token (complexMessage "content" $msg "ephemeral" true)}}
+    {{sendResponse nil (complexMessage "content" $msg "ephemeral" true)}}
 {{end}}
 
 {{/* send sticky post */}}
@@ -331,11 +331,10 @@ no trigger */}}
 {{/* send log post */}}
 {{if ne $type 8}}
     {{if gt $type 2}}
-        {{$2nd = print "\n**Original " $thing ":**\n" $og "\n\n**New " $thing 
-        ":**\n" $new}}
+        {{$2nd = cembed "description" (print "\n__**Original " $thing ":**__\n" $og "\n\n**__New " $thing ":__**\n" $new)}}
     {{end}}
 
-    {{$logbody = print "# " $emoji " :label: The tag, `" $name "`, has been" $action "\n**Tag author:** <@" $au ">\n**Editor:** <@" $u ">" $2nd}}
+    {{$logbody = print "# " $emoji " :label: The tag, `" $name "`, has been" $action "\n**Tag author:** <@" $au ">\n**Editor:** <@" $u ">"}}
 
-    {{sendMessage $logch (complexMessage "content" (print $logbody "\n\n**Go to tag:** " $refl) "allowed_mentions" nil)}}
+    {{sendMessage $logch (complexMessage "content" (print $logbody "\n\n**Go to tag:** " $refl) "embed" $2nd "allowed_mentions" nil)}}
 {{end}}

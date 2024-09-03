@@ -1,0 +1,55 @@
+{{/* Tag system - extras
+repost missing tag ref messages (instead of deleting them)
+trigger type: command
+trigger: tagrepost
+usage: -tagrepost
+*/}}
+
+{{/* Channel ID for tag reference channel (where these will be posted) */}}
+{{$tch := 123}}
+
+{{/* thumbnail. CC won't work without one */}}
+{{$thumbnail := "https://bentovid.com/user/images/tags.png" }}
+
+{{/* embed color in decimal */}}
+{{$color := 5267711 }}
+
+{{/* DON'T EDIT BELOW */}}
+
+{{$x := dbGetPattern 749 "tg.%" 100 0}} 
+
+{{$t := ""}} {{$m := ""}} {{$ch := ""}} {{$mid := ""}} {{$y := ""}} {{$db := ""}} {{$alist := cslice }} {{$ref := ""}} {{$reflink := ""}}
+{{sendMessage nil "👷🏿‍♀️ Working...\n**If this errors, run it again.**"}}
+{{range $x}}
+    {{$t = .Value}}
+    {{$m = reFindAllSubmatches `(?i)https://(?:\w+\.)?discord(?:app)?\.com/channels\/(\d+)\/(\d+)\/(\d+)` $t.reflink}}
+    {{if $m}}
+    {{$ch = index $m 0 2}}
+    {{$mid = index $m 0 3}}
+    {{$y = getMessage $ch $mid}}
+    {{else}}
+        {{- $ref = sendMessageRetID $tch (complexMessage "embed" (cembed
+        "title" $t.tname
+        "description" (print "**__Aliases__**\n-# Use any of these to call this tag.\n`;" (joinStr "` `;" $t.aliases) "`\n\n**__Content__**\n" $t.content) 
+        "fields" (cslice 
+        (sdict "name" "__Information__" "value" (print "**Created:**\n<t:" $t.creation ":D> (<t:" $t.creation ":R>)\nby <@" $t.author "> (@" ((getMember (print $t.author)).User).Username ")\n\n**Last edit:**\n<t:" $t.lastedit ":D> (<t:" $t.lastedit ":R>)\nby <@" $t.lasteditor "> (@" $t.lasteditor ")")))
+        "footer" (sdict "text" "Tag system" "icon_url" (print (reReplace " " (print $thumbnail "?=" (print .Key) ) "%20" )))
+        "color" $color)
+        "buttons" (cbutton "label" "Manage" "custom_id" "tage-ref" "emoji" (sdict "name" "📝"))) -}} {{$reflink = print "https://discord.com/channels/" $.Guild.ID "/" $tch "/" $ref}}
+        {{$db := sdict
+            "author" $t.author
+            "tname" $t.tname
+            "aliases" $t.aliases
+            "creation" $t.creation
+            "lastedit" $t.lastedit
+            "lasteditor" $t.lasteditor
+            "prevcontent" $t.prevcontent
+            "content" $t.content
+            "img" $t.img
+            "ref" $t.ref
+            "reflink" $reflink
+        }}
+        {{dbSet 749 (print .Key) $db}}
+    {{end}}
+{{end}}
+{{print "Finished. No more tags to post. Use `;admin` and \"Start\" to repost the sticky message."}}

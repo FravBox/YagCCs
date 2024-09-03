@@ -1,0 +1,26 @@
+{{/* Tags system - extras
+Manage master alias list
+
+trigger type: command
+trigger: aliaslist
+usage: -aliaslist
+
+More info: https://github.com/FravBox/YagCCs/
+*/}}
+
+{{/* DON'T EDIT BELOW */}}
+
+{{$x := (dbGet 749 "aliaslist").Value}}
+
+{{if not $x}}
+    There is no master alias list. Run `;admin` and click the start button.
+    {{return}}
+{{end}}
+
+{{sendMessage nil (complexMessage "embed" (cembed 
+"title" "Master Alias List" 
+"description" (print "```\n" (joinStr " " $x) "\n```")
+"fields" (cslice
+(sdict "name" "__Notice__" "value" "`admin tags` should always be the first words.")
+(sdict "name" "__Changes__" "value" "**DO NOT MODIFY THE LIST UNLESS YOU ARE __ABSOLUTELY SURE__ YOU KNOW WHAT YOU'RE DOING!!**\n The entire tag system checks this list, NOT the database, for which aliases are in use.\nYou can VERY EASILY break the system by editing this list.\n\nThat being said, you can overwrite the list in the following way:\n```\n{{$x := \"admin tags your new aliases here\"}}\n{{/* don't edit below */}}\n\n{{dbSet 749 \"aliaslist\" (split $x \" \")}}\ndone\n```")
+)))}}

@@ -21,7 +21,7 @@ trigger: ^tag(e|s)-
 {{end}}
 
 {{/* default fields */}}
-{{$v1 := ""}}{{$v2 := ""}}{{$v3 := ""}}{{$v4 := ""}}{{$token := .Interaction.Token}}{{$r := 0}}{{$key := ""}}{{$tmatch := ""}}{{$mid := .Message.ID}}{{$u := .User.ID}}{{$id := .StrippedID}}
+{{$v1 := ""}}{{$v2 := ""}}{{$v3 := ""}}{{$v4 := ""}}{{$r := 0}}{{$key := ""}}{{$tmatch := ""}}{{$mid := .Message.ID}}{{$u := .User.ID}}{{$id := .StrippedID}}
 
 {{/* if there's a WIP */}}
 {{$w := (dbGet $u "twip").Value}}
@@ -34,7 +34,6 @@ trigger: ^tag(e|s)-
     {{$v2 = $w.aliases}}
     {{$v3 = $w.tbody}}
     {{$v4 = $w.img}}
-    {{$token = $w.token}}
     {{$r = $w.msg}}
     {{$key = $w.key}}
 {{end}}
@@ -45,7 +44,6 @@ trigger: ^tag(e|s)-
 "aliases" $v2
 "tbody" $v3
 "img" $v4
-"token" $token
 "msg" $r
 "key" $key
 }}
@@ -89,7 +87,6 @@ trigger: ^tag(e|s)-
 
     {{if eq $id "ref"}}{{/* came from ref post */}}     
         {{$key = print (reReplace "\\?=" (reReplace "%20" (reFind `\?=tg\..*` ((index .Message.Embeds 0).Footer.IconURL)) " ") "")}}
-        {{$twip.Set "token" $token}}
     {{else}}
         {{if not $w}}
             {{ephemeralResponse}}
@@ -255,7 +252,7 @@ trigger: ^tag(e|s)-
             "title" (print $tn "content")
              "custom_id" "tagm-content" 
              "fields" (cslice 
-             (sdict "label" "Tag content" "value" $content "max_length" 1000 "style" 2 "required" true)
+             (sdict "label" "Tag content" "value" $content "max_length" 2000 "style" 2 "required" true)
              ))}}
 
         {{else if eq "img" $id}}
@@ -280,8 +277,8 @@ trigger: ^tag(e|s)-
     {{dbDel $u "twip"}}
     {{$tagfields := (cslice
     (sdict "label" "Tag Name" "placeholder" "Can only contain characters A-z, 0-9, & spaces." "value" $v1 "max_length" 29 "required" true)
-    (sdict "label" "Aliases - What you'll type to post your tag" "placeholder" "Only use A-z & 0-9. Separate with spaces." "max_length" 200 "value" $v2 "required" true)
-    (sdict "label" "Content" "placeholder" "The actual contents of your Tag. \nYou can use markdown." "value" $v3 "max_length" 1000 "required" true "style" 2)
+    (sdict "label" "Aliases - What you'll type to post your tag" "placeholder" "Only use A-z & 0-9. Separate with spaces." "max_length" 200 "value" $v2)
+    (sdict "label" "Content" "placeholder" "The actual contents of your Tag. \nYou can use markdown." "value" $v3 "max_length" 2000 "required" true "style" 2)
     (sdict "label" "Image URL - Optional" "placeholder" "Will post an embedded image with your tag." "value" $v4) 
     ) }}
 
