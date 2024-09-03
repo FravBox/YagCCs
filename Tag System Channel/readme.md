@@ -149,7 +149,7 @@ If you have a tag that already uses the <code>tags</code> alias, it won't work a
 Your list should now look like: <code>admin tags the rest of your words</code><br>
 4. Run the following code:<br>
 <code>-evalcc {{$x := "the alias list you made in step 3"}}
-{{\* don't edit below *\}}
+{{/* don't edit below */}}
 {{dbSet 749 "aliaslist" (split $x " ")}}
 done
 </code><br>
