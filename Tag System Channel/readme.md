@@ -136,7 +136,7 @@ Change tag author, check tag db, manage alias list, repost missing tag refs...
 - I will fix problems/errors with this system but most likely will not add anything new. Almost all of the CCs are near the character limit and I don't have premium. If you want to optimize my code, I will accept PRs xD
 
 # Changelog
-**2024 September**     
+**2024 September 3**     
 - removed previous content from tag ref posts
 - tags now have max length of 2k chars instead of 1k
 - alias is now optional on tag creation
