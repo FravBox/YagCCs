@@ -1,0 +1,45 @@
+{{/* Event menu - modal submission
+trigger type: modal submission
+regex: ^events-modal
+
+Posts something to #Events channel
+*/}}
+
+{{/* helpers */}}
+{{$id := .StrippedID}}
+{{$post := index .Values 0}}
+{{$u := .User.ID}}
+{{$ch := 752317819873394780}} {{/* Events channel */}}
+{{$time := 900 }} {{/* 15min */}}
+{{$db := (dbGet $u "eventpost").Value}}
+{{$a1 := " posted."}}
+{{$a2 := " "}}
+
+{{/* footer */}}
+{{$foot := print "\n-# - Event posted by <@" $u ">" }}
+
+{{/* buttons */}}
+{{$buttons := cslice
+(cbutton "label" "Edit" "custom_id" "events-edit")
+(cbutton "label" "Delete" "custom_id" "events-del" "style" "danger")
+}}
+
+{{/* actual command */}}
+{{$x := ""}}
+{{if and ($db) (eq $id "edit")}}
+    {{editMessage $db.ch $db.id (print $post $foot)}}
+    {{$ch = $db.ch}}
+    {{$x = $db.id}}
+    {{$a1 = " edited."}}
+    {{$a2 = " further "}}
+    {{updateMessage "Done."}}
+    {{deleteInteractionResponse nil nil 1}}
+{{else}}
+    {{$x = sendMessageRetID $ch (print $post $foot)}}
+{{end}}
+
+{{$url := print "https://discord.com/channels/" .Guild.ID "/" $ch "/" $x}}
+
+{{sendResponse nil (complexMessage "content" (print "## Your event has been" $a1 "\n**[View it here](<" $url ">)**.\n\nThe ability to" $a2 "edit or delete your message will expire <t:" (add currentTime.Unix $time ) ":R>." ) "buttons" $buttons "ephemeral" true)}}
+
+{{dbSetExpire $u "eventpost" (sdict "ch" $ch "id" $x "post" $post) $time}}

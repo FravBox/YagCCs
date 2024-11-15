@@ -17,7 +17,8 @@ trigger: message component
     {{else}}
         {{removeRoleID $critique 0}}
         Your @{{(getRole $critique).Name}} role has been removed.
-    {{end}}
+{{end}}
+
 
 {{else if eq .StrippedID "sticky"}} {{/* INITIAL ACCESS MESSAGE */}}
 
@@ -27,11 +28,19 @@ trigger: message component
     {{sendResponse nil (complexMessage "embed" $embed "buttons" (cbutton "label" "I understand. Give me access to the channel." "custom_id" "critique-access") "ephemeral" true )}}
 
 {{else if eq .StrippedID "access"}} {{/* GIVE ACCESS ROLE */}}
-    {{if not (hasRoleID $access) }}
-        {{addRoleID $access }}
-        You can now post in <#{{.Channel.ID}}>.
+    {{$time := 604800}} {{/* week */}}
+    {{$joined := .Member.JoinedAt.Parse.Unix}}
+    {{$x := sub currentTime.Unix $joined}}
+    {{$wait := add currentTime.Unix (sub $time $x)}}
+    {{if le $x $time }}
+        You must have been in the server for at least a week. You can unlock this channel <t:{{$wait}}:R>.
     {{else}}
-        You can already post in <#{{.Channel.ID}}>.
+        {{if not (hasRoleID $access) }}
+            {{addRoleID $access }}
+            You can now post in <#{{.Channel.ID}}>.
+        {{else}}
+            You can already post in <#{{.Channel.ID}}>.
+        {{end}}
     {{end}}
 
 {{end}}

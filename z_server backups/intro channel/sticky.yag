@@ -17,7 +17,7 @@
     {{end}}
 
     {{/* send sticky msg content */}}
-    {{$mid := sendMessageRetID $ch (complexMessage  "content" (print "## There are currently `" (dbCount "intro") "` introductions out of `" ((dbGet 0 "vcount").Value) "` verified users." ) "buttons" $buttons ) }}
+    {{$mid := sendMessageRetID $ch (complexMessage  "content" (print "## There are currently `" (dbCount "intro") "` introductions." ) "buttons" $buttons ) }}
 
 
     {{$sticky := sdict

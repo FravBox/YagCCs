@@ -16,12 +16,17 @@ CC ID: 249
 {{$ref := 1103417972699177081}}{{/* reference category */}}
 {{$sb := 1038951032467755008}} {{/* starboard channel */}}
 {{$intros := 1252109363678675004}} {{/* introductions channel */}}
+{{$ev := 752317819873394780}} {{/* events */}}
+{{$cev := 1294681787791966300}} {{/* create event */}}
+{{$vc := 1273082694191808613}} {{/* vc host */}}
+{{$tl := 1007040938880815225}} {{/* thread list */}}
+{{$links := 1148086363967737866}} {{/* resource linklist */}}
 
 {{if (reFind `Staff Message:` .Message.Content)}}
 	{{return}}
-{{else if or (eq $cat $server) (eq $cat $ref)}}
+{{else if eq $cat $server $ref}}
     {{return}}
-{{else if or (eq $ch.ID $sb) (eq $ch.ID $intros)}}
+{{else if eq $ch.ID $sb $intros $ev $cev $vc $tl $links}}
     {{return}}
 {{end}}
 

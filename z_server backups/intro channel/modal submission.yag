@@ -10,6 +10,7 @@ posts the intro and logs it. */}}
 
 {{/* logging channels */}}
 {{$jl := 970007312632795167}} {{/* yag cmd log */}}
+{{$announce := 750541618389712900}} {{/* main channel */}}
 
 {{$name := print (index .Values 0) }}
 {{$pronouns := print (index .Values 1) }}
@@ -57,7 +58,7 @@ posts the intro and logs it. */}}
     Your introduction has been edited. [View it here.]({{$intro.Value.link}})
 
     {{/* Log edit */}}
-    {{sendMessage $jl (complexMessage "embed" (cembed "description" (print .User.Mention " **(" .User.Username ") just posted an [intro](https://discord.com/channels/" .Guild.ID "/" $ch ")** at <t:" currentTime.Unix "> \nFind it [here](" ($infos.Get "link" ) "). \nUser ID: " .User.ID ) "color" 16760265 ) )}}
+    {{sendMessage $jl (complexMessage "embed" (cembed "description" (print .User.Mention " **(" .User.Username ") edited their [intro](https://discord.com/channels/" .Guild.ID "/" $ch ")** at <t:" currentTime.Unix "> \nFind it [here](" ($infos.Get "link" ) "). \nUser ID: " .User.ID ) "color" 16760265 ) )}}
 
     {{sendMessage $jl (complexMessage "embed" (cembed "description" (print "**Previous intro content:**\n(original posted " ($intro.Value.otime) ")\n>>> " $prevbody ) ) ) }}
 
@@ -93,6 +94,15 @@ posts the intro and logs it. */}}
     {{$new := cembed "description" (print .User.Mention " **(" .User.Username ") just posted an [intro](https://discord.com/channels/" .Guild.ID "/" $ch ")** at <t:" currentTime.Unix "> \nFind it [here](" ((getMessage nil $2).Link) "). \nUser ID: " .User.ID ) "color" 16760265}}
 
     {{sendMessage $jl (complexMessage "embed" $new )}}
+
+    {{/* get username color */}}
+    {{$col := 16744192}}{{$p := 0}}{{$r := .Member.Roles}}{{range .Guild.Roles}}{{if and (in $r .ID) (.Color) (lt $p .Position)}}{{$p = .Position}}{{$col = .Color}}{{end}}{{end}}
+
+    {{/* announce to main */}}
+    {{$news := complexMessage "embed" (cembed "thumbnail" (sdict "url" (.Member.AvatarURL "64")) "color" $col "title" (print (title (or .Member.Nick .User.Globalname .User.Username)) " posted their <#" $ch ">!" ) "description" (print ":eyes: [Go say hi!](" (getMessage $ch $2).Link ") :wave: ") )}}
+
+    {{sendMessage $announce $news}}
+
 {{ephemeralResponse}}
 Your intro has been posted!
 {{end}}

@@ -1,0 +1,37 @@
+{{/* Events Menu - first message
+the message with ping dropdown
+*/}}
+
+{{$msg := print "# Create an Event\nUse pre-filled templates with the options below or go straight to [the Sesh dashboard](<https://sesh.fyi/dashboard/750541618389712896/events/create>).\n-# Need more help? View the [full step-by-step guide on how to use Sesh](<https://bentovid.com/sguides/events#sesh>).\nScroll down the menu for all options!"}}
+
+
+{{/* ping roles */}}
+{{$events := "773487900779348000"}}
+{{$deadlines := "951991509878714448"}}
+{{$mep := "750551463511720017"}}
+{{$vr := "785020048112222221"}}
+{{$ic := "811666090102095892"}}
+{{$streaming := "788195786063085598"}}
+{{$games := "894058566787407942"}}
+
+{{$menu := cmenu
+"type" "text"
+"placeholder" "Who to ping for your event?"
+"custom_id" "events-pings"
+"options" (cslice
+(sdict "label" "@Events" "value" $events )
+(sdict "label" "@IronEditor" "value" $ic "description" "For timed editing challenges.")
+(sdict "label" "@MEP" "value" $mep "description" "Announce multiple editor projects.")
+(sdict "label" "@Deadlines - in #con-calendar" "value" "1" "description" "Add your contest to #con-calendar.")
+(sdict "label" "@Deadlines - in #events" "value" $deadlines "description" "Reminder for events in BentoVid.")
+(sdict "label" "@Streaming" "value" $streaming "description" "For watching videos together.")
+(sdict "label" "@GameGroup" "value" $games "description" "For playing games together.")
+(sdict "label" "@VRChat" "value" $vr "description" "For events in Virtual Reality.")
+(sdict "label" "No one" "value" "0" "description" "Don't ping anyone; just post the event.")
+)
+"max_values" 1
+}}
+
+{{$x := sendMessageRetID nil (complexMessage "content" $msg "menus" $menu "buttons" (cbutton "label" "Reset menu" "custom_id" "events-reset" "style" "secondary"))}}
+
+

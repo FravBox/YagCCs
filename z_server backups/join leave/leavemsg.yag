@@ -17,7 +17,7 @@
 
     {{/* update leave date */}}
     {{$1 := ($jdb.Value).Set "left" (print "<t:" currentTime.Unix ">")}}
-    {{dbSet $user.ID "joindate" $jdb.Value}}
+    {{dbSetExpire $user.ID "joindate" $jdb.Value 31540000}}
 
     {{/* update verified count */}}
     {{if or (ne $jdb.Value.vdate "None") (ne $jdb.Value.vdate "N/A")}}
@@ -31,7 +31,7 @@
     {{sendMessage $ch $leavemsg}}
 
     {{/* set new leave date */}}
-    {{dbSet $user.ID "joindate" (sdict "joined" "Before November 2022, when this CC was implemented" "vdate" "Unknown" "left" (print "<t:" currentTime.Unix ">") ) }}
+    {{dbSetExpire $user.ID "joindate" (sdict "joined" "Before November 2022, when this CC was implemented" "vdate" "Unknown" "left" (print "<t:" currentTime.Unix ">") ) 31540000 }}
 {{end}}
 
 {{/* delete Intro post, if applicable */}}
@@ -39,7 +39,7 @@
 {{$ich := $idb.Value.ch}}
 
 {{if $idb}}
-    {{$x := sendMessageRetID $modl (cembed "description" (print "<@" ($idb.Value.user).ID "> (" ($idb.Value.user).Username ")'s <#" $ich "> post (#" ($idb.Value.place) " of " (dbCount "intro") ") was deleted since they left the server.\n\nIntro Content:\n >>> " (getMessage $idb.Value.ch $idb.Value.msg).ContentWithMentionsReplaced ) "color" 16737921) }}
+    {{$x := sendMessageRetID $modl (cembed "description" (print "<@" $user.ID "> (" ($user.Username) ")'s <#" $ich "> post (#" ($idb.Value.place) " of " (dbCount "intro") ") was deleted since they left the server.\n\nIntro Content:\n >>> " (getMessage $idb.Value.ch $idb.Value.msg).ContentWithMentionsReplaced ) "color" 16737921) }}
 
     {{deleteMessage $ich ($idb.Value.msg) 1}}
     {{dbDel $user.ID "intro"}}
@@ -49,6 +49,7 @@
 
 {{/* ban if user left while muted or timed out */}}
 {{if (dbGet $user.ID "noexit")}}
+	{{$silent := execAdmin "ban" $user.ID " left while muted or timed out." }}
     {{$LeaveBan := (print "🔨 Automatically banned <@" $user.ID "> (ID: " $user.ID ") for leaving server while muted or timed out. " )}}
 
     {{sendMessage  $modl $LeaveBan}}{{/* modlog */}}

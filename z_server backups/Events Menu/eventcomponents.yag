@@ -1,0 +1,131 @@
+{{/* Events Menu - components
+after you selected a ping role or reset the menu.
+
+trigger type: message component
+regex: ^events-
+*/}}
+
+{{/* ping roles */}}
+{{$events := "773487900779348000"}}
+{{$deadlines := "951991509878714448"}}
+{{$mep := "750551463511720017"}}
+{{$vr := "785020048112222221"}}
+{{$ic := "811666090102095892"}}
+{{$streaming := "788195786063085598"}}
+{{$games := "894058566787407942"}}
+
+{{/* templates */}}
+{{$url := "https://sesh.fyi/dashboard/750541618389712896/events/create"}} {{/* default, no template */}}
+{{$templates := sdict
+"Events" $url
+"Deadlines" "https://sesh.fyi/dashboard/750541618389712896/events/create?template_id=template_6ff67552-0b18-4176-94cc-1c4a9dbc7ae3&channel_id=752317819873394780"
+"concalendar" "https://sesh.fyi/dashboard/750541618389712896/events/create?template_id=template_b51c5308-b23a-4818-a048-92fa7c7fce4b&channel_id=989945286107496469"
+"MEP" "https://sesh.fyi/dashboard/750541618389712896/events/create?template_id=template_fd472429-a8f6-407e-99d5-17b7903d9c55&channel_id=752317819873394780"
+"VRChat" "https://sesh.fyi/dashboard/750541618389712896/events/create?template_id=template_cc143393-0767-4112-901a-95fe62cd4fb4&channel_id=752317819873394780"
+"IronEditor" "https://sesh.fyi/dashboard/750541618389712896/events/create?template_id=template_4a6b327c-dfbd-4f3c-b795-fd3b8d150017&channel_id=752317819873394780"
+"Streaming" "https://sesh.fyi/dashboard/750541618389712896/events/create?template_id=template_66ac2092-3095-44bf-9003-3d98afde100d&channel_id=752317819873394780"
+"GameGroup" "https://sesh.fyi/dashboard/750541618389712896/events/create?template_id=template_561142f0-20ea-478f-93de-24d9db70b2f8&channel_id=752317819873394780"
+"0" "https://sesh.fyi/dashboard/750541618389712896/events/create?template_id=template_cb2ef307-62cd-41e5-a57d-3d8376304fec&channel_id=752317819873394780"
+}}
+
+{{/* helpers */}}
+{{$id := .StrippedID}}
+{{$ch := 752317819873394780}} {{/* events */}}
+{{$conch := 989945286107496469}} {{/* con-calendar channel */}}
+{{$rsvp := "RSVP settings are Yes / Maybe. "}}
+{{$remind := "Hides RSVP names and has only one option to \"Get reminders\". "}}
+{{$pings := ""}}
+{{$time := "5 minutes"}}
+{{$native := "\n- Also creates a Discord native event.\n"}}
+{{$write := (cbutton "label" "Manually write it in #Events instead" "style" "primary" "custom_id" "events-write")}}
+{{$u := .User.ID}}
+{{$db := (dbGet $u "eventpost").Value}}
+{{$buttons := (cbutton "label" "Go to Sesh Dashboard" "url" $url "style" "link")}}
+
+
+{{/* reset menu */}}
+{{if eq $id "reset"}}
+    {{editMessage nil .Message.ID (complexMessageEdit "content" .Message.Content "menus" ( index ( index .Message.Components 0 ).Components 0 ) "buttons" ( index ( index .Message.Components 1 ).Components 0 ) )}}
+
+    {{$x := sendResponseRetID nil (complexMessage "content" "Menu reset." "ephemeral" true)}}
+    {{deleteInteractionResponse nil nil}}
+    {{return}}
+{{end}}
+
+{{/* event buttons */}}
+{{if eq $id "pings"}}
+    {{$ping := index .Values 0}}
+    {{if eq $ping "0"}}
+        {{$pings = "Pings no one. "}}
+        {{$native = ""}}
+        {{$url = $templates.Get "0"}}
+        {{$buttons = cslice (cbutton "label" "Go to Sesh Dashboard" "url" $url "style" "link") $write}}
+    {{else if eq $ping "1"}}
+        {{$ping = $deadlines}}
+        {{$url = $templates.Get "concalendar"}}
+        {{$ch = $conch }}
+
+    {{else}} {{/* get role name, make appropriate url */}}
+        {{$x := (getRole $ping).Name}}
+        {{$url = print ($templates.Get $x) }}
+    {{end}}
+
+    {{if eq $ping $mep}}
+        {{$native = ""}}
+    {{end}}
+
+    {{if eq $ping $deadlines}}
+        {{$rsvp = $remind }}
+        {{$time = "2 hours"}}
+        {{$native = ""}}
+    {{end}}
+
+    {{if ne $ping "0"}}
+        {{$pings = print "Pings <@&" $ping "> on event creation and again " $time " before the event's start time. "}}
+        {{$buttons = (cbutton "label" "Go to Sesh Dashboard" "url" $url "style" "link")}}
+    {{end}}
+
+    {{$msg := print "# Next steps\n**:one: [Click here](<" $url ">) to go to the Sesh dashboard.** \n\n:two: Fill in your **Event Title**.\n\n:three: Choose your event's **Start Time**.\n-# Optional: add a duration (default is 1 hour.)\n\n:four: Type a **Description** for your event.\n-# If you made an <#1020404948179091527>, remember to link to it!\n\n:five: Optional: change any of the advanced settings.\n-# If you want to make a repeating event, look in Advanced -> Repeat.\n-# If you want to add an image, see Advanced -> Appearance.\n\n:six: Click the **\"Create Event\"** button.\n## Default (pre-filled) settings for your event are:\n- Posts in <#" $ch ">\n- " $pings "\n- " $rsvp $native}}
+
+    {{sendResponse nil (complexMessage "content" $msg "buttons" $buttons "ephemeral" true)}}
+{{return}}
+{{end}}
+
+{{/* Send Modal for posting in #Events channel */}}
+{{if eq $id "write"}}
+
+    {{$modal := sdict
+    "title" "Write #Events Post"
+    "custom_id" "events-modal"
+    "fields" (cslice
+    (sdict "label" "Event Description" "placeholder" "Write the message. You can use markdown." "required" true "style" 2 "max_length" 1800)
+    )}}
+
+    {{sendModal $modal}}
+    {{return}}
+{{end}}
+
+{{/* edit or delete text event post */}}
+{{if eq $id "del" "edit"}}
+    {{if not $db}}
+        {{updateMessage "The message is too old to do that now, sorry.\n-# If you use Sesh, you have unlimited edits until the event starts."}}
+        {{return}}
+    {{end}}
+{{end}}
+
+{{if eq $id "del"}}
+    {{deleteMessage $db.ch $db.id 1}}
+    {{dbDel $u "eventpost"}}
+    {{updateMessage "Your message has been deleted."}}
+    {{deleteInteractionResponse nil nil}}
+    {{return}}
+
+{{else if eq $id "edit"}}
+    {{sendModal (sdict
+    "title" "Write #Events Post"
+    "custom_id" "events-modaledit"
+    "fields" (cslice
+    (sdict "label" "Event Description" "placeholder" "Write the message. You can use markdown." "value" $db.post "required" true "style" 2 "max_length" 1800)
+    )
+    )}}
+{{end}}

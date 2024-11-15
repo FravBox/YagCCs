@@ -33,8 +33,8 @@ Trigger: \A
 {{$staff := 750543521227866215}}
 {{/* emojis */}}
 {{$pin := "📌"}}
-{{$delpinner := "removepinner:1120156858993356840"}}
-{{$addpinner := "addpinner:1120156833991118849"}}
+{{$delpinner := ":removepinner:1120156858993356840"}}
+{{$addpinner := ":addpinner:1120156833991118849"}}
 {{$success:= "✅"}}
 {{$confuse := "❓"}}
 {{/* Yag ID */}}
@@ -55,6 +55,10 @@ Trigger: \A
 {{$msg := .Message.Content }}
 {{if eq 21 .Message.Type}}
     {{$msg = (getMessage .Channel.ParentID ((getMessage nil .Message.ID).MessageReference).MessageID).Content }}
+{{end}}
+
+{{if ge (len $msg) 1000}}
+    {{$msg = print (slice $msg 0 1000) ". . ."}}
 {{end}}
 
 {{ $tcreate := cembed 
