@@ -45,7 +45,9 @@ These people can use reactions or reply to any post with "pin" or "unpin" to pin
 
 ## Make a sticky message
 
-Thread OPs & the mod role can use reactions or reply to any post with "stick" or "unstick" to make a message stick to the bottom of the thread.     
+Thread OPs & the mod role can use reactions or reply to any post with "stick" to make a message stick to the bottom of the thread.    
+Unreacting to the original message will unstick the message.     
+Replying "unstick" to either the original message or the current stuck message will unstick it.      
 (This was added since thread pins are nearly impossible to find on mobile)      
 *Note: Sticky messages will work with text & embeds, but not buttons or menus.*
 
