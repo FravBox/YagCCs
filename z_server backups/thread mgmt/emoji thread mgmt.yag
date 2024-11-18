@@ -2,6 +2,7 @@
 
 Add/remove pinners;
 un/pin messages;
+un/stick messages;
 resave db info (reset pinners);
 delete db entry
 
@@ -25,11 +26,13 @@ Trigger: added and removed reactions
 {{$confuse := "❓"}}
 {{$save := "💾"}}
 {{$del := "❌"}}
+{{$stick := "🧲"}}
 
-{{if not (in (cslice $pin $removepinner $addpinner $save $del) .Reaction.Emoji.APIName )}}
+{{if not (in (cslice $pin $removepinner $addpinner $save $del $stick) .Reaction.Emoji.APIName )}}
     {{return}}
 {{end}}
-    
+
+{{$yid := 204255221017214977}} {{/* yag */}}
 
 {{/* mod role */}}
 {{$staff := 750543521227866215}}
@@ -56,7 +59,22 @@ Trigger: added and removed reactions
 "color" $c1
 }}
 
+{{/* helpers */}}
+{{$pinners := (cslice (print "<@" .Channel.OwnerID ">") )}}
+{{$sticky := 0}}
 
+{{/* check 4db */}} 
+{{$tdb := (dbGet .Channel.ID "threads")}}
+{{if $tdb}}
+    {{if $tdb.Value.pinners}}
+        {{$pinners =  $tdb.Value.pinners}}
+    {{end}}
+    {{if $tdb.Value.sticky}}
+        {{$sticky = $tdb.Value.sticky}}
+    {{end}}
+{{end}}
+
+{{/* 4db */}}
 {{$tinfo := sdict 
 "thread" .Channel
 "tname" $tname 
@@ -65,14 +83,11 @@ Trigger: added and removed reactions
 "cat" (title (getChannel (getChannel .Channel.ParentID).ParentID).Name)
 "catid" (getChannel (getChannel .Channel.ParentID).ParentID).ID
 "top" (print "<@" .Channel.OwnerID ">")
-"pinners" (cslice (print "<@" .Channel.OwnerID ">") )
+"pinners" $pinners
+"sticky" $sticky
 }}
 
-
-{{/* check db for entry */}} 
-{{$tdb := (dbGet .Channel.ID "threads")}}
-
-{{/* add pinners section if it's not already there - needed for backwards compatibility */}}
+{{/* for backwards compatibility */}}
 {{if and ($tdb) (not (dbGet .Channel.ID "threads").Value.pinners)}} 
     {{dbSet .Channel.ID "threads" $tinfo }}
 {{end}}
@@ -85,14 +100,15 @@ Trigger: added and removed reactions
         {{if in $tdb.Value.pinners .Message.Author.Mention}}
             {{addReactions $confuse}}
             {{sleep 5}}
-            {{deleteMessageReaction nil .Message.ID 204255221017214977 $confuse}}
+            {{deleteMessageReaction nil .Message.ID $yid $confuse}}
         {{else}}
             {{$z := $tdb.Value.pinners.Append .Message.Author.Mention}}
-            {{$x := $tinfo.Set "pinners" $z }}
+            {{$tinfo.Set "pinners" $z }}
+            {{$tinfo.Set "sticky" $sticky}}
             {{$y := dbSet .Channel.ID "threads" $tinfo}}
             {{addReactions $success}}
             {{sleep 5}}
-            {{deleteMessageReaction nil .Message.ID 204255221017214977 $success}}
+            {{deleteMessageReaction nil .Message.ID $yid $success}}
         {{end}}
 
     {{/* remove pinner */}}
@@ -100,22 +116,23 @@ Trigger: added and removed reactions
         {{if in $tdb.Value.pinners .Message.Author.Mention}}
             {{$x := cslice}}
             {{range $tdb.Value.pinners}}
-                {{- if ne $.Message.ReferencedMessage.Author.Mention . -}}
+                {{- if ne $.Message.Author.Mention . -}}
                     {{- $x = $x.Append . -}}
                 {{- end -}}
             {{- end}}
 
             {{$tinfo.Set "pinners" $x}}
+            {{$tinfo.Set "sticky" $sticky}}
             {{dbSet .channel.ID "threads" $tinfo}}
 
             {{addReactions $success}}
             {{sleep 5}}
-            {{deleteMessageReaction nil .Message.ID 204255221017214977 $success}}
+            {{deleteMessageReaction nil .Message.ID $yid $success}}
 
         {{else}}
             {{addReactions $confuse}}
             {{sleep 5}}
-            {{deleteMessageReaction nil .Message.ID 204255221017214977 $confuse}}
+            {{deleteMessageReaction nil .Message.ID $yid $confuse}}
         {{end}}
     {{end}}
 {{return}}
@@ -128,39 +145,101 @@ Trigger: added and removed reactions
         {{if .Message.Pinned}}
             {{addReactions $confuse}}
             {{sleep 5}}
-            {{deleteMessageReaction nil .Message.ID 204255221017214977 $confuse}}
-            {{return}}
+            {{deleteMessageReaction nil .Message.ID $yid $confuse}}
         {{else}}
             {{pinMessage nil .Message.ID}}
             {{addReactions $success}}
             {{sleep 5}}
-            {{deleteMessageReaction nil .Message.ID 204255221017214977 $success}}
-            {{return}}
+            {{deleteMessageReaction nil .Message.ID $yid $success}}
         {{end}}
     {{else}} {{/* remove pin */}}
         {{if .Message.Pinned}}
             {{unpinMessage nil .Message.ID}}
             {{addReactions $success}}
             {{sleep 5}}
-            {{deleteMessageReaction nil .Message.ID 204255221017214977 $success}}
+            {{deleteMessageReaction nil .Message.ID $yid $success}}
         {{else}}
             {{addReactions $confuse}}
             {{sleep 5}}
-            {{deleteMessageReaction nil .Message.ID 204255221017214977 $confuse}}
+            {{deleteMessageReaction nil .Message.ID $yid $confuse}}
         {{end}}
     {{end}}
+{{return}}
 {{end}}
+
+{{/* manage sticky message */}}
+{{if and (eq $stick .Reaction.Emoji.APIName ) (or (eq .Channel.OwnerID .User.ID) (hasRoleID $staff) ) }}
+    {{$x := $tdb.Value.sticky}}
+    {{$og := .Message}}
+    {{$ogm := .Message.Content}}
+    {{$sm := 0}}
+
+    {{if $x}}
+        {{if eq $og.ID $x.sm}}
+            {{$og = getMessage nil $x.og}}
+            {{$ogm = $og.Content}}
+            {{$sm = 1}}
+        {{end}}
+    {{end}}
+
+
+    {{if .ReactionAdded}} {{/* new sticky */}}
+        {{if $x}}
+             {{deleteMessage nil $x.sm 1}}
+        {{end}}
+
+        {{if $sm}}
+            {{$z := sendMessageRetID nil (print .Message.Content)}}
+            {{$tinfo.Set "sticky" (sdict "og" $x.og "sm" $z)}}
+            {{dbSet .Channel.ID "threads" $tinfo}}
+            {{return}}
+        {{end}}
+
+        {{if gt (len $ogm) 1850}}
+            {{$ogm = print (slice $ogm 0 1850) ". . ."}}
+        {{end}}
+        {{$z := sendMessageRetID nil (print $ogm "\n-# [See original message](<" $og.Link ">)" )}}
+        {{$tinfo.Set "sticky" (sdict "og" $og.ID "sm" $z)}}
+        {{dbSet .Channel.ID "threads" $tinfo}}
+        {{addReactions $success}}
+        {{sleep 5}}
+        {{deleteMessageReaction nil .Message.ID $yid $success}}
+
+    {{else}} {{/* remove sticky */}}
+        {{if $x}}
+            {{if not (eq .Message.ID $x.og $x.sm)}}
+                {{addReactions $confuse}}
+                {{sleep 5}}
+                {{deleteMessageReaction nil .Message.ID $yid $confuse}}
+                {{return}}
+            {{end}}
+
+            {{deleteMessage nil $x.sm 1}}
+        {{end}}
+
+        {{$tinfo.Set "sticky" 0}}
+        {{dbSet .Channel.ID "threads" $tinfo}}
+
+        {{if not $sm}}
+            {{addReactions $success}}
+            {{sleep 5}}
+            {{deleteMessageReaction nil .Message.ID $yid $success}}
+        {{end}}
+    {{end}}
+{{return}}
+{{end}}
+
 
 {{/* mod db commands */}}
 {{if and (.ReactionAdded) (in (cslice $save $del) .Reaction.Emoji.APIName) (hasRoleID $staff)}}
 
-    {{/* resave - resets pinners */}}
+    {{/* resave - resets pinners & sticky */}}
     {{if (eq $save .Reaction.Emoji.APIName )}}
         {{dbSet .Channel.ID "threads" $tinfo}}
         {{addReactions $success}}
         {{ execCC $tlist nil 0 $tinfo}} {{/* update thread list */}}
         {{sleep 5}}
-        {{deleteMessageReaction nil .Message.ID 204255221017214977 $success}}
+        {{deleteMessageReaction nil .Message.ID $yid $success}}
         {{return}}
     
     {{/* delete db entry */}}
@@ -169,7 +248,7 @@ Trigger: added and removed reactions
         {{addReactions $success}}
         {{execCC $tlist nil 0 $tinfo}} {{/* update thread list */}}
         {{sleep 5}}
-        {{deleteMessageReaction nil .Message.ID 204255221017214977 $success}}
+        {{deleteMessageReaction nil .Message.ID $yid $success}}
         {{return}}
     {{end}}
 {{end}}

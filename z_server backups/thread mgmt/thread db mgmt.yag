@@ -29,14 +29,20 @@ Trigger: \A
 {{$automod := 954856123628912690 }}
 {{$chillcat := 782784819863486464}} {{/* fun */}}
 {{$rice := 1044363817007710309 }}
+
 {{/* mod role */}}
 {{$staff := 750543521227866215}}
+
 {{/* emojis */}}
 {{$pin := "📌"}}
 {{$delpinner := ":removepinner:1120156858993356840"}}
 {{$addpinner := ":addpinner:1120156833991118849"}}
 {{$success:= "✅"}}
 {{$confuse := "❓"}}
+{{$stick := "🧲"}}
+
+{{$len := 10}} {{/* how many seconds should pass before sticky gets posted again */}}
+
 {{/* Yag ID */}}
 {{$yid := 204255221017214977}}
 
@@ -72,8 +78,22 @@ Trigger: \A
 {{$opinfo := cembed
 "color" $c3
 "title" "Thread Management"
-"description" (print "### <@" .Channel.OwnerID "> is the thread OP.\n **OPs can use <@" $yid "> to:**\n- Ping `@everyone` and `@here`\n- Pin and unpin messages\n- Control who may pin messages in their thread (pinners)\n### Pinner & Pin Management \n**React to Messages**\n<" $addpinner "> to add the person as a pinner\n<" $delpinner "> to remove them \n" $pin " to toggle that message's pin status (react to pin, unreact to unpin) \n\n**Reply to Messages**\n`pinner` to toggle that person's pinner status\n`pin` to pin the message \n`unpin` to unpin the message\n\n**Custom Commands**\n`-pinners` to view the list of who can manage pins in this thread.")}}
+"description" (print "### <@" .Channel.OwnerID "> is the thread OP.\n **OPs can use <@" $yid "> to:**\n- Pin and unpin messages\n- Control who may pin messages in their thread (pinners)\n- Sticky messages\n\n**React to Messages**\n<" $addpinner "> to add a person as a pinner\n<" $delpinner "> to remove them \n" $pin " to toggle that message's pin status (react to pin, unreact to unpin)\n" $stick " to toggle message's stick status (react to make it sticky, unreact to remove)\n\n**Reply to Messages**\n`pinner` to toggle that person's pinner status\n`pin` to pin the message \n`unpin` to unpin the message\n`stick` to make that message sticky\n`unstick` to unstick the message\n\n**Custom Commands**\n`-pinners` to view the list of who can manage pins in this thread.")}}
 
+{{/* helpers */}}
+{{$pinners := (cslice (print "<@" .Channel.OwnerID ">") )}}
+{{$sticky := 0}}
+
+{{/* check 4db */}} 
+{{$tdb := (dbGet .Channel.ID "threads")}}
+{{if $tdb}}
+    {{if $tdb.Value.pinners}}
+        {{$pinners =  $tdb.Value.pinners}}
+    {{end}}
+    {{if $tdb.Value.sticky}}
+        {{$sticky = $tdb.Value.sticky}}
+    {{end}}
+{{end}}
 
 {{/* 4db */}}
 {{$tinfo := sdict 
@@ -84,16 +104,32 @@ Trigger: \A
 "cat" (title (getChannel (getChannel .Channel.ParentID).ParentID).Name)
 "catid" (getChannel (getChannel .Channel.ParentID).ParentID).ID
 "top" (print "<@" .Channel.OwnerID ">")
-"pinners" (cslice (print "<@" .Channel.OwnerID ">") )
+"pinners" $pinners
+"sticky" $sticky
 }}
-
-
-{{/* check 4db */}} 
-{{$tdb := (dbGet .Channel.ID "threads")}}
 
 {{/* 4backwards compatibility */}}
 {{if and ($tdb) (not (dbGet .Channel.ID "threads").Value.pinners)}} 
     {{dbSet .Channel.ID "threads" $tinfo }}
+{{end}}
+
+{{/* check for sticky msg */}}
+{{if $tdb}}
+    {{$x := $tdb.Value.sticky}}
+    {{if ($x := $tdb.Value.sticky)}}
+        {{if ($y := (getMessage nil ($x.sm)))}} {{/* sm to be deleted ? */}}
+            {{if ge (sub .Message.Timestamp.Parse.Unix $y.Timestamp.Parse.Unix) $len}} 
+                {{$ogm := (getMessage nil $x.og).Content}}
+                {{deleteMessage nil $x.sm 0}}
+                {{if gt (len $ogm) 1850}}
+                    {{$ogm = print (slice $ogm 0 1850) ". . ."}}
+                {{end}}
+                {{$z := sendMessageRetID nil (print $ogm "\n-# [See original message](<" (getMessage nil $x.og).Link ">)" )}}
+                {{$tinfo.Set "sticky" (sdict "og" $x.og "sm" $z)}}
+                {{dbSet .Channel.ID "threads" $tinfo}}
+            {{end}}
+        {{end}}
+    {{end}}
 {{end}}
 
     
@@ -103,15 +139,14 @@ Trigger: \A
     {{dbSet .Channel.ID "threads" $tinfo }}
     
     {{if and (eq .Message.Author.ID .Channel.OwnerID) (eq (weekNumber currentTime) ((weekNumber (snowflakeToTime $here))) ) }} 
-	{{try}}
-        {{pinMessage nil .Message.ID}} {{/* pin 1st msg if found */}}
-        {{catch}} {{end}}
-        {{if and (ne $tinfo.catid $modcat ) (ne $tinfo.catid $automod )}}
-            {{sendMessage nil $opinfo}} {{/* explain pin mgmt */}}
-        {{end}}
-
+        {{try}}
+            {{pinMessage nil .Message.ID}} {{/* pin 1st msg if found */}}
+            {{catch}} {{end}}
     {{end}}
 
+    {{if and (ne $tinfo.catid $modcat ) (ne $tinfo.catid $automod )}}
+        {{sendMessage nil $opinfo}} {{/* explain pin mgmt */}}
+    {{end}}
 
     {{if and (ne $tinfo.catid $modcat) (ne $tinfo.catid $automod ) (ne $tinfo.catid $chillcat) (ne $tinfo.catid $rice) }}
         {{sendMessage $side $tcreate}} {{/* send to side chat */}}

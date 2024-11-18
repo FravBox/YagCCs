@@ -3,7 +3,7 @@ text commands for thread db management.
 Split from main cc due to character limit.
 
 Regex: 
-@(?:here)|@(?:everyone)|^(pinner|pin|unpin|-pinners)|(^-t(check|save|list|del))
+^(pinner|pin|unpin|-pinners|stick|unstick)|(^-t(check|save|list|del))
 
 */}}
 
@@ -36,6 +36,7 @@ Regex:
 {{$addpinner := ":addpinner:1120156833991118849"}}
 {{$success:= "✅"}}
 {{$confuse := "❓"}}
+
 {{/* Yag ID */}}
 {{$yid := 204255221017214977}}
 
@@ -48,6 +49,21 @@ Regex:
 {{$c2 := 5570815}} {{/* renamed */}}
 {{$c3 := 0x6d03ab}} {{/* etc */}}
 
+{{/* helpers */}}
+{{$pinners := (cslice (print "<@" .Channel.OwnerID ">") )}}
+{{$sticky := 0}}
+
+{{/* check 4db */}} 
+{{$tdb := (dbGet .Channel.ID "threads")}}
+{{if $tdb}}
+    {{if $tdb.Value.pinners}}
+        {{$pinners =  $tdb.Value.pinners}}
+    {{end}}
+    {{if $tdb.Value.sticky}}
+        {{$sticky = $tdb.Value.sticky}}
+    {{end}}
+{{end}}
+
 {{/* 4db */}}
 {{$tinfo := sdict 
 "thread" .Channel
@@ -57,12 +73,9 @@ Regex:
 "cat" (title (getChannel (getChannel .Channel.ParentID).ParentID).Name)
 "catid" (getChannel (getChannel .Channel.ParentID).ParentID).ID
 "top" (print "<@" .Channel.OwnerID ">")
-"pinners" (cslice (print "<@" .Channel.OwnerID ">") )
+"pinners" $pinners
+"sticky" $sticky
 }}
-
-
-{{/* check 4db */}} 
-{{$tdb := (dbGet .Channel.ID "threads")}}
 
 {{/* 4backwards compatibility */}}
 {{if and ($tdb) (not (dbGet .Channel.ID "threads").Value.pinners)}} 
@@ -87,7 +100,6 @@ Regex:
 
             {{$tinfo.Set "pinners" $x}}
             {{dbSet .channel.ID "threads" $tinfo}}
-
             {{addReactions $delpinner $success}}
             {{sleep 5}}
             {{deleteMessageReaction nil .Message.ID $yid $delpinner $success}}
@@ -149,14 +161,59 @@ Regex:
         {{end}}
     {{end}}
 
-{{/* let thread OPs use @everyone & @here */}}
-{{if not (reFind `\x60@` .Message.Content)}} {{/* only continue if no code tick */}}
-    {{if and (reFind `@(?:here)` .Message.Content) (eq .Channel.OwnerID .User.ID) }}
-        {{sendMessageNoEscape nil (complexMessage "reply" .Message.ID "content" "@here") }}
-    {{else if and (reFind `@(?:everyone)` .Message.Content) (eq .Channel.OwnerID .User.ID)}}
-        {{sendMessageNoEscape nil (complexMessage "reply" .Message.ID "content" "@everyone") }}
+{{/* sticky msg - reply w/ "stick" or "unstick" */}}
+    {{if and (.Message.ReferencedMessage) (reFind `(?i)^(stick|unstick)` .Message.Content) (or (eq .Channel.OwnerID .User.ID) (hasRoleID $staff) )}} 
+        {{$x := $tdb.Value.sticky}}
+        {{$og := .Message.ReferencedMessage}}
+        {{$ogm := $og.Content}}
+        {{$sm := 0}}
+
+        {{if $x}}
+            {{if eq $og.ID $x.sm}}
+                {{$og = getMessage nil $x.og}}
+                {{$ogm = (getMessage nil $x.og).Content}}
+                {{$sm = 1}}
+            {{end}}
+            {{deleteMessage nil $x.sm 1}}
+        {{end}}
+
+        {{if reFind `(?i)^un` .Message.Content}} {{/* unsticky */}}
+            {{if $x}}
+                {{if and (ne $og.ID $x.og) (ne $og.ID $x.sm)}}
+                    {{addReactions $confuse}}
+                    {{deleteTrigger 5}}
+                    {{return}}
+                {{end}}
+            {{end}}
+            
+            {{$tinfo.Set "sticky" 0}}
+            {{dbSet .Channel.ID "threads" $tinfo}}
+            {{addReactions $success}}
+            {{deleteTrigger 5}}
+            {{return}}
+
+        {{else}} {{/* sticky */}}
+            {{if $sm}}
+                {{$z := sendMessageRetID nil (print (getMessage nil $x.sm).Content)}}
+                {{$tinfo.Set "sticky" (sdict "og" $tdb.Value.sticky.og "sm" $z)}}
+                {{dbSet .Channel.ID "threads" $tinfo}}
+                {{addReactions $success}}
+                {{deleteTrigger 5}}
+                {{return}}
+            {{end}}
+                
+            {{if gt (len $ogm) 1850}}
+                {{$ogm = print (slice $ogm 0 1850) ". . ."}}
+            {{end}}
+            
+            {{$z := sendMessageRetID nil (print $ogm "\n-# [See original message](<https://discord.com/channels/" .Guild.ID "/" .Channel.ID "/" $og.ID ">)" )}}
+            {{$tinfo.Set "sticky" (sdict "og" $og.ID "sm" $z)}}
+                {{dbSet .Channel.ID "threads" $tinfo}}
+            {{addReactions $success}}
+            {{deleteTrigger 5}}
+            {{return}}
+        {{end}}
     {{end}}
-{{end}}
 
 {{/* db cmds 4mods */}}
     {{if and (reFind `^-t` .Message.Content) (hasRoleID $staff)}}
@@ -168,7 +225,7 @@ Regex:
             )}}
             {{return}}
 
-        {{else if (reFind `^-tsave` .Message.Content)}} {{/* resave info (this will reset all the pinners) */}}
+        {{else if (reFind `^-tsave` .Message.Content)}} {{/* resave info (this will reset pinners & sticky msg) */}}
             {{dbSet .Channel.ID "threads" $tinfo}}
             {{addReactions $success}}
             {{/* template "tlist" $tinfo */}} {{/* update thread list */}}
