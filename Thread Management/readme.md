@@ -11,7 +11,8 @@
 Sends a message about how to use the thread management tools     
 (which detail all the things Thread OPs can do) 
 
-[image here]
+![image](https://github.com/user-attachments/assets/a97b109a-6884-4041-81ce-c4f260c45de4)
+
 
 ## Logging
 
@@ -46,8 +47,6 @@ These people can use reactions or reply to any post with "pin" or "unpin" to pin
 
 Thread OPs & the mod role can use reactions or reply to any post with "stick" or "unstick" to make a message stick to the bottom of the thread.     
 (This was added since thread pins are nearly impossible to find on mobile)
-
-[image]
 
 
 ## Text commands for Mods
