@@ -7,15 +7,15 @@
 
 # Main Features
 
-- A mod role can do everything Thread OPs can do
-- Text commands will delete themselves in ~5 seconds
-- You can use reactions instead for most commands
-
 **Auto-pins the first post in a thread +**
 Sends a message about how to use the thread management tools     
 (which detail all the things Thread OPs can do) 
 
 ![image](https://github.com/user-attachments/assets/a97b109a-6884-4041-81ce-c4f260c45de4)
+
+- A mod role can do everything Thread OPs can do
+- Text commands will delete themselves in ~5 seconds
+- You can use reactions instead for most commands
 
 
 ## Logging
