@@ -1,0 +1,304 @@
+{{/* 
+NEW Base Thread Management
+Trigger Type: Regex
+Trigger: \A
+
+https://github.com/FravBox/YagCCs/
+*/}}
+
+{{/* channels */}}
+{{$news := 0}}
+{{$log := 0}}
+
+{{/* categories to ignore */}}
+{{$ignore := cslice 11111 22222 3333}}
+{{$logit := 0}}{{/* if you don't want logs for them either, change this to 1 */}}
+
+{{/* mod role */}}
+{{$mod := 11111111}}
+
+{{/* emojis */}}
+{{$pin := "📌"}}
+{{$stick := "🧲"}}
+{{$delpinner := "removepinner:9999"}}
+{{$addpinner := "addpinner:9999"}}
+{{$success:= "✅"}}
+{{$confuse := "❓"}}
+{{$save := "💾"}}
+{{$del := "❌"}}
+
+{{/* embed colors */}}
+{{$c1 := 0xaa5ffa}}{{/* created */}}
+{{$c2 := 5570815}}{{/* renamed */}}
+{{$c3 := 0x6d03ab}}{{/* etc */}}
+
+{{/* CC IDs */}}
+{{$txt := 82}}
+{{$emoji := 81}}
+
+{{/* seconds b4 sticky's reposted */}}
+{{$len := 5}}
+
+{{/* DON'T EDIT BELOW */}}
+
+{{/* early exit */}}
+{{if and (not .Channel.IsThread) (ne .Message.Type 21)}}
+    {{return}}
+{{end}}
+
+{{if .ExecData}}
+    {{if ($e := .ExecData.react)}}
+        {{$c := cslice $pin $delpinner $addpinner $save $del $stick}}
+        {{if not (in $c $e)}}
+            {{return}}
+        {{end}}
+    {{end}}
+{{end}}
+
+
+{{/* helpers */}}
+{{$yid := .BotUser.ID}}{{/* yag */}}
+{{$t := reFind `^(pinner|pin|unpin|-pinners|stick|unstick)|(^-t(check|save|list|del))` .Message.Content}}{{/* txt cmds */}}
+
+{{$pinners := (cslice (print "<@" .Channel.OwnerID ">") )}}
+{{$sticky := 0}}
+
+{{/* check 4db */}}
+{{$tdb := (dbGet .Channel.ID "threads")}}
+{{if $tdb}}
+    {{if $tdb.Value.pinners}}
+        {{$pinners =  $tdb.Value.pinners}}
+    {{end}}
+    {{if $tdb.Value.sticky}}
+        {{$sticky = $tdb.Value.sticky}}
+    {{end}}
+{{end}}
+
+{{/* early exit 2 */}}
+{{if and (not $tdb) (.ExecData)}}
+    {{return}}
+{{end}}
+
+{{/* 4db */}}
+{{ $tname := print (title ((getThread nil).Name) ) }}
+
+{{$tinfo := sdict 
+"thread" .Channel
+"tname" $tname 
+"parent" .Channel.ParentID 
+"pname" (getChannel .Channel.ParentID).Name
+"cat" (title (getChannel (getChannel .Channel.ParentID).ParentID).Name)
+"catid" (getChannel (getChannel .Channel.ParentID).ParentID).ID
+"top" (print "<@" .Channel.OwnerID ">")
+"pinners" $pinners
+"sticky" $sticky
+}}
+
+{{/* 4backwards compatibility */}}
+{{if and ($tdb) (not (dbGet .Channel.ID "threads").Value.pinners)}}
+    {{dbSet .Channel.ID "threads" $tinfo }}
+{{end}}
+
+{{/* exec CCs */}}
+{{$data := sdict
+    "channels" (sdict 
+        "news" $news
+        "log" $log)
+    "ignore" $ignore
+    "staff" $mod
+    "emoji" (sdict
+        "pin" $pin
+        "removepinner" $delpinner
+        "addpinner" $addpinner
+        "success" $success
+        "confuse" $confuse
+        "save" $save
+        "del" $del
+        "stick" $stick)
+    "colors" (sdict
+        "c1" $c1
+        "c2" $c2
+        "c3" $c3)
+    "CCID" (sdict
+        "base" .CCID
+        "text" $txt
+        "emoji" $emoji)
+    "len" $len
+    "yid" $yid
+    "u" .User.ID
+    "trigger" $t
+    "tinfo" $tinfo
+    "mid" .Message.ID
+    "ref" 0
+    "react" 1
+}}
+
+{{if $tinfo}}
+    {{if or (eq .Channel.OwnerID .User.ID) (hasRoleID $mod) (in $tdb.Value.pinners .User.Mention)}}
+
+        {{/* 4reacts */}}
+        {{if ($e := .ExecData)}}
+
+            {{/* mods only */}}
+            {{if and (hasRole $mod) ($e.add)}}
+                {{if eq $e.react $save}}
+                    {{$data.Set "trigger" "-tsave"}}
+                    {{$data.Set "mid" $e.mid}}
+                    {{execCC $txt nil 0 $data}}
+                    {{return}}
+
+                {{else if eq $e.react $del}}
+                    {{$data.Set "trigger" "-tdel"}}
+                    {{$data.Set "mid" $e.mid}}
+                    {{execCC $txt nil 0 $data}}
+                    {{return}}
+                {{end}}
+            {{end}}
+
+            {{/* others */}}
+            {{if or (eq .Channel.OwnerID .User.ID) (hasRoleID $mod)}}
+
+                {{/* pinners */}}
+                {{if and $e.add (or (eq $e.react $addpinner) (eq $e.react $delpinner))}}
+                    {{$data.Set "trigger" "pinner"}}
+                    {{$data.Set "mid" $e.mid}}
+                    {{execCC $txt nil 0 $data}}
+                    {{return}}
+
+                {{/* sticky */}}
+                {{else if eq $e.react $stick}}
+                    {{if $e.add}}
+                        {{$data.Set "trigger" "stick"}}
+                    {{else}}
+                        {{$data.Set "trigger" "unstick"}}
+                    {{end}}
+                        {{$data.Set "mid" $e.mid}}
+
+                    {{execCC $txt nil 0 $data}}
+                    {{return}}
+                {{end}}
+            {{end}}
+
+            {{/* pins */}}
+            {{if eq $e.react $pin}}
+                {{if $e.add}}
+                    {{$data.Set "trigger" "pin"}}
+                {{else}}
+                    {{$data.Set "trigger" "unpin"}}
+                {{end}}
+
+                {{$data.Set "mid" $e.mid}}
+                {{execCC $txt nil 0 $data}}
+                {{return}}
+            {{end}}
+            {{return}}
+        {{end}}
+        {{/* end reacts */}}
+
+        {{/* txt cmds */}}
+        {{if $t}}
+            {{if not (reFind `^-` $t)}}
+                {{if not .Message.ReferencedMessage}}
+                    {{return}}
+                {{else}}
+                    {{$data.Set "ref" .Message.ReferencedMessage.ID}}
+                {{end}}
+            {{end}}
+            {{$data.Set "react" 0}}
+            {{execCC $txt nil 0 $data}}
+            {{return}}
+        {{end}}{{/* end txt cmds */}}
+    {{end}}
+{{end}}
+
+{{/* check 4 sticky */}}
+{{if $tdb}}
+    {{$x := $tdb.Value.sticky}}
+    {{if ($x := $tdb.Value.sticky)}}
+        {{if ($y := (getMessage nil ($x.sm)))}}{{/* delete sm? */}}
+            {{if ge (sub .Message.Timestamp.Parse.Unix $y.Timestamp.Parse.Unix) $len}}
+                {{$ogm := (getMessage nil $x.og).Content}}
+                {{deleteMessage nil $x.sm 0}}
+                {{if gt (len $ogm) 1850}}
+                    {{$ogm = print (slice $ogm 0 1850) ". . ."}}
+                {{end}}
+                {{$z := sendMessageRetID nil (complexMessage "content" (print $ogm "\n-# [See original message](<" (getMessage nil $x.og).Link ">)" ) "embed" ((getMessage nil $x.og).Embeds) )}}
+                {{$tinfo.Set "sticky" (sdict "og" $x.og "sm" $z)}}
+                {{dbSet .Channel.ID "threads" $tinfo}}
+            {{end}}
+        {{end}}
+    {{end}}
+{{end}}
+
+
+{{/* 4logs */}}
+{{ $tlink := print "[" $tname "](https://discord.com/channels/" .Guild.ID "/" .Channel.ID ")" }}
+
+{{ $sfx := print "\n\n[Jump to post](" .Message.Link ") | <#" .Channel.ID "> | [Link to thread](https://discord.com/channels/" .Guild.ID "/" .Channel.ID ")" }}
+{{ $ftr := (sdict "text" (print "Channel ID " .Channel.ID " | From @" .User.String " (ID: " .User.ID ")") )}}
+
+{{$msg := .Message.Content }}
+{{if eq 21 .Message.Type}}
+    {{$msg = (getMessage .Channel.ParentID ((getMessage nil .Message.ID).MessageReference).MessageID).Content }}
+{{end}}
+
+{{if ge (len $msg) 1000}}
+    {{$msg = print (slice $msg 0 1000) ". . ."}}
+{{end}}
+
+{{/* log new */}}
+{{ $tnew := cembed 
+"title" (print " 🆕 " $tname  )
+"description" (print "**" .User.Mention "** posted **" $tlink "** from <#" .Channel.ParentID "> on <t:" currentTime.Unix ":F>." $sfx "\n**The Message:** \n >>> " $msg )
+"footer" $ftr
+"color" $c1
+}}
+
+{{/* explanation */}}
+{{$opinfo := cembed
+"color" $c3
+"title" "Thread Management"
+"description" (print "### <@" .Channel.OwnerID "> is the thread OP.\n **OPs can use <@" $yid "> to:**\n- Pin and unpin messages\n- Control who may pin messages in their thread (pinners)\n- Sticky messages\n\n**React to Messages**\n<" $addpinner "> to add a person as a pinner\n<" $delpinner "> to remove them \n" $pin " to toggle that message's pin status (react to pin, unreact to unpin)\n" $stick " to toggle message's stick status (react to make it sticky, unreact to remove)\n\n**Reply to Messages**\n`pinner` to toggle that person's pinner status\n`pin` to pin the message \n`unpin` to unpin the message\n`stick` to make that message sticky\n`unstick` to unstick the message\n\n**Custom Commands**\n`-pinners` to view the list of who can manage pins in this thread.")}}
+
+
+{{/* save new */}}
+{{if and (not $tdb) (ne .Message.Type 4) }}
+    {{/* Make db & log */}}
+    {{dbSet .Channel.ID "threads" $tinfo }}
+    {{sendMessage nil $opinfo}}{{/* explanation */}}
+
+    {{if and (eq .Message.Author.ID .Channel.OwnerID) (eq (weekNumber currentTime) ((weekNumber (snowflakeToTime .Channel.ID))) ) }} 
+        {{try}}
+            {{pinMessage nil .Message.ID}}{{/* pin 1st msg if found */}}
+            {{catch}}
+        {{end}}
+    {{end}}
+
+    {{if (in $ignore $tinfo.catid)}}
+        {{if not $logit}}
+            {{sendMessage $log $tnew}}{{/* log it */}}
+        {{end}}
+    {{else}}
+        {{sendMessage $news $tnew}}{{/* send to news */}}
+    {{end}}
+    
+    {{return}}
+{{end}}
+
+{{/* save renames */}}
+{{if eq .Message.Type 4}}
+
+    {{/* renamed log msg */}}
+        {{sendMessage $log (cembed
+        "title" (print "Thread Name Change: " $tname "  ➡️  " .Message.Content)
+        "description" (print .Message.Author.Mention " changed **" $tname "** in <#" .Channel.ParentID "> to its new name: **[" .Message.Content "](https://discord.com/channels/" .Guild.ID "/" .Channel.ID ")** on <t:" currentTime.Unix ":F>." $sfx) 
+        "footer" $ftr
+        "color" $c2
+        )
+    }}
+    {{$tinfo.Set "pinners" $pinners}}
+    {{$tinfo.Set "sticky" $sticky}}
+    {{$tinfo.Set "tname" (print (title .Message.Content))}}
+    {{dbSet .Channel.ID "threads" $tinfo}}
+    {{return}}
+{{end}}

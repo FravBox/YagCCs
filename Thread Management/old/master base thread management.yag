@@ -13,7 +13,7 @@ https://github.com/FravBox/YagCCs/ for how to edit/use
 {{$news := 777777}}
 {{$log := 66666}}
 {{/* cats to ignore */}}
-{{$ignore := 11111 22222 3333}}
+{{$ignore := cslice 11111 22222 3333}}
 {{/* mod role */}}
 {{$staff := 44444444}}
 {{/* emojis */}}
@@ -90,7 +90,7 @@ https://github.com/FravBox/YagCCs/ for how to edit/use
     {{catch}}
     {{end}}
 
-    {{if not (in $tinfo.catid $ignore)}}
+    {{if not (in $ignore $tinfo.catid)}}
         {{sendMessage $news $tcreate}} {{/* send to news */}}
     {{end}}
     {{sendMessage $log $tcreate}} {{/* log it */}}
@@ -206,7 +206,7 @@ https://github.com/FravBox/YagCCs/ for how to edit/use
         {{if (reFind `^-tcheck` .Message.Content)}} {{/* display db info */}}
             {{sendMessage nil (cembed 
             "title" "Thread Information"
-            "description" (print "**Thread:** \n" $tdb.Value.cat " > <#" $tdb.Value.parent "> > [" $tdb.Value.tname "](https://discord.com/channels/" .Guild.ID "/" $tdb.Value.thread.ID ") | <#" $tdb.Value.thread.ID "> \n\n**Thread OP:** " $tdb.Value.top "\n\n**Pinners:**\n" (joinStr ", " $tdb.Value.pinners ) )
+            "description" (print "**Thread:** \n" $tdb.Value.cat " > <#" $tdb.Value.parent "> > [" $tdb.Value.tname "](https://discord.com/channels/" .Guild.ID "/" $tdb.Value.thread.ID ") | <#" $tdb.Value.thread.ID "> \n\n**Thread OP:** " $tdb.Value.top "\n\n**Pinners:**\n" (joinStr ", " $tdb.Value.pinners ) "\n\n**Sticky Message ID:** " $tdb.Value.sticky "\nReposts every `" $len "` seconds." )
             )}}
             {{return}}
 

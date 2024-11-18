@@ -1,6 +1,5 @@
 # THREAD MANAGEMENT - ABOUT 
-**A set of custom commands for all sorts of Thread features!**    
-There are 2 custom commands. You should use both.
+**A set of custom commands for all sorts of thread features!**    
 
 *The example images below may look slightly different from what you will experience. I've redone this CC quite a few times and reused the screenshots because I'm lazy.*
 
@@ -8,12 +7,11 @@ There are 2 custom commands. You should use both.
 
 # Main Features
 
-## Auto-pins first post in a thread
+**Auto-pins the first post in a thread +**
+Sends a message about how to use the thread management tools     
+(which detail all the things Thread OPs can do) 
 
-Also sends a message about how to use the thread management tools.
-
-![image](https://github.com/FravBox/YagCCs/assets/20410737/7e060596-8197-4808-81d2-6ea2961ca863)
-
+[image here]
 
 ## Logging
 
@@ -40,15 +38,17 @@ Anyone can use the text command `-pinners` to list who the pinners for that thre
 ## Manage Pinned Messages
 
 The Thread OP, a mod role, and any Pinners can pin and unpin messages in their thread.      
-Included in the main command, these people can reply to any post with "pin" or "unpin" to pin/unpin the message they replied to.      
-The 2nd command allows for these actions to be done with reactions.
+These people can use reactions or reply to any post with "pin" or "unpin" to pin/unpin the message they replied to.
 
 ![image](https://user-images.githubusercontent.com/20410737/181127916-5cd2e538-8a4b-467e-8c85-c9368a2e7b62.png)      
 
-## Mention `@Everyone` and `@Here`
+## Make a sticky message
 
-If Thread OPs mention `@everyone` or `@here`, Yag will make sure those people are pinged inside the thread.    
-(note these only ping current members of the thread, not all users of a server)
+Thread OPs & the mod role can use reactions or reply to any post with "stick" or "unstick" to make a message stick to the bottom of the thread.     
+(This was added since thread pins are nearly impossible to find on mobile)
+
+[image]
+
 
 ## Text commands for Mods
 
@@ -56,7 +56,7 @@ If Thread OPs mention `@everyone` or `@here`, Yag will make sure those people ar
 Display database info
 
 `-tsave`     
-Resave db info - this will reset all the pinners. Also has a emoji reaction counterpart.
+Resave db info - this will reset everything. Also has a emoji reaction counterpart.
 
 `-tdel`     
 Delete the db info (in most cases you'd want to use `-tsave` instead). Also has a emoji reaction counterpart.
@@ -64,62 +64,133 @@ Delete the db info (in most cases you'd want to use `-tsave` instead). Also has 
 
 # HOW TO INSTALL
 
-There are 2 commands. You should use both. Add `master base thread management.yag` first. This handles the thread database and all the text commands.      
-The second command is `emoji thread mgmt.yag` which lets you use emoji reactions so you don't have to type commands.
+3 commands are mandatory to install. The `mass delete db entries` is optional, but recommended.
 
-**If you used an older version of this command**, this is backwards compatible!    
-<details><summary>But here are the changes you might care about</summary>
-<ul><li>This works for all free users; you shouldn't have to worry about hitting db limits anymore.</li>
-<li>Old CC guessed who the thread OP was. This version *actually knows* who the Thread OP is.</li>
-<li>I took out the "thread list" part completely. There's just no way to make this universally work for everyone. Please code your own custom solution; sorry.</li>
-<li>Otherwise, this is functionally the same CC but with the added "pinners" and "@everyone/here" features.</li></ul>
-</details>
+**If you used an older version of this command**, you should delete and re-add all the thread management commands. Your databases will still work. Note that the `@everyone` and `@here` feature was removed.
 
+## Add the commands
 
-## **There are a lot of things to edit before the cc will work!!**      
+On your control panel, create a new command group for "Thread Management."     
+As you add each command, name them similar to their filenames and keep note of their CC IDs.      
+![14](https://github.com/user-attachments/assets/2fa88c13-2f1e-42de-974d-d49f7556824c) 
 
-## master base thread management.yag
+**1. Add `thread text commands.yag`**      
+Its trigger type is none is you do not need to edit anything inside the command.
 
-**Variables to change**
+**2. Add `emoji thread management.yag`**     
+Trigger type: reaction     
+Trigger: added + removed reactions      
+For `$base`, change the number to the number *after* the current CC ID. (e.g. if this CC ID is 6, put 7 here)
 
-**`$news`** is a public channel where you want to annouce that a new thread has been created. Put its channel ID here.
+**3. Add `base thread management.yag`**     
+Trigger type: Regex     
+Trigger: `\A`
 
-**`$log`** is the channel ID of where you want the posts about threads being created, renamed, etc.
+## Change the variables in `base thread management.yag`
 
-**`$ignore`** are CATEGORY IDs (NOT channels). When we make public posts to `$news`, any threads in any of the channels in the `$ignored` categories will not be posted. You will want to put your moderation or other private CATEGORIES here. (You can find the category ID by right clicking on the category's name and then "copy channel ID". But make sure you're on the CATEGORY and not a singular channel.)
+### **Channels**
 
-**`$staff`** is the Role ID for who can use the moderation commands for the database. They will also always be able un/pin messages.
+**`$news`**     
+The Channel ID where new thread announcements go to boost engagement.     
+If you don't want thread announcements, leave it at 0.
 
-**emojis** this section is for telling the command what emojis to look for for certain functions.    
-`$pin` React with this emoji on a message to pin it and unreact to unpin.    
-`$delpinner` React with this emoji to remove the message's author from the pinner list. You can use the included file `delpinner.png` as the emoji or use your own. You will need to find the emoji ID to change this, as the current variable will not work as-is. You can find what you need to put here by typing the emoji into discord, putting a `\` directly in front of it, and then hitting enter.
+**`$log`**     
+The Channel ID where new threads and thread renames go.     
+If you don't want logs, leave it at 0.
 
-`$addpinner` is the same as the above, but for adding the message's author as a pinner. Which will allow them to pin message sin addition to the Thread OP.
+### **Categories to ignore**
 
-`$success` is the emoji yag will use to tell you it successfully completed a command.    
-`$confuse` is the emoji yag will use to tell you that it knows you tried to use a command, but it either errored or can't figure out what you actually wanted to do. (e.g. you tried to remove a pinner but that person wasn't a pinner to begin with)
+**`$ignore`**      
+CATEGORY IDs (NOT channels).     
+When we make public posts to `$news`, any threads in any of the channels in the `$ignore` categories will not be posted.      
+You will want to put your moderation or other private CATEGORIES here.      
+(You can find the category ID by right clicking on the category's name and then "copy channel ID". But make sure you're on the CATEGORY and not a singular channel.)      
+Ignored categories can still use all commands. If you want to *completely* disable the thread system for certain channels or categories, use the channel restrictions on the control panel for the command group.
 
-**embed colors** is the section for the logs. Change the color based on the type of log message. Use decimal for colors. You can find the decimal colros at https://spycolor.com
+**`$logit`**    
+Ignored categories do not get announced, but they do get logged. If you do NOT want logs for your ignored categories, change this to `1`.
 
-Don't edit anything else if you don't know how to code.
+### **Mod role**
 
-## emoji thread mgmt.yag
+**`$mod`**     
+A role ID for who can use the moderation commands for the database. They can also do everything thread OPs can do.
 
-This command has the emojis section, the mod role (`$staff`), and the embed colors section to change. Make sure the values are the same as the ones you used in the first command.  
+### **Emojis**
 
-It has 2 additional emojis, however:
+**`$pin`**     
+React with this emoji on a message to pin it and unreact to unpin.
 
-**`$save`** is an emoji that will allow mods to re-save the thread information in the database by reacting to any message in the thread. It will also reset the pinners.
+**`$stick`**    
+React with this emoji to sticky a message. Unreact to unsticky it.
 
-**`$del`** is the emoji for mods to delete the database information.
+**`$delpinner`**     
+React with this emoji to remove the message's author from the pinner list.      
+You can use the included file `delpinner.png` as the emoji or use your own.     
+You will need to find the emoji ID to change this, as the current variable will NOT work as-is.     
+You can find what you need to put here by typing the emoji into discord, putting a `\` directly in front of it, and then hitting enter.
 
-Don't edit anything below the `do not edit below` line.
+**`$addpinner`**    
+The same as the above, but for adding the message's author as a pinner.     
+This will allow them to pin messages in addition to the Thread OP.
+
+**`$success`**    
+The emoji yag will use to tell you it successfully completed a command.    
+
+**`$confuse`**    
+The emoji yag will use to tell you that it knows you tried to use a command, but it either errored or can't figure out what you actually wanted to do.     
+(e.g. you tried to remove a pinner but that person wasn't a pinner to begin with)
+
+**`$save`**     
+Mods can react with this emoji to re-save the thread information in the database. It will also reset the pinners & sticky.
+
+**`$del`**     
+Mods can react with this emoji to delete the database information.
+
+### **Embed Colors**
+
+These colors are used for the logs & announcement messages.    
+They should be in decimal. You can find the decimal values for colors by using https://spycolor.com
+
+**`$c1`**     
+For new threads & thread announcements.
+
+**`$c2`**    
+For thread renames.
+
+**`$c3`**    
+For everything else.
+
+### CC IDs
+If you didn't change the CC ID in `emoji thread mgmt.yag` yet, do it now.
+
+**`$txt`**    
+CC ID of `thread text commands.yag`
+
+**`$emoji`**     
+CC ID of `emoji thread mgmt.yag`
+
+### Seconds before the sticky is reposted
+
+**`$len`**     
+The command counts the seconds after a sticky message is posted. When a new person posts, it will check if the amount of time that has passed is the same or longer than this value.     
+If you want the sticky post at the bottom *no matter what*, change this to `0`.     
+However, 5 (the default value) is recommended in most cases.
+
+## Optional Command
+
+`mass delete db entries (optional).yag` deletes the top 100 db entries of threads that have been archived or deleted. 
+
+The recommended use is to set it on an interval and allow it delete db entries of threads that are no longer active. You can do that with this setup:
+
+Trigger: Hourly interval     
+Interval: 168    
+Channel: (choose any channel. It doesn't matter which one)
+
+168 hours is one week. 
 
 # Final Note
+If you have trouble with this CC, feel free to try to contact me (@standardquip) in the YAGPDB support server.
 
-If you have trouble with this CC, feel free to try to contact me (@standardquip) in the YAGPDB support server.      
-However, I would highly recommend you instead try to figure out how this CC works and modify it to your own custom needs. It is very difficult to have a "universal" CC that covers something complex like this. It's much easier to hardcode in your own channel and category IDs and such (in my opinion). 
+However, I would highly recommend you instead try to figure out how this CC works and modify it to your own custom needs. It is very difficult to have a "universal" CC that covers something complex like this. It's much easier to hardcode in your own channel and category IDs and such (in my opinion).
 
-If you know how to code, you can look at what I currently use for the thread management in my server, [here](https://github.com/FravBox/YagCCs/tree/main/z_server%20backups/thread%20control/2023%20thread%20mgmt). (Note that copy/pasting that into your CCs WILL NOT WORK.). I comment my code pretty heavily, so hopefully it's easy enough to read.
-
-If you happen to improve on this universal version of thread management CCs, please do a pull request, or let me know your repo so I can link to you if people want alternatives. Thanks!
+If you happen to improve on this universal version of thread management CCs, please do a pull request or let me know your repo so I can link to you if people want alternatives. Thanks!
