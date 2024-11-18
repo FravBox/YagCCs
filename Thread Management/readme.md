@@ -1,4 +1,4 @@
-# THREAD MANAGEMENT - ABOUT 
+# THREAD MANAGEMENT 
 **A set of custom commands for all sorts of thread features!**    
 
 *The example images below may look slightly different from what you will experience. I've redone this CC quite a few times and reused the screenshots because I'm lazy.*
@@ -6,6 +6,10 @@
 --------
 
 # Main Features
+
+- A mod role can do everything Thread OPs can do
+- Text commands will delete themselves in ~5 seconds
+- You can use reactions instead for most commands
 
 **Auto-pins the first post in a thread +**
 Sends a message about how to use the thread management tools     
