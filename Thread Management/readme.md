@@ -62,10 +62,10 @@ Replying "unstick" to either the original message or the current stuck message w
 Display database info
 
 `-tsave`     
-Resave db info - this will reset everything. Also has an emoji reaction counterpart.
+Resave db info - this will reset everything. Also has an emoji reaction counterpart (`$save`).
 
 `-tdel`     
-Delete the db info (in most cases you'd want to use `-tsave` instead). Also has an emoji reaction counterpart.
+Delete the db info (in most cases you'd want to use `-tsave` instead). Also has an emoji reaction counterpart (`$del`).
 
 
 # HOW TO INSTALL
@@ -147,10 +147,12 @@ The emoji yag will use to tell you that it knows you tried to use a command, but
 (e.g. you tried to remove a pinner but that person wasn't a pinner to begin with)
 
 **`$save`**     
-Mods can react with this emoji to re-save the thread information in the database. It will also reset the pinners & sticky.
+Mods can react with this emoji to re-save the thread information in the database. It will also reset the pinners & sticky.     
+Same command as `-tsave`
 
 **`$del`**     
-Mods can react with this emoji to delete the database information.
+Mods can react with this emoji to delete the database information.     
+Same command as `-tdel`
 
 ### **Embed Colors**
 
