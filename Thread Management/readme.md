@@ -51,7 +51,8 @@ These people can use reactions or reply to any post with "pin" or "unpin" to pin
 
 Thread OPs & the mod role can use reactions or reply to any post with "stick" to make a message stick to the bottom of the thread.    
 Unreacting to the original message will unstick the message.     
-Replying "unstick" to either the original message or the current stuck message will unstick it.      
+Replying "unstick" to either the original message or the current stuck message will unstick it.
+
 (This was added since thread pins are nearly impossible to find on mobile)      
 *Note: Sticky messages will work with text & embeds, but not buttons or menus.*
 
@@ -81,7 +82,7 @@ As you add each command, name them similar to their filenames and keep note of t
 ![14](https://github.com/user-attachments/assets/2fa88c13-2f1e-42de-974d-d49f7556824c) 
 
 **1. Add `thread text commands.yag`**      
-Its trigger type is none is you do not need to edit anything inside the command.
+Its trigger type is None and you do not need to edit anything inside the command.
 
 **2. Add `emoji thread management.yag`**     
 Trigger type: reaction     
