@@ -46,7 +46,8 @@ These people can use reactions or reply to any post with "pin" or "unpin" to pin
 ## Make a sticky message
 
 Thread OPs & the mod role can use reactions or reply to any post with "stick" or "unstick" to make a message stick to the bottom of the thread.     
-(This was added since thread pins are nearly impossible to find on mobile)
+(This was added since thread pins are nearly impossible to find on mobile)      
+*Note: Sticky messages will work with text & embeds, but not buttons or menus.*
 
 
 ## Text commands for Mods
@@ -55,10 +56,10 @@ Thread OPs & the mod role can use reactions or reply to any post with "stick" or
 Display database info
 
 `-tsave`     
-Resave db info - this will reset everything. Also has a emoji reaction counterpart.
+Resave db info - this will reset everything. Also has an emoji reaction counterpart.
 
 `-tdel`     
-Delete the db info (in most cases you'd want to use `-tsave` instead). Also has a emoji reaction counterpart.
+Delete the db info (in most cases you'd want to use `-tsave` instead). Also has an emoji reaction counterpart.
 
 
 # HOW TO INSTALL
