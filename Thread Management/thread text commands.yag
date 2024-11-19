@@ -266,6 +266,7 @@ more info: https://github.com/FravBox/YagCCs
         {{else}}
             {{sleep 5}}
             {{deleteMessageReaction nil $mid $yid $success}}
+            {{deleteMessageReaction nil $mid $u $emoji.save}}
         {{end}}
         {{return}}
     {{end}}
@@ -280,6 +281,7 @@ more info: https://github.com/FravBox/YagCCs
         {{else}}
             {{sleep 5}}
             {{deleteMessageReaction nil $mid $yid $success}}
+            {{deleteMessageReaction nil $mid $u $emoji.del}}
         {{end}}
         {{return}}
     {{end}}
