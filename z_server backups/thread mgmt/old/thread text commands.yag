@@ -100,6 +100,7 @@ Regex:
 
             {{$tinfo.Set "pinners" $x}}
             {{dbSet .channel.ID "threads" $tinfo}}
+
             {{addReactions $delpinner $success}}
             {{sleep 5}}
             {{deleteMessageReaction nil .Message.ID $yid $delpinner $success}}

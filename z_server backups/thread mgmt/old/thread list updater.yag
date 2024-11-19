@@ -1,17 +1,14 @@
-{{/* 
-thread list - executed by other CCs or -tlist
-*/}}
+{{/* thread list - executed by other CCs */}}
 
 {{$tlist := 1007040938880815225}} {{/* tlist channel */}}
 {{$m1 := 1120150213777162371}} {{/* message ID 1 */}}
 {{$m2 := 1170809421367103538}} {{/* message ID 2 */}}
 
 {{/* cats to ignore */}}
-{{$rice := 1044363817007710309 }}
-{{$modcat := 750544551046807602 }}
-{{$automod := 954856123628912690 }}
-{{$fun := 782784819863486464 }}
-{{$ignore := cslice $rice $modcat $automod $fun}}
+{{$rice := "1044363817007710309" }}
+{{$modcat := "750544551046807602" }}
+{{$automod := "954856123628912690" }}
+{{$fun := "782784819863486464" }}
 
 
 {{$x := dbTopEntries "threads" 100 0}}
@@ -26,7 +23,7 @@ thread list - executed by other CCs or -tlist
 {{/* Get db info from non-archived threads, exclude personal testing and moderation categories */}}
 {{$list := ""}}
 {{range $x}}
-    {{- if and (in $open .Value.thread.ID ) (not (in $ignore .Value.catid)) -}}
+    {{- if and (in $open .Value.thread.ID ) (ne (toString .Value.catid) $rice ) (ne (toString .Value.catid) $fun ) (ne (toString .Value.catid) $modcat ) (ne (toString .Value.catid) $automod ) -}}
         {{- $list = print $list "<#" .Value.parent "> **⮞ [" .Value.tname "](https://discord.com/channels/750541618389712896/" .Value.thread.ID ")** \n" -}}
     {{- end -}}
 {{- end}}
@@ -51,10 +48,9 @@ thread list - executed by other CCs or -tlist
 
 	{{/* m2 */}}
 	{{editMessage $tlist $m2 (complexMessageEdit "embed" (cembed "title" "Active Threads II" "description" (print $msg2 $time ) ) ) }}
-	
 {{else}}
 
-	{{/* m1 */}}
+{{/* m1 */}}
 	{{editMessage $tlist $m1 (complexMessageEdit "embed" (cembed "title" "Active Threads I" "description" (print $prefix "*Most recently created or revived:*\n" $list $time ) ) ) }}
 
 	{{/* m2 */}}
