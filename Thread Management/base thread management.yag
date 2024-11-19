@@ -20,8 +20,8 @@ https://github.com/FravBox/YagCCs/
 {{/* emojis */}}
 {{$pin := "📌"}}
 {{$stick := "🧲"}}
-{{$delpinner := ":removepinner:9999"}}
-{{$addpinner := ":addpinner:9999"}}
+{{$delpinner := "removepinner:9999"}}
+{{$addpinner := "addpinner:9999"}}
 {{$success:= "✅"}}
 {{$confuse := "❓"}}
 {{$save := "💾"}}
@@ -258,7 +258,7 @@ https://github.com/FravBox/YagCCs/
 {{$opinfo := cembed
 "color" $c3
 "title" "Thread Management"
-"description" (print "### <@" .Channel.OwnerID "> is the thread OP.\n **OPs can use <@" $yid "> to:**\n- Pin and unpin messages\n- Control who may pin messages in their thread (pinners)\n- Sticky messages\n\n**React to Messages**\n<" $addpinner "> to add a person as a pinner\n<" $delpinner "> to remove them \n" $pin " to toggle that message's pin status (react to pin, unreact to unpin)\n" $stick " to toggle message's stick status (react to make it sticky, unreact to remove)\n\n**Reply to Messages**\n`pinner` to toggle that person's pinner status\n`pin` to pin the message \n`unpin` to unpin the message\n`stick` to make that message sticky\n`unstick` to unstick the message\n\n**Custom Commands**\n`-pinners` to view the list of who can manage pins in this thread.")}}
+"description" (print "### <@" .Channel.OwnerID "> is the thread OP.\n **OPs can use <@" $yid "> to:**\n- Pin and unpin messages\n- Control who may pin messages in their thread (pinners)\n- Sticky messages\n\n**React to Messages**\n<:" $addpinner "> to add a person as a pinner\n<:" $delpinner "> to remove them \n" $pin " to toggle that message's pin status (react to pin, unreact to unpin)\n" $stick " to toggle message's stick status (react to make it sticky, unreact to remove)\n\n**Reply to Messages**\n`pinner` to toggle that person's pinner status\n`pin` to pin the message \n`unpin` to unpin the message\n`stick` to make that message sticky\n`unstick` to unstick the message\n\n**Custom Commands**\n`-pinners` to view the list of who can manage pins in this thread.")}}
 
 
 {{/* save new */}}
