@@ -20,8 +20,8 @@ https://github.com/FravBox/YagCCs/
 {{/* emojis */}}
 {{$pin := "📌"}}
 {{$stick := "🧲"}}
-{{$delpinner := "removepinner:9999"}}
-{{$addpinner := "addpinner:9999"}}
+{{$delpinner := ":removepinner:9999"}}
+{{$addpinner := ":addpinner:9999"}}
 {{$success:= "✅"}}
 {{$confuse := "❓"}}
 {{$save := "💾"}}
@@ -274,14 +274,12 @@ https://github.com/FravBox/YagCCs/
         {{end}}
     {{end}}
 
-    {{if (in $ignore $tinfo.catid)}}
-        {{if not $logit}}
-            {{sendMessage $log $tnew}}{{/* log it */}}
-        {{end}}
-    {{else}}
+    {{if not (in $ignore $tinfo.catid)}}
         {{sendMessage $news $tnew}}{{/* send to news */}}
+        {{sendMessage $log $tnew}}{{/* log it */}}
+    {{else if and (in $ignore $tinfo.catid) (not $logit)}}
+        {{sendMessage $log $tnew}}{{/* log it */}}
     {{end}}
-    
     {{return}}
 {{end}}
 
