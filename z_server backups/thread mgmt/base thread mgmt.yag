@@ -77,7 +77,9 @@ Trigger: \A
 {{$pinners := (cslice (print "<@" $top ">") )}}
 
 {{if $tdb}}
-   {{$top = $tdb.Value.top}}
+    {{if (ne (kindOf $tdb.Value.top) "string")}}
+        {{$top = $tdb.Value.top}}
+    {{end}}
    {{$pinners =  $tdb.Value.pinners}}
 
    {{if $tdb.Value.sticky}}
@@ -106,7 +108,7 @@ Trigger: \A
 }}
 
 {{/* 4backwards compatibility */}}
-{{if and ($tdb) (not (dbGet $ch.ID "threads").Value.pinners)}}
+{{if and ($tdb) (eq (kindOf $tdb.Value.top) "string")}}
    {{dbSet $ch.ID "threads" $tinfo }}
 {{end}}
 
