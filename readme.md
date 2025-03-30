@@ -1,3 +1,6 @@
+# I'm not in the YAGPDB support server & I don't code for YAGPDB anymore.
+You can still DM me on Discord or start an issue here, but changes are extremely unlikely now. Sorry.
+
 # License
 You can use my (@standardquip / Fravbox) code & edit it however you want **except the stuff in server backups & things by people other than me.**     
 If another user is credited, you must keep the credit in the code. If the code is in my server backups folder, please ask before using it.
@@ -148,5 +151,3 @@ Other Yag CC Gits:
 # Contact me
 Open an issue or start a discussion on Github. I don't accept random friend requests, but my DMs are open. My username is `standardquip` on Discord.
 
-# I'm not in the YAGPDB support server & I don't code for YAGPDB anymore.
-You can still DM me on DIscord or start an issue here, but changes are extremely unlikely now. Sorry.
