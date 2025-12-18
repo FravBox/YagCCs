@@ -1,0 +1,43 @@
+{{/* Remind about vpr if no vpr mentioned 
+Triggered by base thread management CC (316) + vid critique ccs
+*/}}
+{{$db := 0}}
+{{$tdb := dbGet .Channel.ID "threads"}}
+
+{{if .Channel.IsThread}}
+  {{if $tdb}}
+    {{if not $tdb.Value.vpr}}
+		{{return}}
+	{{else}}
+	{{$db = 1}}
+{{end}}
+  {{end}}
+{{end}}
+
+{{$vidlink := reFind `(?i) youtube.com|youtu.be|vimeo.com|drive.google.com|streamable.com|frame.io|f.io|odysee.com|(\.(mp4|mov|avi|mkv|mpg|mpeg))` .Message.Content }}
+{{$vid := 0}}
+{{if .Message.Attachments}}
+	{{$vid = reFind `(?i)\.(mp4|avi|mpeg|mpg|mov|mkv)` ((index .Message.Attachments 0).Filename)}}
+{{end}}
+
+{{if and (not $vidlink) (not $vid)}}
+{{/* not a video */}}
+    {{return}}
+{{else if (reFind `(?i)(vpr|flash|flicker|glitch|shak|pattern|safe|motion|particles|peripheral)` .Message.Content)}} 
+    {{/* they used vpr already */}}
+    {{return}}
+{{end}}
+
+
+{{/* Actual Message */}}
+{{$add_vpr := print "## This server requires flash warnings. <:PSEnby:1129925332963700746> \n### " .User.Mention ", Please __edit your message__ to say if your video does or does not contain flashing.\n-# __Optional:__ You can add more [VPR terms](<https://bentovid.com/vpr#common-pho>)  if you'd like to increase accessibility.\n\n-# *Tapping :wastebasket: will hide this message.*" }}
+
+
+{{/* Post the thing & add reaction */}}
+{{$yagMsg := sendMessageNoEscapeRetID nil (complexMessage "content" $add_vpr "reply" .Message.ID )}}
+{{addMessageReactions nil $yagMsg "🗑️"}}
+
+{{if eq $db 1}}
+  {{$tdb.Value.Set "vpr" 0}}
+  {{dbSet .Channel.ID "threads" $tdb.Value}}
+{{end}}

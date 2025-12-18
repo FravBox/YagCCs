@@ -1,23 +1,22 @@
 {{/* 
-Base Thread Mgmt
+Base Thread Management - vid critique version
+Trigger Type: Regex
 Trigger: \A
-
-On early exit, vpr check - cc373
+limit it to only run in vid-critique
 */}}
 
 {{/* channels */}}
-{{$news := 750544732450717728}}
+{{$news := 750545070020886588}} {{/* vid critique */}}
 {{$log := 1007036301717016706}}
-{{$idea := 1393349833489911960}}
 
-{{/* ignore */}}
-{{$ig := cslice 750544551046807602 954856123628912690 782784819863486464 1044363817007710309}}{{/* mod automod fun rice */}}
-{{$i := 0}}
+{{/* categories to ignore */}}
+{{$ignore := cslice 750544551046807602 954856123628912690 782784819863486464 1044363817007710309}}{{/* mod automod fun rice */}}
 
-{{/* mod role */}}
+{{/* roles */}}
 {{$mod := 750543521227866215}}
+{{$crit := 750551422973771787}}
 
-{{/* emoji */}}
+{{/* emojis */}}
 {{$pin := "📌"}}
 {{$stick := "🧲"}}
 {{$delpinner := "removepinner:1120156858993356840"}}
@@ -34,10 +33,10 @@ On early exit, vpr check - cc373
 
 {{/* CC IDs */}}
 {{$txt := 320}}
-{{$emoji := 317}}
-{{$tlist := 314}}
+{{$emoji := 381}}
+{{$tlist := 382}}
 
-{{/* seconds b4 sticky repost */}}
+{{/* seconds b4 sticky's reposted */}}
 {{$len := 5}}
 
 {{/* --- */}}
@@ -47,7 +46,6 @@ On early exit, vpr check - cc373
 
 {{/* early exit */}}
 {{if and (not $ch.IsThread) (ne $me.Type 21) }}
-{{execCC 373 nil 0 .Message}}{{/* vpr */}}
    {{return}}
 {{end}}
 
@@ -62,20 +60,12 @@ On early exit, vpr check - cc373
 
 {{/* helpers */}}
 {{$yag := .BotUser.ID}}
-{{$sesh := 616754792965865495}}
 {{$t := reFind `^(pinner|pin|unpin|-pinners|stick|unstick)|(^-t(check|save|list|del))` $me.Content}}{{/* txt cmds */}}
 
 {{/* check 4db */}}
 {{$tdb := (dbGet $ch.ID "threads")}}
 
 {{$top := $ch.OwnerID}}
-
-{{/* check 4 sesh use */}}
-{{if and (eq $top $sesh) (not $tdb)}}
-   {{if ($x := ((getMessage ((getThread $ch.ID).ParentID) $ch.ID).Interaction))}}
-       {{$top = $x.User.ID}}
-   {{end}}
-{{end}}
 
 {{$sticky := 0}}
 {{$pinners := (cslice (print "<@" $top ">") )}}
@@ -109,23 +99,15 @@ On early exit, vpr check - cc373
 "top" $top
 "pinners" $pinners
 "sticky" $sticky
- "vpr" 1
+"vpr" 1
 }}
-
-{{if or (eq $ch.ID $idea $p) (in $ig $tinfo.catid)}}
-    {{$i = 1}}
-{{end}}
-{{/* 4backward compatibility */}}
-{{if and ($tdb) (eq (kindOf $tdb.Value.top) "string")}}
-   {{dbSet $ch.ID "threads" $tinfo }}
-{{end}}
 
 {{/* exec CCs */}}
 {{$data := sdict
     "channels" (sdict 
         "news" $news
         "log" $log)
-    "ignore" $ig
+    "ignore" $ignore
     "staff" $mod
     "emoji" (sdict
         "pin" $pin
@@ -233,7 +215,7 @@ On early exit, vpr check - cc373
    {{end}}
 {{end}}
 
-{{/* sticky check */}}
+{{/* check 4 sticky */}}
 {{if $tdb}}
    {{$x := $tdb.Value.sticky}}
    {{if ($x := $tdb.Value.sticky)}}
@@ -253,8 +235,10 @@ On early exit, vpr check - cc373
 {{end}}
 
 
-{{/* 4log */}}
+{{/* 4logs */}}
 {{ $tlink := print "[" $tname "](https://discord.com/channels/" .Guild.ID "/" $ch.ID ")" }}
+
+
 
 {{$msg := $me.Content }}
 {{if eq 21 $me.Type}}
@@ -266,20 +250,23 @@ On early exit, vpr check - cc373
 {{end}}
 
 {{/* log new */}}
-{{ $tnew := (complexMessage "content" (print "### 🆕🧵 " .User.Mention " created " $tlink "!\n-# In <#" $p "> at <t:" currentTime.Unix ":F>") "allowed_mentions" (sdict "replied_user" true)) }}
+{{ $tnew := print "[**New critique request:**](" $me.Link ")\n>>> " $msg 
+}}
 
-{{/* explain */}}
+{{/* explanation */}}
 {{$opinfo := cembed
 "color" $c3
 "title" "Thread Management"
-"description" (print "### <@" $top "> is the thread OP.\n **OPs can use <@" $yag "> to:**\n- Pin and unpin messages\n- Control who may pin messages in their thread (pinners)\n- Sticky messages\n\n**React to Messages**\n<:" $addpinner "> to add a person as a pinner\n<:" $delpinner "> to remove them \n" $pin " to toggle that message's pin status (react to pin, unreact to unpin)\n" $stick " to toggle message's stick status (react to make it sticky, unreact to remove)\n\n**Reply to Messages**\n`pinner` to toggle that person's pinner status\n`pin` to pin the message \n`unpin` to unpin the message\n`stick` to make that message sticky\n`unstick` to unstick the message\n\n**Custom Commands**\n`-pinners` to view the list of who can manage pins in this thread.")}}
+"description" (print "### <@" $top "> is the thread OP.\n **OPs can use <@" $yag "> to:**\n- Pin and unpin messages\n- Control who may pin messages in their thread (pinners)\n- Sticky messages\n\n**React to Messages**\n<:" $addpinner "> to add a person as a pinner\n<:" $delpinner "> to remove them \n" $pin " to toggle that message's pin status (react to pin, unreact to unpin)\n" $stick " to toggle message's stick status (react to make it sticky, unreact to remove)\n\n**Reply to Messages**\n`pinner` to toggle that person's pinner status\n`pin` to pin the message \n`unpin` to unpin the message\n`stick` to make that message sticky\n`unstick` to unstick the message\n\n**Custom Commands**\n`-pinners` to view the list of who can manage pins in this thread.\n\n-# *Tapping 🗑️ will delete this message.*")}}
 
 
 {{/* save new */}}
 {{if and (not $tdb) (ne $me.Type 4) }}
    {{/* Make db & log */}}
    {{dbSet $ch.ID "threads" $tinfo }}
-   {{sendMessage nil $opinfo}}{{/* explain */}}
+   {{sendMessageNoEscape nil (print "<@&" $crit ">, new request above!\n-# You can add or remove your ping role in <id:customize> or the main channel.")}}
+   {{$x := sendMessageRetID nil $opinfo}}{{/* explanation */}}
+   {{addMessageReactions nil $x "🗑️"}}
 
    {{if and (eq $me.Author.ID $top) (eq (weekNumber currentTime) ((weekNumber (snowflakeToTime $ch.ID))) ) }}
        {{try}}
@@ -288,29 +275,16 @@ On early exit, vpr check - cc373
        {{end}}
    {{end}}
 
-   {{if not $i}}
+   {{if not (in $ignore $tinfo.catid)}}
        {{sendMessage $news $tnew}}{{/* send to news */}}
-       {{sendMessage $news (complexMessage
-				"forward" (sdict
-					"channel" $ch.ID
-					"message" $me.ID
-				)
-			) }}
+       {{execCC 345 $news 1 nil}} {{/* vid critique sticky */}}
    {{end}}
 
-   {{sendMessage $log $tnew}}{{/* log */}}
-          {{sendMessage $log (complexMessage
-				"forward" (sdict
-					"channel" $ch.ID
-					"message" $me.ID
-				)
-			) }}
-
-   {{execCC $tlist nil 0 nil}}{{/* edit tlist */}}
+   {{sendMessage $log $tnew}}{{/* log it */}}
    {{return}}
 {{end}}
 
-{{/* 4renames */}}
+{{/* save renames */}}
 {{if eq $me.Type 4}}
 
    {{/* renamed log msg */}}
@@ -324,10 +298,6 @@ On early exit, vpr check - cc373
    {{$tinfo.Set "sticky" $sticky}}
    {{$tinfo.Set "tname" (print (title $me.Content))}}
    {{dbSet $ch.ID "threads" $tinfo}}
-   {{execCC $tlist nil 0 nil}}{{/* edit tlist */}}
+   {{execCC $tlist nil 0 nil}}{{/* update tlist */}}
    {{return}}
-{{end}}
-
-{{if and (not $t) ($tdb)}}
-    {{execCC 373 nil 0 .Message}}
 {{end}}

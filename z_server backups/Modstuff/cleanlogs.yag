@@ -1,45 +1,44 @@
 {{/* log usage of clean & log commands */}}
-{{/* trigger: regex: ^-(?:clean|clear|logs?) */}}
+{{/* trigger: regex: ^-(clean|clear|logs?) */}}
 
+
+
+
+{{/* helpers */}}
+{{$color := 0}} {{/* embed color */}}
+{{$logmsg := 0}} {{/* message posted to mod log channel */}}
+{{$log := 0}} {{/* log made when command was used */}}
+{{$modlog := 0}} {{/* channel it logs to */}}
 
 {{/* CATCH CLEAN COMMAND */}}
 
 {{if (reFind `(?i)(-clean|-clear)` .Message.Content)}}
 	
-	{{$color := 16711680}} {{/* red */}}
+	{{$color = 16711680}} {{/* red */}}
 
-	{{sleep 2}}
-	
+	{{sleep 5}}
 	
 	{{$x := index .CmdArgs 0}} {{/* grabs amount you cleaned */}}
 	{{$add := add $x 5}} {{/* maths (amount you cleaned) + 5 */}}
 	{{$log := execAdmin "logs" $add}} {{/* makes a log of (math answer) amount of messages */}}
 	
-	{{$modlog := 970007312632795167 }} {{/* yag-cmd-log */}}
+	{{$logmsg = cembed "description" (joinStr "" .User.Mention " used **`" .Message.Content "`** in " .Channel.Mention " at <t:" currentTime.Unix "> \n [View Logs](" $log ")" "") "color" $color }}
 	
-	
-	{{$logmsg := cembed "description" (joinStr "" .User.Mention " used **`" .Message.Content "`** in " .Channel.Mention " at <t:" currentTime.Unix "> \n [View Logs](" $log ")" "") "color" $color }}
-	{{deleteTrigger 1}}
-	
-	
-	{{sendMessage $modlog $logmsg}}
-
+	{{$modlog = 970007312632795167 }} {{/* yag-cmd-log */}}
 
 {{/* CATCH LOG COMMAND */}}
 
 {{else if (reFind `(-logs?)` .Message.Content)}}
 	{{deleteResponse 1}}
 
-	{{$color := 16776960 }} {{/* yellow */}}
+	{{$color = 16776960 }} {{/* yellow */}}
 	
-	{{$modlog := 750544945474961448 }}{{/* #modlog */}}
+	{{$log = execAdmin "log" .CmdArgs}} {{/* logs the thing */}}
 	
-	{{$log := execAdmin "log" .CmdArgs}} {{/* logs the thing - if you're using this cc, disable in-built log command in command overrides */}}
-	
-	{{$logmsg := cembed "description" (joinStr "" .User.Mention " used **`" .Message.Content "`** in " .Channel.Mention " at <t:" currentTime.Unix "> \n [View Logs](" $log ")" "") "color" $color }}
-	
-	{{sendMessage $modlog $logmsg}}
-	
-	{{deleteTrigger 1}}
+	{{$logmsg = cembed "description" (joinStr "" .User.Mention " used **`" .Message.Content "`** in " .Channel.Mention " at <t:" currentTime.Unix "> \n [View Logs](" $log ")" "") "color" $color }}
 
+	{{$modlog = 750544945474961448 }}{{/* #modlog */}}
 {{end}}
+
+{{sendMessage $modlog $logmsg}}
+{{deleteTrigger 1}}

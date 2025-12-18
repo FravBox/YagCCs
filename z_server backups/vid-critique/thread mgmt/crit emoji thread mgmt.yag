@@ -1,0 +1,22 @@
+{{/* 
+Emoji Thread Management
+Trigger Type: reaction
+Trigger: added + removed
+
+*/}}
+
+{{/* CCID of base command */}}
+{{$base := 380}}
+
+{{/* --- do not edit below --- */}}
+{{if not .Channel.IsThread}}
+    {{return}}
+{{end}}
+    
+{{$data := sdict 
+    "react" .Reaction.Emoji.APIName
+    "add" .ReactionAdded
+    "mid" .Message.ID
+}}
+
+{{execCC $base nil 0 $data}}

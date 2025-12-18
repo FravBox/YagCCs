@@ -1,0 +1,160 @@
+{{/* trigger on modal submission 
+
+new/edit cat: new
+rename cat: rename
+vids: have to check for a value in wipcat
+*/}}
+
+{{$key := 0}}
+{{$vm := 0}}
+{{$vs := 0}}
+{{$id := .StrippedID}}
+{{$m := 0}}
+{{$db := 0}}
+{{$c := 0}}
+{{$n := 0}}
+{{$v := .Values}}
+{{$t := 0}}
+{{$e := .ExecData}}
+{{$w := (dbGet .User.ID "wipcat").Value}}
+
+{{if $e}}
+  {{$key = $e.key}}
+  {{$vm = $e.vidmenu}}
+  {{$vs = $e.vidsdict}}
+  {{$id = $e.id}}
+  {{$m = $e.m}}
+  {{$db = $e.db}}
+  {{$c = $e.c}}
+  {{$t = $e.t}}{{/* 1 = new cat, 2 = rename, 3 = vids */}}
+  
+{{else if $w}}
+  {{if not $w.n}}
+    {{$key = $w.key}}
+    {{$m = $w.m}}
+    {{$db = $w.db}}
+  {{else}}
+    {{$n = 1}}
+  {{end}}
+
+  {{$c = $w.c}}
+{{else}}
+  {{ephemeralResponse}}
+  Something went wrong, sorry.
+{{end}}
+
+{{/* search for similar cat names */}}
+{{if and (not $e) (or ($n) (eq $id "rename") (eq $id "search"))}}
+  {{$aname := index $v 0}}
+  {{$embed := cembed}}
+
+  {{/* remove "best" from name */}}
+  {{if ($r := reFind `(?i)\bbest.*\b` $aname)}}
+    {{$a := reSplit $r $aname}}
+    {{$aname = index $a 0}}
+  {{end}}
+
+  {{/* find pre-existing cat names */}}
+  {{$x := dbGetPattern $c (title (print "cat.%" $aname "|%")) 99 0}}
+
+  {{$y := cslice }} {{$re := cslice}} {{$b := cbutton}}
+  {{if $x}}
+    {{range $x}}
+      {{if .Value.renames}}
+        {{range $k, $v := .Value.renames}}
+          {{$re = $re.Append $k}}
+        {{end}}
+      {{else}}
+        {{$re = cslice "N/A"}}
+      {{end}}
+
+      {{$y = $y.Append (sdict "name" .Value.aname "value" (print .Value.desc "\n\n**Alternate Names:**\n" (joinStr "- " $re) "\n**[Link](" .Value.reflink ")**"))}}
+    {{end}}
+  
+    {{$d := ""}}
+    {{if $n}}
+      {{$d = "Consider adding your name to one of the pre-existing categories by clicking one of the links below instead of creating a new category."}}
+    {{else if eq $id "rename"}}
+      {{$d = "Are you sure you want to continue?"}}
+    {{end}}
+    
+    {{if ne $id "search"}}
+      {{$b = cbutton "label" "Submit anyway" "custom_id" "cat-new2" }}
+    {{end}}
+
+    {{$embed = cembed "description" (print "## Categories with similar names were found!\n" $d) "fields" $y}}
+
+    {{sendResponse nil (complexMessage "embed" $embed "buttons" $b "ephemeral" true)}}
+
+    {{if ne $id "search"}}
+      {{if $w}}
+        {{$w.Set "v" $v}}
+        {{dbSetExpire .User.ID "wipcat" $w 900}}
+      {{else}}
+        {{dbSetExpire .User.ID "wipcat" (sdict "v" $v "n" 1) 900}}
+      {{end}}
+    {{end}}
+    {{return}}
+
+  {{else}}
+    {{/* no cats with similar names */}}
+    {{if eq $id "search"}}
+      {{ephemeralResponse}}
+      {{print "Couldn't find anything :("}}
+      {{return}}
+    {{end}}
+
+    {{if $n}}
+      {{$t = 1}}
+    {{else}}
+      {{$t = 2}}
+    {{end}}
+  {{end}}
+{{end}}
+
+{{/* actually add the new category */}}
+{{if and ($n) (eq $t 1)}}
+  {{/* TODO 
+  - post message
+  - save db
+  - sendresponse with message link
+  */}}
+{{end}}
+
+{{/* Add renames */}}
+{{if eq $t 2}}
+  {{$i := 0}}
+  {{if $e}}
+    {{$i = $e}}
+  {{else if $w}}
+    {{$i = $w}}
+  {{else}}
+    {{ephemeralResponse}}
+    Something went wrong, sorry. (132)
+    {{return}}
+  {{end}}
+
+  {{/*
+  TODO
+  - edit post
+  - save db (with new key)
+  - sendresponse with message link
+  */}}
+{{end}}
+
+{{/* edit desc */}}
+{{if eq $id "desc"}}
+  {{/* TODO 
+  - get db info from $e
+  - incl. key
+  - resave db entry
+  */}}
+{{end}}
+
+{{/* add example videos */}}
+{{if and ($e) (eq $t 3)}}
+  {{/* TODO */}}
+{{end}}
+
+{{dbDel .User.ID "wipcat"}}
+

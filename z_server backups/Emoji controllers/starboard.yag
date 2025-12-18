@@ -11,7 +11,7 @@ CC ID: 249
 
 
 {{/* Starboard variables */}}
-{{$thresh := 3}}{{/* how many reactions needed to move to starboard */}}
+{{$thresh := 5}}{{/* how many reactions needed to move to starboard */}}
 {{$maxAge := "2w"}}{{/* how old a post can be before it can't be added to starboard anymore */}}
 {{$pinch := 1038951032467755008}}{{/* ID of starboard channel */}}
 {{$color := 16744192 }}{{/* embed color */}}
@@ -46,48 +46,25 @@ CC ID: 249
 			{{$postembed := cembed
 			"color" $color 
 			"title" "**Above Message Information**"
-			"description" (print "**Author:** " $msg.Author.Mention " (" $msg.Author ") \n**Channel: **" $ch.Name " (" $ch.Mention  ") \n[Message Link](" $msg.Link ")\n\n**Originally Posted:** <t:" $msg.Timestamp.Parse.Unix "> \n**Pinned:** <t:" currentTime.Unix ">" )
+			"description" (print "**Author:** " $msg.Author.Mention " (" $msg.Author ") \n**Channel: **" $ch.Mention " (" $ch.Name ")\n[Message Link](" $msg.Link ")\n\n**Originally Posted:** <t:" $msg.Timestamp.Parse.Unix "> (<t:" $msg.Timestamp.Parse.Unix ":R>) \n**Added to starboard:** <t:" currentTime.Unix "> (<t:" currentTime.Unix ":R>)" )
 			"thumbnail" (sdict "url" ($msg.Author.AvatarURL "512") )
 			}}
 
-			{{/* copying messages */}}
-			{{if and (not $msg.Embeds) (not $msg.Attachments)}}
-				{{$p = sendMessageRetID $pinch (complexMessage "content" (print "**Quoted Message:**\n\n" $msg.ContentWithMentionsReplaced "\n<:br:937128105821216898>") "embed" $postembed )}}
+			{{/* forward the message */}}
+			{{$p = sendMessageRetID $pinch (complexMessage
+				"forward" (sdict
+					"channel" $ch.ID
+					"message" $msg.ID
+				)
+			) }}
 
-                {{sendMessage $ch.ID $announce}}
-
-
-			{{else if and ($msg.Embeds) (not $msg.Attachments)}}
-				{{$p = sendMessageRetID $pinch (complexMessage "content" (print "**Quoted Message:**\n\n" $msg.ContentWithMentionsReplaced "\n<:br:937128105821216898>") "embed" (index $msg.Embeds 0) )}}
-				{{sendMessage $pinch $postembed}}
-
-                {{sendMessage $ch.ID $announce}}
-
-
-			{{else if $msg.Attachments}}
-				{{$url := cslice}}
-				{{range $msg.Attachments}}
-					{{- $url = $url.Append .URL -}}
-				{{- end}}
-
-				{{if and ($msg.Embeds) ($msg.Attachments)}}
-					{{$p = sendMessageRetID $pinch (complexMessage "content" (print "**Quoted Message:**\n\n" $msg.ContentWithMentionsReplaced "\n<:br:937128105821216898>") "embed" (index $msg.Embeds 0)) }}
-					{{sendMessage $pinch (print "\n\n**Attachments:**\n" (joinStr "\n" $url))}}
-					{{sendMessage $pinch $postembed}}
-
-                    {{sendMessage $ch.ID $announce}}
-
-				{{else}}
-					{{$p = sendMessageRetID $pinch (print "**Quoted Message:**\n\n" $msg.ContentWithMentionsReplaced "\n\n **Attachments:**\n" (joinStr "\n" $url)) }}
-					{{sendMessage $pinch $postembed}}
-
-                    {{sendMessage $ch.ID $announce}}
-				{{end}}
-
-			{{end}}
-
-
+			{{/* post credit embed below it */}}
+			{{sendMessage $pinch $postembed}}
+			
+			{{/* announce it was sent to the starboard */}}
+			{{sendMessage $ch.ID $announce}}
 		{{end}}
+
 	{{end}}
 
 

@@ -1,0 +1,188 @@
+{{/* 
+RICE categories
+trigger: interaction
+regex: ^cat-
+
+this handles what the buttons from the posts do
+*/}}
+
+{{/* roles */}}
+{{$rice := 0}}
+
+{{/* make post ccid */}}
+{{$post := 0}}
+
+{{$u := .User.ID}}
+{{$id := .StrippedID}}
+{{$v := .Values}}
+{{$c := 1309678146991161385}} {{/* #categories */}}
+{{$m := .Message}}
+{{$aname := ""}}
+{{$db := 0}}
+{{$key := ""}}
+
+{{if not (hasRole $rice)}}
+    {{return}}
+{{end}}
+
+{{if $m.Embeds}}
+    {{$aname = (index ((getMessage $c $m.ID).Embeds) 0).Title}}
+{{end}}
+
+{{$wipcat := sdict
+"key" $key
+"vidmenu" 0
+"vidsdict" 0
+"id" $id
+"m" $m
+"db" 0
+"c" $c
+"n" 0
+"t" 0
+"v" $v
+}}
+
+{{if eq $id "new2"}}
+    {{if ($w := (dbGet $u "wipcat").Value)}}
+        {{$wipcat = $w}}
+        {{if $w.n}}
+            {{$wipcat.Set "t" 1}} {{/* immediately make new post */}}
+        {{else}}
+            {{$wipcat.Set "t" 2}} {{/* add a rename */}}
+        {{end}}
+        {{$wipcat.Set "c" $c}}
+        {{execCC $post nil 0 $wipcat}}
+        {{return}}
+
+    {{else}}
+        {{ephemeralResponse}}
+        Something went wrong, sorry. (61)
+    {{end}}
+{{end}}
+
+{{/* new award modal */}}
+{{$newa := sdict
+"title" "Suggest New Category Award"
+"custom_id" "cat-new"
+"fields" (cslice
+    (sdict "label" "Award Name" "placeholder" "This will be printed on the award" "required" true)
+    (sdict "label" "Description" "placeholder" "Category description (optional)" "max_length" 1000 "style" 2)
+)}}
+
+{{if eq $id "newb"}}
+    {{sendModal $newa}}
+    {{$wipcat.Set "n" 1}}
+    {{dbSetExpire $u "wipcat" $wipcat 900}}
+    {{return}}
+{{end}}
+
+{{if not (eq $id "edit2" "vids")}}
+    {{return}}
+{{end}}
+ {{/* from ref post */}}
+{{$db = dbGetPattern $c (title (print "cat." $aname "|%" )) 1 0}}
+
+{{if not $db}}
+    {{ephemeralResponse}}
+    Something went wrong, sorry. (89)
+    {{return}}
+{{end}}
+
+{{$key = (index $db 0).Key}}
+{{$x := (index $db 0).Value}}
+{{$wipcat.Set "key" $key}}
+{{$wipcat.Set "db" $x}}
+
+{{if eq $id "edit2"}}
+    {{if eq (index $v 0) "desc"}} {{/* edit cat desc */}}
+        {{if eq $x.author $u}} {{/* if author, send edit modal */}}
+            {{sendModal (sdict
+                "title" (print "Edit " $x.aname "'s Description")
+                "custom_id" "cat-desc"
+                "fields" (cslice
+                    (sdict "label" "Description" "placeholder" "Category description (optional)" "value" $x.desc "max_length" 1000 "style" 2)
+                ))}}
+        {{else}}
+            {{ephemeralResponse}}
+            Only the original author can do this, sorry. (109)
+            {{return}}
+        {{end}}
+    {{end}}
+
+    {{if eq (index $v 0) "rename"}} {{/* add a rename */}}
+        {{sendModal (sdict
+            "title" "Add Alternate Name"
+            "custom_id" "cat-rename"
+            "fields" (cslice
+                (sdict "label" "New Name" "placeholder" "Enter only one name" "required" true)
+            ))
+        }}
+    {{end}}
+
+    {{dbSetExpire $u "wipcat" $wipcat 900}}
+    {{return}}
+{{end}}
+
+{{if eq $id "vids"}}{{/* add new example vids */}}
+    {{$vids := (dbGet 0 "ricevids").Value}}
+
+    {{/* get old vids */}}
+    {{$ov := cslice}}
+    {{range $k, $v := (index $db 0).Value.vids}}
+        {{- $ov = $ov.Append $k -}}
+    {{- end}}
+
+    {{/* get new vids without dupes */}}
+    {{$nv := cslice}}
+    {{range $k, $v := $v}}
+        {{- if not (in $ov .) -}}
+            {{- $nv = $nv.Append . -}}
+        {{- end -}}
+    {{- end -}}
+
+    {{/* default vid selection menu */}}
+    {{$vmenu := cslice}}
+    {{range $k, $v := $vids}}
+        {{- $vmenu = $vmenu.Append (print $k " - " $v) -}}
+    {{- end}} 
+
+    {{/* vid menu without already selected vids */}}
+    {{$vlist := $ov.AppendSlice $nv}}
+    {{$vmenu2 := cslice }}
+    {{range $k, $v := $vmenu}}
+        {{if not (in $vmenu2)}}
+            {{$vmenu2 = $vmenu2.Append (sdict "label" (print .) "value" (reFind `^\d{2}` .))}}
+        {{end}}
+    {{end}}
+
+    {{/* new vid menu */}}
+    {{$menu2 := cmenu
+    "type" "text"
+    "placeholder" "Add example video"
+    "custom_id" "cat-vids"
+    "options" $vmenu2
+    }}
+
+    {{/* give credit to user for new vids */}}
+    {{$y := sdict}}
+    {{range $k, $v := $nv}}
+        {{$y.Set . $u}}
+    {{end}}
+
+    {{/* add new to old */}}
+    {{range $k, $v := $ov}}
+        {{$y.Set $k $v}}
+    {{end}}
+
+    {{$wipcat.Set "vidmenu" $menu2}}
+    {{$wipcat.Set "vidsdict" $y}}
+    {{$wipcat.Set "t" 3}}
+
+    {{execCC $post nil 0 $wipcat}}
+    {{return}}
+{{end}}
+
+
+
+
+

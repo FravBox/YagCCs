@@ -1,0 +1,20 @@
+{{/* 
+add/remove self from server news ping list
+triggered by "server news" cc# 10
+
+component id regex: newsping
+*/}}
+
+{{$news := 1049008020014780416}} {{/* server news role */}}
+
+{{$x := "-# You can adjust your roles using <id:customize>."}}
+
+{{if hasRole $news}}
+{{removeRole $news}}
+You've been removed from the Server News ping list.
+{{$x}}
+{{else}}
+{{addRole $news}}
+You've been added to the Server News ping list.
+{{$x}}
+{{end}}

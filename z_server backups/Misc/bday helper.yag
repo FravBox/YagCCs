@@ -1,0 +1,29 @@
+{{/* sends bday how-to reminder if someone mentions birthday.
+Only in main, side-talk, & personal testing. 
+trigger:
+(happy birthday|^-mybirthday|^/birthday)
+*/}}
+
+{{$pt := 1019933777826426940}} {{/*personal testing channel */}}
+
+{{if ne $pt .Channel.ParentID }}
+    {{$exp := 172800}} {{/* cooldown in seconds. 172800 = 48hrs. 1210000 = 2wks. 26280000 = 1 month. */}}
+
+    {{$bday := dbGet 20 "bday"}}
+
+    {{if and (not $bday) (reFind `(?i)happy` .Cmd) }}
+        {{sendMessage nil "https://cdn.discordapp.com/attachments/1023657132027039815/1213693938808913950/happy_birthday.gif?ex=65f66790&is=65e3f290&hm=31df526f078321cc2c1d7df2636101a454c74d9d5b4f3d906fb0d7d950154e97" }}
+        {{sendMessage nil (print "<#1252363981742673960>\n🗣️ **Want to add your birthday too?** \nGo to <#1019933777826426940> and use </birthday register:935174192389840896>\n*[Click here for more bot commands](https://bentovid.com/sguides/bot-commands) or use `-helpme` in <#1019933777826426940>*")}} 
+
+        {{dbSetExpire 20 "bday" 1 $exp}}
+        {{return}}
+    {{end}}
+
+{{else}}
+    {{if reFind `^-` .Cmd}}
+        {{sendMessage nil "You can add your birthday with </birthday register:935174192389840896>!"}}
+    {{else if reFind `^/` .Cmd}}
+        {{sendMessage nil "Adding your birthday can't be a thread's opening message.\nTry adding it again, waiting until the pop-up appears before sending, or clicking this: </birthday register:935174192389840896>[.](https://cdn.discordapp.com/attachments/1023396572953849917/1439308452504666142/image.png?ex=691a0bf4&is=6918ba74&hm=ff7748e243fc10efe48316d8f88042652fbe3f35ef6dba4d5b8fae7d1953c987&) 🎂"}}
+    {{end}}
+
+{{end}}

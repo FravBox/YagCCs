@@ -1,0 +1,28 @@
+{{/* rice categories - post message 
+exec this cc to post and edit messages.
+*/}}
+
+{{/* make default vid selection menu */}}
+
+{{/*
+SELECT MENUS HAVE A MAX OF 25 OPTIONS!
+This will never work, unfortunately.
+*/}}
+
+{{$vids := (dbGet 0 "ricevids").Value}}
+{{$vmenu := cslice}}
+{{range $k, $v := $vids}}
+    {{- $vmenu = $vmenu.Append (sdict "label" (print $k " - " $v) "value" (print $k)) -}}
+{{- end}} 
+
+{{$menu2 := cmenu
+"type" "text"
+"placeholder" "Add example video"
+"custom_id" "cat-vid"
+"options" (slice $vmenu)
+}}
+
+{{$msg := "Step 1: Choose at least 3 videos that would apply to that category you're about to suggest.\nStep2: Provide the name and (optionally) description of your suggested category.\nNOTICE: The word \"Best\" will automatically be removed from your category name. Try using other modifiers instead.\n-# (I apologize for the somewhat backward method; it is due to discord limitations with interactions.)" }}
+
+{{sendMessage nil (complexMessage "content" $msg "menus" $menu2) }}
+

@@ -12,7 +12,6 @@ On early exit, vpr check - cc373
 
 {{/* ignore */}}
 {{$ig := cslice 750544551046807602 954856123628912690 782784819863486464 1044363817007710309}}{{/* mod automod fun rice */}}
-{{$i := 0}}
 
 {{/* mod role */}}
 {{$mod := 750543521227866215}}
@@ -28,7 +27,7 @@ On early exit, vpr check - cc373
 {{$del := "❌"}}
 
 {{/* embed colors */}}
-{{$c1 := 0xaa5ffa}}{{/* created */}}
+{{$c1 := 0xaa5ffa}}{{/* new */}}
 {{$c2 := 5570815}}{{/* renamed */}}
 {{$c3 := 0x6d03ab}}{{/* etc */}}
 
@@ -112,9 +111,10 @@ On early exit, vpr check - cc373
  "vpr" 1
 }}
 
-{{if or (eq $ch.ID $idea $p) (in $ig $tinfo.catid)}}
-    {{$i = 1}}
+{{if or (eq $idea $ch.ID $p) (in $ig $tinfo.catid)}}
+    {{$i := 1}}
 {{end}}
+
 {{/* 4backward compatibility */}}
 {{if and ($tdb) (eq (kindOf $tdb.Value.top) "string")}}
    {{dbSet $ch.ID "threads" $tinfo }}
@@ -256,6 +256,9 @@ On early exit, vpr check - cc373
 {{/* 4log */}}
 {{ $tlink := print "[" $tname "](https://discord.com/channels/" .Guild.ID "/" $ch.ID ")" }}
 
+{{ $sfx := print "\n\n[Jump to post](" $me.Link ") | <#" $ch.ID "> | [Link to thread](https://discord.com/channels/" .Guild.ID "/" $ch.ID ")" }}
+{{ $ftr := (sdict "text" (print "Channel ID " $ch.ID " | From @" .User.String " (ID: " .User.ID ")") )}}
+
 {{$msg := $me.Content }}
 {{if eq 21 $me.Type}}
    {{$msg = (getMessage $p ((getMessage nil $me.ID).MessageReference).MessageID).Content }}
@@ -266,7 +269,12 @@ On early exit, vpr check - cc373
 {{end}}
 
 {{/* log new */}}
-{{ $tnew := (complexMessage "content" (print "### 🆕🧵 " .User.Mention " created " $tlink "!\n-# In <#" $p "> at <t:" currentTime.Unix ":F>") "allowed_mentions" (sdict "replied_user" true)) }}
+{{ $tnew := cembed 
+"title" (print " 🆕 " $tname  )
+"description" (print "**" .User.Mention "** posted **" $tlink "** from <#" $p "> on <t:" currentTime.Unix ":F>." $sfx "\n**The Message:** \n >>> " $msg )
+"footer" $ftr
+"color" $c1
+}}
 
 {{/* explain */}}
 {{$opinfo := cembed
@@ -288,24 +296,11 @@ On early exit, vpr check - cc373
        {{end}}
    {{end}}
 
-   {{if not $i}}
+   {{if not $ig}}
        {{sendMessage $news $tnew}}{{/* send to news */}}
-       {{sendMessage $news (complexMessage
-				"forward" (sdict
-					"channel" $ch.ID
-					"message" $me.ID
-				)
-			) }}
    {{end}}
 
    {{sendMessage $log $tnew}}{{/* log */}}
-          {{sendMessage $log (complexMessage
-				"forward" (sdict
-					"channel" $ch.ID
-					"message" $me.ID
-				)
-			) }}
-
    {{execCC $tlist nil 0 nil}}{{/* edit tlist */}}
    {{return}}
 {{end}}
@@ -316,7 +311,8 @@ On early exit, vpr check - cc373
    {{/* renamed log msg */}}
        {{sendMessage $log (cembed
         "title" (print "Thread Name Change: " $tname "  ➡️  " $me.Content)
-        "description" (print $me.Author.Mention " changed **" $tname "** in <#" $p "> to its new name: **[" $me.Content "](https://discord.com/channels/" .Guild.ID "/" $ch.ID ")** on <t:" currentTime.Unix ":F>.") 
+        "description" (print $me.Author.Mention " changed **" $tname "** in <#" $p "> to its new name: **[" $me.Content "](https://discord.com/channels/" .Guild.ID "/" $ch.ID ")** on <t:" currentTime.Unix ":F>." $sfx) 
+        "footer" $ftr
         "color" $c2
         )
     }}

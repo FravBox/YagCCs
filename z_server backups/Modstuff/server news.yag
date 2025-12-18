@@ -1,0 +1,65 @@
+{{/* yag posts server news 
+usage: -news whatever you want to post
+If you reply to a news message, you edit it
+
+limited to the lead role
+*/}}
+
+{{$ch :=  752187720347942942}} {{/* server news channel 752187720347942942 */}}
+{{$ping := 1049008020014780416}} {{/* server news ping list 1049008020014780416 */}}
+{{$m := .StrippedMsg}}
+{{$yag := .BotUser.ID}}{{/* bot user id */}}
+{{$yaglog := 970007312632795167}} {{/* yag log channel */}}
+
+{{$ref := 0}}
+{{$id := 0}}
+{{$a := ""}}
+{{if eq .Message.Type 19}}
+	{{$ref = .Message.ReferencedMessage}}
+	{{$id = $ref.ID}}
+{{end}}
+
+{{/* replace bullets with emoji */}}
+{{$msg1 := reReplace `\n\- ` $m "\n\n🔶  "}}
+{{$msg2 := reReplace `\n  - ` $msg1 "\n<:br:937128105821216898>🔹 "}}
+{{$msg3 := reReplace `\n    - ` $msg2 "\n<:br:937128105821216898><:br:937128105821216898>🔸 "}}
+{{$msg4 := reReplace `\n      - ` $msg3 "\n<:br:937128105821216898><:br:937128105821216898><:br:937128105821216898>🔹 "}}
+{{$m2 := $msg4}}
+
+{{/* message builder below */}}
+
+{{$msg := componentBuilder
+"section" (sdict
+  "text" (print "# <@&" $ping ">")
+   "button" (cbutton (sdict "label" "join/leave ping list" "custom_id" "newsping" "style" "primary"))
+    )
+"separator" true
+"text" $m2
+ "separator" true
+}}
+
+{{if gt (len $m) 2500}}
+Message too long!
+{{return}}
+{{else}}
+{{deleteTrigger 0}}
+
+  {{/* edit message if replying to own news message */}}
+  {{if $ref}}
+      {{if eq $ref.Author.ID $yag}}
+          {{editMessage nil $id $msg}}
+			{{$a = "edited the"}} 
+	  {{end}}
+
+	{{else}}
+		{{$id = sendMessageNoEscapeRetID $ch $msg}}
+		{{$a = "posted in" }}
+	{{end}}
+{{end}}
+
+{{/* log use in yag cmd log */}}
+{{$link := (getMessage $ch $id).Link}}
+
+{{sendMessage $yaglog (complexMessage "allowed_mentions" (sdict
+    "replied_user" true) "content" (print "# :newspaper: " .User.Mention " " $a " <#" $ch ">"))}}
+{{sendMessage $yaglog (complexMessage "forward" (sdict "channel" $ch "message" $id)) }}

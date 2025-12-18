@@ -9,7 +9,6 @@ thread management is separate
 {{$rules := 750544650523246623}}
 {{$roles := 750544674011349053}}
 {{$sbch := 1038951032467755008}} {{/* starboard */}}
-{{$tbch := 1091489519389384866}} {{/* tutorial board */}}
 
 {{/* emojis */}}
 {{$bookmark := "🔖"}}
@@ -17,9 +16,16 @@ thread management is separate
 {{$star := "⭐"}}
 {{$tag := "🪧"}}
 {{$ticket := "📩"}}
-{{$tutboard := "tutorialboard:1091487556564156426"}}
 {{$pingadd := "🔔"}}
 {{$pingremove := "🔕"}}
+{{/* thread emojis */}}
+{{$pin := "📌"}}
+{{$stick := "🧲"}}
+{{$delpinner := "removepinner:1120156858993356840"}}
+{{$addpinner := "addpinner:1120156833991118849"}}
+{{$save := "💾"}}
+{{$del := "❌"}}
+{{$threadmgmt := cslice $pin $stick $delpinner $addpinner $save $del}}
 
 {{/* misc */}}
 {{$verified := 1048764993925034065}} {{/* verified role ID */}}
@@ -45,6 +51,20 @@ thread management is separate
 
 {{try}}
 {{/* actual code */}}
+{{if and (in $threadmgmt $emoji) (.Channel.IsThread)}}
+    {{$base := 316}}
+    {{if eq .Channel.ParentID 750545070020886588}} {{/* vid critique */}}
+        {{$base = 380}}
+    {{end}}
+
+    {{$data := sdict 
+    "react" .Reaction.Emoji.APIName
+    "add" .ReactionAdded
+    "mid" .Message.ID
+    }}
+    {{execCC $base nil 0 $data}}
+    {{return}}
+{{end}}
 
 {{if and (hasRoleID $verified) (eq .Channel.ID $roles) }}{{/* role assignments */}}
     
@@ -97,12 +117,8 @@ thread management is separate
     {{else if (and (ne .Channel.ID $sbch) (eq .Reaction.Emoji.APIName $star) )}}
         {{execCC $starboard nil 0 (sdict "msg" $msg "ch" $ch "emoji" $emoji)}}
         {{return}}
+		{{end}}
 
-{{/* tutorial board */}}
-    {{else if (and (ne .Channel.ID $tbch) (eq .Reaction.Emoji.APIName $tutboard) )}}
-        {{execCC $tutboardcc nil 0 (sdict "msg" $msg "ch" $ch "emoji" $emoji)}}
-        {{return}}
-    {{end}}
 
 {{end}}
 

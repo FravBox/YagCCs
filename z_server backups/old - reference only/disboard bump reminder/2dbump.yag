@@ -1,6 +1,0 @@
-{{/* Trigger: exact: !d bump. Wait 1 sec, post message, add reaction. Wait 59s, remove reactions, edit (replace) message */}}
-{{sleep 1}}
-{{$x := sendMessageRetID nil ".\n Did that bump succeed? \n If so, react to this post using the supplied emoji to get pinged in 2 hours to help bump the server again at the appropriate time. "}} {{addMessageReactions nil $x "⏰"}}
-{{sleep 59}} 
-{{deleteAllMessageReactions nil $x}}
-{{editMessage nil $x "It's been over a minute since this message was posted. \n If you want to be alerted when you can bump the server again, please use the `-remind` command for whatever time is left. \n Example usage: \n `-remind 30min please bump now` \n\n Thanks!"}}

@@ -13,8 +13,9 @@ Set it to only run in main talk channel
 {{$db := 0}}
 
 {{/* exec'd CCs */}}
-{{$verify := 331 }}
+{{$verify := 331 }} {{/* only for legacy verify */}}
 {{$roles := 332}}
+{{$vpr := 373}}
 
 {{/* announcement post */}}
 {{$announce := (complexMessage "content" (print "<@" $id "> 🥳") "embed" (cslice (cembed "thumbnail" (sdict "url" "https://bentovid.com/user/images/confettiball.png") "color" 43775 "description"  (print "**Welcome to BentoVid, <@" $id ">!**\nWhy not tell us how you found us & what brings you here?")) (cembed "color" 16744192 "description" (print "**Optional things to do**\n\n 🔸 <#1049023382680784978>\n 🔸 Manage your <id:customize> \n 🔸 Create your <#" $intros ">\n 🔸 Follow forum posts about your <#1167606763508478022>\n 🔸 Sit in on some <#1020462143230980216>\n\n[More Server Guides](https://bentovid.com/sguides)" )) ))}}
@@ -35,20 +36,43 @@ Set it to only run in main talk channel
       {{sendMessage $main $announce }}
   {{end}}
 
-	{{execCC $verify nil 0 (sdict "user" $id "db" $db) }}
-	{{return}}
-{{end}}
+  {{/* give verification role */}}
+  {{giveRoleID $id $verified}}
 
+  {{/* update verification / joindate db */}}
 
-{{/* Manage divider roles */}}
-{{if hasRoleID $verified}}
-	{{/* execCC $roles nil 0 (sdict "user" $id ) */}}
-	{{ execCC 373 nil 0 .Message}} {{/* VPR WARNING */}}
-	{{return}}
+  {{$vcdb := (dbGet 0 "vcount").Value}}
+  {{dbSet 0 "vcount" (add $vcdb 1)}}
+
+  {{if eq $db 1}}
+      {{$jdb := (dbGet $id "joindate")}}
+
+      {{$jinfo := sdict
+      "joined" $jdb.Value.joined
+      "vdate" (print "<t:" currentTime.Unix ">")
+      "left" $jdb.Value.left
+      }}
+
+      {{dbSet $id "joindate" $jinfo}}
+      
+  {{else}}
+      {{dbSet $id "joindate" (sdict "joined" (print (humanizeDurationHours (currentTime.Sub (getMember $id).JoinedAt.Parse)) " ago" ) "vdate" (print "<t:" currentTime.Unix ">") "left" "Never" ) }}
+  {{end}}
+
+  {{/* send message to logs */}}
+  {{ $VerifyMsg := (print "🎗️ \n🟨 **<@" $id "> ("  (getMember $id).User ") Verified.** \n🟨 (ID: " $id ") \n🟨 <t:" currentTime.Unix ">\n🟨 **Time Taken: " (humanizeDurationHours (currentTime.Sub (getMember $id).JoinedAt.Parse)) "** \n<:br:937128105821216898> *Membercount: " .Guild.MemberCount "*" ) }}
+
+  {{ sendMessage $joins $VerifyMsg }}
+{{return}}
 {{end}}
 
 {{/* legacy verify */}}
-{{if and (ne .Message.Type 7) (not (hasRoleID $verified) )}}
+{{if (not (hasRoleID $verified) )}}
   {{execCC $verify nil 0 (sdict "user" $id "db" $db) }}
   {{return}}
 {{end}}
+
+{{/* VPR WARNING */}}
+	{{ execCC $vpr nil 0 .Message}} 
+
+

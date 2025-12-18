@@ -1,6 +1,5 @@
 {{/* Remind about vpr if no vpr mentioned 
-Trigger: regex .* 
-*/}}
+Trigger: regex .* */}}
 
 {{/* Actual Message */}}
 {{$add_vpr := cembed "description" "## This channel requires flash warnings.\n### Please edit your message to indicate if your video has flashing or not.\n Although not required, you can add more [VPR terms](https://bentovid.com/vpr#common-pho) if you'd like to increase accessibility.\ne.g. `VPR flashing, glitch effects, peripheral`, etc.\n\n*Tapping :wastebasket: will hide this message.*" "color" 0xff6a00 "thumbnail" (sdict "url" "https://bentovid.com/user/pages/05.vpr/PSEnby.png") }}

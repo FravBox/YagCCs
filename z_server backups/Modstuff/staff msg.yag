@@ -1,0 +1,80 @@
+{{/*
+anonymous Staff message
+usage: -staff your message goes here
+
+replying to a staf message will edit it instead.
+*/}}
+
+
+{{$ref := 0}}
+{{$id := 0}}
+{{if eq .Message.Type 19}}
+	{{$ref = .Message.ReferencedMessage}}
+{{end}}
+{{$msg := print "-# **Staff message:**\n" .StrippedMsg }}
+
+{{deleteTrigger 0}}
+
+{{$yag := .BotUser.ID}}
+{{$yaglog := 970007312632795167 }} {{/* yag-cmd-log */}}
+{{$modlog := 750544921940983888 }} {{/* mod-talk */}}
+
+{{try}}
+
+{{/* warn if message too long to send */}}
+{{if (gt (len $msg) 2000)}}
+	{{sendMessageNoEscape $modlog (print "**" .User.Mention ", Your staff message was too long to send!** Please try again.\nYour original message is below.\n-# (Remember to leave enough room for `Staff message: `)")}}
+	{{sendMessage $modlog .StrippedMsg}}
+	{{if $ref}}
+		{{sendMessage $modlog (print "-\nYou were trying to reply to " $ref.Link )}}
+	{{end}}
+	{{return}}
+{{end}}
+
+{{/* send staff messages */}}
+{{if $ref}}
+	{{if and (eq $ref.Author.ID $yag) (reFind `Staff message:` $ref.Content)}}
+		{{/* edit message if replying to own staff message */}}
+		{{editMessage nil $ref.ID $msg}}
+
+		{{/* log yag edit and exit */}}
+		{{sendMessage $yaglog (complexMessage "allowed_mentions" (sdict
+    "replied_user" true) "content" (print "*️⃣ **" .User.Mention " edited their previous Staff message.**\n🟥 Previous content:"))}}
+		{{sendMessage $yaglog $ref.Content}}
+		{{sendMessage $yaglog (print "🟩 **New content:**\n" .StrippedMsg)}}
+	{{return}}
+
+	{{else}}
+		{{/* reply to user */}}
+		{{$id = sendMessageNoEscapeRetID nil (complexMessage "reply" $ref.ID "content" $msg)}}
+	{{end}}
+
+{{else}} 
+	{{/* if not a reply, send normal staff message */}}
+	{{$id = sendMessageNoEscapeRetID nil $msg}}
+{{end}}
+
+{{/* log staff messages */}}
+{{$log := execAdmin "log" 10}}
+
+{{if $ref}}
+	{{$2 := print "↪️ In reply to the below message by " $ref.Author.Mention "(" $ref.Author.ID ") in <#" $ref.ChannelID ">" }}
+
+	{{sendMessage $yaglog (complexMessage "allowed_mentions" (sdict
+    "replied_user" true) "content" $2) }}
+	{{sendMessage $yaglog (complexMessage "forward" (sdict "channel" $ref.ChannelID "message" $ref.ID)) }}
+{{end}}
+
+{{$1 := print "## *️⃣" .User.Mention " used Staff Message:" }}
+{{$3 := print "🧾 Logs for the last 10 messages were created. View them [here](<" $log ">).\n-# Remember that logs are only kept for 30 days."}}
+
+
+{{sendMessage $yaglog (complexMessage "allowed_mentions" (sdict
+    "replied_user" true) "content" $1)}}
+{{sendMessage $yaglog (complexMessage "forward" (sdict "channel" .Channel.ID "message" $id)) }}
+
+{{sendMessage $yaglog $3}}
+
+{{catch}}
+{{sendMessageNoEscape $modlog (print "<@217140800922976257>:\n Error from Staff Message CC\n" .Error )}}
+{{end}}

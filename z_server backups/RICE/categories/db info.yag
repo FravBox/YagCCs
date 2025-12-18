@@ -1,0 +1,65 @@
+{{/*
+ID: channel ID
+name: cat.Original Award Name|AltName1|AltName2|etc|
+*/}}
+
+{{$db := sdict
+    "author" .User.ID
+    "aname" (title "Award Name" )
+    "renames" (sdict "rename" "user ID who submitted it")
+    "desc" (award description)
+    "vids" (sdict "01" "user ID of submitter")
+    "prev" (structToSdict the message before an edit)
+    "reflink" (message link)
+}}
+
+video list:
+ID: 0
+name: ricevids
+sdict:
+"01" "vid title1"
+"02" "vid title2"
+etc
+
+--------------------------
+BUTTONS
+
+trigger on interaction
+
+---------
+check for spectator role. If they have it, error & return
+edit: actually, spectators can suggest categories. (They just can't vote on them later)
+----------
+
+All posts should have the following dropdown menus:
+1. "Edit Options" [edit2]
+- Add renames [rename]
+- Change description (Author only) [desc]
+2. Add example videos [vids]
+
+------
+
+1. "Suggest new category" button [cat-newb]
+- opens a modal with the following:
+a. Award title / category name (these are the same thing)
+b. description (optional)
+
+2. deleted
+
+3. Search category [cat-searchb]
+- use fuzzy search from tags CC
+
+4. Edit Category (after selected "author only" option in "edit options" [cat-edit2] menu on a post) [edit]
+- check db entry associated with message
+- check if user is the category Author
+- If not the author, send a modal for a category rename
+- Else, open "submit new" modal with pre-filled info
+
+5. Category rename OR Edit Options -> Add renames [cat-rename]
+- send modal asking for new alt name
+- clarify they will not be able to edit the name later, so make sure they proofread this.
+
+6. Add example videos [cat-vids]
+- Take the selections from the list of videos provided and add them to a new field in the award/cat embed
+- remove the videos in the post already from that dropdown
+- save db
